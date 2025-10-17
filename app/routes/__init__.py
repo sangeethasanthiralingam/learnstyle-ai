@@ -13,7 +13,8 @@ import os
 # Add the parent directory to sys.path to import ml_models
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from app.models import db, User, LearningProfile, QuizResponse, ContentLibrary, UserProgress, ChatHistory
+from app import db
+from app.models import User, LearningProfile, QuizResponse, ContentLibrary, UserProgress, ChatHistory
 from ml_models.learning_style_predictor import LearningStylePredictor
 
 # Initialize ML predictor
