@@ -3,32 +3,21 @@ LearnStyle AI - Main Flask Application
 An Intelligent Adaptive Learning System with Personalized Content Delivery
 """
 
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-import os
+from flask import render_template
+from flask_login import login_required, current_user
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask app
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///learnstyle.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Import app factory and extensions
+from app import create_app, db, login_manager
 
-# Initialize extensions
-db = SQLAlchemy(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
+# Create Flask app
+app = create_app()
 
-# Import models and routes
-from app.models import *
-from app.routes import *
+# Import models after app is created
+from app.models import User, LearningProfile
 
 @login_manager.user_loader
 def load_user(user_id):
