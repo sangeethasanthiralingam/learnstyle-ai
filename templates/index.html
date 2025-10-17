@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}LearnStyle AI - Discover Your Learning Style{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    🧠 Discover Your Unique Learning Style
+                </h1>
+                <p class="lead mb-4">
+                    LearnStyle AI uses machine learning to detect your individual learning preferences and delivers 
+                    dynamically personalized educational content. Unlock your full learning potential with AI-powered adaptation.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('quiz') }}" class="btn btn-warning btn-lg">
+                            <i class="bi bi-play-circle"></i> Take Learning Style Quiz
+                        </a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-speedometer2"></i> View Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-warning btn-lg">
+                            <i class="bi bi-person-plus"></i> Get Started Free
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+                    <i class="bi bi-graph-up text-warning" style="font-size: 8rem;"></i>
+                    <h3 class="mt-3">AI-Powered Learning</h3>
+                    <p>Personalized content delivery based on your unique learning style</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold text-primary mb-3">How LearnStyle AI Works</h2>
+                <p class="lead text-muted">
+                    Our intelligent system analyzes your learning preferences and adapts content delivery for maximum effectiveness.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Step 1 -->
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-primary text-white rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-clipboard-check" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="card-title text-primary">1. Take Assessment</h4>
+                        <p class="card-text">
+                            Complete our 15-question learning style assessment quiz to identify your dominant learning preferences.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-success text-white rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-cpu" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="card-title text-success">2. AI Analysis</h4>
+                        <p class="card-text">
+                            Our machine learning model analyzes your responses to determine your visual, auditory, and kinesthetic learning percentages.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="col-md-4">
+                <div class="card border-0 text-center h-100 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-warning text-white rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-bookmark-star" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4 class="card-title text-warning">3. Personalized Content</h4>
+                        <p class="card-text">
+                            Receive customized educational content, study recommendations, and AI tutor support tailored to your learning style.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Learning Styles Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold text-primary mb-3">Three Learning Styles We Detect</h2>
+                <p class="lead text-muted">
+                    Understanding how you learn best is the key to unlocking your educational potential.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Visual Learning -->
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow">
+                    <div class="card-header bg-info text-white text-center">
+                        <i class="bi bi-eye" style="font-size: 3rem;"></i>
+                        <h3 class="mt-2">Visual Learner</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="text-info">You learn best through:</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-info"></i> Diagrams and flowcharts</li>
+                            <li><i class="bi bi-check-circle text-info"></i> Mind maps and infographics</li>
+                            <li><i class="bi bi-check-circle text-info"></i> Visual representations</li>
+                            <li><i class="bi bi-check-circle text-info"></i> Color-coded materials</li>
+                            <li><i class="bi bi-check-circle text-info"></i> Charts and graphs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auditory Learning -->
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow">
+                    <div class="card-header bg-success text-white text-center">
+                        <i class="bi bi-volume-up" style="font-size: 3rem;"></i>
+                        <h3 class="mt-2">Auditory Learner</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="text-success">You learn best through:</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-success"></i> Podcasts and audio lectures</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Discussions and verbal explanations</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Reading aloud</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Music and rhythm</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Storytelling approaches</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kinesthetic Learning -->
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow">
+                    <div class="card-header bg-warning text-white text-center">
+                        <i class="bi bi-hand-index" style="font-size: 3rem;"></i>
+                        <h3 class="mt-2">Kinesthetic Learner</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="text-warning">You learn best through:</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-warning"></i> Hands-on activities</li>
+                            <li><i class="bi bi-check-circle text-warning"></i> Interactive exercises</li>
+                            <li><i class="bi bi-check-circle text-warning"></i> Physical movement</li>
+                            <li><i class="bi bi-check-circle text-warning"></i> Real-world applications</li>
+                            <li><i class="bi bi-check-circle text-warning"></i> Trial and error learning</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold text-primary mb-4">Powered by Advanced AI</h2>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-diagram-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Machine Learning Models</h5>
+                                <p class="text-muted mb-0">Random Forest & Decision Tree algorithms for accurate predictions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success text-white rounded-circle me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Continuous Learning</h5>
+                                <p class="text-muted mb-0">System improves recommendations based on your interactions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning text-white rounded-circle me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-chat-dots"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">AI Tutor Integration</h5>
+                                <p class="text-muted mb-0">Style-aware conversational AI for personalized support</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="bg-light rounded-4 p-5">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="bg-primary text-white rounded-3 p-3">
+                                <i class="bi bi-graph-up" style="font-size: 2rem;"></i>
+                                <div class="mt-2">
+                                    <small>Accuracy</small>
+                                    <h5>85%+</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-success text-white rounded-3 p-3">
+                                <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                <div class="mt-2">
+                                    <small>Users</small>
+                                    <h5>1000+</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-warning text-white rounded-3 p-3">
+                                <i class="bi bi-collection" style="font-size: 2rem;"></i>
+                                <div class="mt-2">
+                                    <small>Content</small>
+                                    <h5>500+</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold mb-3">Ready to Transform Your Learning?</h2>
+                <p class="lead mb-4">
+                    Join thousands of learners who have discovered their optimal learning style and improved their educational outcomes.
+                </p>
+                {% if not current_user.is_authenticated %}
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-warning btn-lg">
+                            <i class="bi bi-person-plus"></i> Start Your Learning Journey
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Already Have Account?
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('quiz') }}" class="btn btn-warning btn-lg">
+                        <i class="bi bi-play-circle"></i> Take Your Learning Style Quiz Now
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
