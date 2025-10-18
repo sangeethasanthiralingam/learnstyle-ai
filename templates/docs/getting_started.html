@@ -1,0 +1,554 @@
+{% extends "base.html" %}
+
+{% block title %}Getting Started - LearnStyle AI Documentation{% endblock %}
+
+{% block content %}
+<div class="docs-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 col-md-4 docs-sidebar">
+                <div class="docs-nav">
+                    <div class="docs-brand">
+                        <h4><i class="fas fa-book"></i> LearnStyle AI Docs</h4>
+                    </div>
+                    <nav class="docs-nav-menu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('docs_index') }}">
+                                    <i class="fas fa-home"></i> Overview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ url_for('getting_started') }}">
+                                    <i class="fas fa-rocket"></i> Getting Started
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('user_guide') }}">
+                                    <i class="fas fa-user"></i> User Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('developer_guide') }}">
+                                    <i class="fas fa-code"></i> Developer Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('api_reference') }}">
+                                    <i class="fas fa-cogs"></i> API Reference
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8 docs-content">
+                <div class="docs-main">
+                    <!-- Page Header -->
+                    <div class="docs-header">
+                        <h1>Getting Started</h1>
+                        <p class="lead">Quick start guide to get you up and running with LearnStyle AI</p>
+                    </div>
+
+                    <!-- Quick Start Steps -->
+                    <div class="quick-start">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Create Your Account</h3>
+                                <p>Sign up for a free account to start your personalized learning journey</p>
+                                <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up Now</a>
+                            </div>
+                        </div>
+                        
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Take the Learning Style Quiz</h3>
+                                <p>Complete our 15-question assessment to discover your unique learning style</p>
+                                <a href="{{ url_for('quiz') }}" class="btn btn-outline-primary">Start Quiz</a>
+                            </div>
+                        </div>
+                        
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3>Explore Your Dashboard</h3>
+                                <p>View your personalized learning profile and start exploring content</p>
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">View Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What You'll Learn -->
+                    <section class="docs-section">
+                        <h2>What You'll Learn</h2>
+                        <p>In just a few minutes, you'll discover:</p>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="learning-item">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <h4>Your Learning Style</h4>
+                                    <p>Visual, Auditory, or Kinesthetic preferences with detailed percentages</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="learning-item">
+                                    <i class="fas fa-book"></i>
+                                    <h4>Personalized Content</h4>
+                                    <p>Educational materials tailored to your specific learning style</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="learning-item">
+                                    <i class="fas fa-robot"></i>
+                                    <h4>AI Tutor Access</h4>
+                                    <p>Intelligent assistant that adapts to your learning preferences</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Features Overview -->
+                    <section class="docs-section">
+                        <h2>Key Features</h2>
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>AI-Powered Analysis</h4>
+                                <p>Machine learning algorithms analyze your responses to provide accurate learning style predictions</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h4>Collaborative Learning</h4>
+                                <p>Connect with peers who have similar learning styles and interests</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                                <h4>Biometric Feedback</h4>
+                                <p>Monitor your physiological responses to optimize learning conditions</p>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h4>Progress Tracking</h4>
+                                <p>Track your learning progress with detailed analytics and insights</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- System Requirements -->
+                    <section class="docs-section">
+                        <h2>System Requirements</h2>
+                        <div class="requirements">
+                            <div class="requirement-category">
+                                <h4>Browser Requirements</h4>
+                                <ul>
+                                    <li>Chrome 90+</li>
+                                    <li>Firefox 88+</li>
+                                    <li>Safari 14+</li>
+                                    <li>Edge 90+</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="requirement-category">
+                                <h4>Device Requirements</h4>
+                                <ul>
+                                    <li>Desktop, tablet, or mobile device</li>
+                                    <li>Stable internet connection</li>
+                                    <li>JavaScript enabled</li>
+                                    <li>Camera access (for biometric features)</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="requirement-category">
+                                <h4>Optional Features</h4>
+                                <ul>
+                                    <li>Webcam for emotion detection</li>
+                                    <li>Microphone for voice analysis</li>
+                                    <li>Biometric sensors for advanced monitoring</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Troubleshooting -->
+                    <section class="docs-section">
+                        <h2>Common Issues</h2>
+                        <div class="troubleshooting">
+                            <div class="issue">
+                                <h4><i class="fas fa-question-circle"></i> Quiz not loading?</h4>
+                                <p>Try refreshing the page or clearing your browser cache. Ensure JavaScript is enabled.</p>
+                            </div>
+                            
+                            <div class="issue">
+                                <h4><i class="fas fa-question-circle"></i> Can't see my results?</h4>
+                                <p>Make sure you've completed all 15 questions. Check your internet connection and try again.</p>
+                            </div>
+                            
+                            <div class="issue">
+                                <h4><i class="fas fa-question-circle"></i> Dashboard looks different?</h4>
+                                <p>Your dashboard adapts to your learning style. The layout and content will be personalized for you.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Next Steps -->
+                    <section class="docs-section">
+                        <h2>Next Steps</h2>
+                        <p>Once you're set up, explore these resources:</p>
+                        
+                        <div class="next-steps">
+                            <div class="step-link">
+                                <i class="fas fa-book"></i>
+                                <div>
+                                    <h4>User Guide</h4>
+                                    <p>Detailed guide to all features and functionality</p>
+                                    <a href="{{ url_for('user_guide') }}" class="btn btn-sm btn-outline-primary">Read Guide</a>
+                                </div>
+                            </div>
+                            
+                            <div class="step-link">
+                                <i class="fas fa-code"></i>
+                                <div>
+                                    <h4>Developer Guide</h4>
+                                    <p>Technical documentation for developers</p>
+                                    <a href="{{ url_for('developer_guide') }}" class="btn btn-sm btn-outline-primary">View Docs</a>
+                                </div>
+                            </div>
+                            
+                            <div class="step-link">
+                                <i class="fas fa-cogs"></i>
+                                <div>
+                                    <h4>API Reference</h4>
+                                    <p>Complete API documentation for integration</p>
+                                    <a href="{{ url_for('api_reference') }}" class="btn btn-sm btn-outline-primary">API Docs</a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Include base styles */
+.docs-container {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.docs-sidebar {
+    background: #2c3e50;
+    color: white;
+    min-height: 100vh;
+    padding: 0;
+    position: sticky;
+    top: 0;
+}
+
+.docs-nav {
+    padding: 2rem 1.5rem;
+}
+
+.docs-brand h4 {
+    color: #ecf0f1;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.docs-nav-menu .nav-link {
+    color: #bdc3c7;
+    padding: 0.75rem 0;
+    border-radius: 0.5rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.docs-nav-menu .nav-link:hover,
+.docs-nav-menu .nav-link.active {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    padding-left: 1rem;
+}
+
+.docs-nav-menu .nav-link i {
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+.docs-content {
+    padding: 2rem;
+}
+
+.docs-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.docs-header h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.quick-start {
+    margin: 2rem 0;
+}
+
+.step-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-2px);
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-right: 2rem;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.step-content p {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.docs-section {
+    margin: 3rem 0;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.docs-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+.learning-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.learning-item i {
+    font-size: 2.5rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.learning-item h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.feature-card {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.requirements {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.requirement-category {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.requirement-category h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.requirement-category ul {
+    list-style: none;
+    padding: 0;
+}
+
+.requirement-category li {
+    padding: 0.25rem 0;
+    color: #666;
+}
+
+.troubleshooting {
+    margin: 2rem 0;
+}
+
+.issue {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #f39c12;
+}
+
+.issue h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.issue i {
+    color: #f39c12;
+    margin-right: 0.5rem;
+}
+
+.next-steps {
+    margin: 2rem 0;
+}
+
+.step-link {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.step-link:hover {
+    transform: translateY(-2px);
+}
+
+.step-link i {
+    font-size: 2rem;
+    color: #3498db;
+    margin-right: 1.5rem;
+    width: 60px;
+    text-align: center;
+}
+
+.step-link h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.step-link p {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .docs-sidebar {
+        min-height: auto;
+        position: relative;
+    }
+    
+    .docs-content {
+        padding: 1rem;
+    }
+    
+    .docs-section {
+        padding: 1.5rem;
+    }
+    
+    .step-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-number {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .requirements {
+        grid-template-columns: 1fr;
+    }
+    
+    .step-link {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-link i {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,558 @@
+{% extends "base.html" %}
+
+{% block title %}Moderator Dashboard - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.moderator-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.moderator-header {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.moderator-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.moderator-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #ffc107;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card.content {
+    border-left-color: #28a745;
+}
+
+.stat-card.users {
+    border-left-color: #17a2b8;
+}
+
+.stat-card.analytics {
+    border-left-color: #6f42c1;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.moderator-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background: #f8f9fa;
+    border: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    border: none;
+    vertical-align: middle;
+}
+
+.role-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.role-user {
+    background: #6c757d;
+    color: white;
+}
+
+.role-moderator {
+    background: #ffc107;
+    color: #212529;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.quick-action-card {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-5px);
+    color: white;
+    text-decoration: none;
+}
+
+.quick-action-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.quick-action-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-desc {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .moderator-container {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="moderator-container">
+    <!-- Moderator Header -->
+    <div class="moderator-header">
+        <h1 class="moderator-title">
+            <i class="bi bi-shield-check"></i> Moderator Dashboard
+        </h1>
+        <p class="moderator-subtitle">
+            Content and user management for LearnStyle AI
+        </p>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="stats-grid">
+        <div class="stat-card content">
+            <div class="stat-number" id="totalContent">0</div>
+            <div class="stat-label">Content Items</div>
+        </div>
+        
+        <div class="stat-card users">
+            <div class="stat-number" id="totalUsers">0</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+        
+        <div class="stat-card analytics">
+            <div class="stat-number" id="activeUsers">0</div>
+            <div class="stat-label">Active Users</div>
+        </div>
+    </div>
+
+    <!-- Content Management -->
+    <div class="moderator-section">
+        <h2 class="section-title">
+            <i class="bi bi-collection"></i> Content Management
+        </h2>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="contentSearch" placeholder="Search content...">
+                    <button class="btn btn-outline-secondary" onclick="searchContent()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-success" onclick="showAddContentModal()">
+                    <i class="bi bi-plus-circle"></i> Add Content
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Style Tags</th>
+                        <th>Difficulty</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="contentTableBody">
+                    <!-- Content will be loaded dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- User Overview -->
+    <div class="moderator-section">
+        <h2 class="section-title">
+            <i class="bi bi-people"></i> User Overview
+        </h2>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="userSearch" placeholder="Search users...">
+                    <button class="btn btn-outline-secondary" onclick="searchUsers()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Users will be loaded dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="#" class="quick-action-card" onclick="reviewContent()">
+            <div class="quick-action-icon">
+                <i class="bi bi-eye"></i>
+            </div>
+            <div class="quick-action-title">Review Content</div>
+            <div class="quick-action-desc">Review and moderate content</div>
+        </a>
+        
+        <a href="#" class="quick-action-card" onclick="manageUsers()">
+            <div class="quick-action-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="quick-action-title">Manage Users</div>
+            <div class="quick-action-desc">View and manage user accounts</div>
+        </a>
+        
+        <a href="#" class="quick-action-card" onclick="viewAnalytics()">
+            <div class="quick-action-icon">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="quick-action-title">View Analytics</div>
+            <div class="quick-action-desc">System usage and statistics</div>
+        </a>
+        
+        <a href="#" class="quick-action-card" onclick="exportReports()">
+            <div class="quick-action-icon">
+                <i class="bi bi-download"></i>
+            </div>
+            <div class="quick-action-title">Export Reports</div>
+            <div class="quick-action-desc">Generate and download reports</div>
+        </a>
+    </div>
+</div>
+
+<script>
+// Moderator Dashboard JavaScript
+let usersData = [];
+let contentData = [];
+
+// Initialize moderator dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    loadModeratorData();
+});
+
+// Load moderator dashboard data
+async function loadModeratorData() {
+    try {
+        // Load users (limited view for moderators)
+        const usersResponse = await fetch('/api/moderator/users');
+        usersData = await usersResponse.json();
+        displayUsers(usersData);
+        
+        // Load content
+        const contentResponse = await fetch('/api/moderator/content');
+        contentData = await contentResponse.json();
+        displayContent(contentData);
+        
+        // Update statistics
+        updateStatistics();
+        
+    } catch (error) {
+        console.error('Error loading moderator data:', error);
+        showNotification('Error loading dashboard data', 'error');
+    }
+}
+
+// Display users in table
+function displayUsers(users) {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = '';
+    
+    users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="user-avatar me-2" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.1rem;">
+                        ${user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <div class="fw-bold">${user.username}</div>
+                        <small class="text-muted">ID: ${user.id}</small>
+                    </div>
+                </div>
+            </td>
+            <td>${user.email}</td>
+            <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+            <td><span class="status-badge status-${user.is_active ? 'active' : 'inactive'}">${user.is_active ? 'Active' : 'Inactive'}</span></td>
+            <td>${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewUser(${user.id})">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus(${user.id})">
+                        <i class="bi bi-toggle-${user.is_active ? 'on' : 'off'}"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Display content in table
+function displayContent(content) {
+    const tbody = document.getElementById('contentTableBody');
+    tbody.innerHTML = '';
+    
+    content.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="fw-bold">${item.title}</div>
+                <small class="text-muted">${item.description.substring(0, 50)}...</small>
+            </td>
+            <td><span class="badge bg-info">${item.content_type}</span></td>
+            <td>${item.style_tags || 'N/A'}</td>
+            <td><span class="badge bg-secondary">${item.difficulty_level || 'N/A'}</span></td>
+            <td>${new Date(item.created_at).toLocaleDateString()}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editContent(${item.id})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteContent(${item.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Update statistics
+function updateStatistics() {
+    document.getElementById('totalContent').textContent = contentData.length;
+    document.getElementById('totalUsers').textContent = usersData.length;
+    document.getElementById('activeUsers').textContent = usersData.filter(u => u.is_active).length;
+}
+
+// Content management functions
+function searchContent() {
+    const searchTerm = document.getElementById('contentSearch').value.toLowerCase();
+    const filteredContent = contentData.filter(item => 
+        item.title.toLowerCase().includes(searchTerm) ||
+        item.description.toLowerCase().includes(searchTerm)
+    );
+    displayContent(filteredContent);
+}
+
+function showAddContentModal() {
+    showNotification('Add content functionality coming soon!', 'info');
+}
+
+function editContent(contentId) {
+    showNotification('Edit content functionality coming soon!', 'info');
+}
+
+function deleteContent(contentId) {
+    if (confirm('Are you sure you want to delete this content?')) {
+        showNotification('Deleting content...', 'info');
+        setTimeout(() => {
+            showNotification('Content deleted successfully!', 'success');
+            loadModeratorData();
+        }, 1000);
+    }
+}
+
+// User management functions
+function searchUsers() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    const filteredUsers = usersData.filter(user => 
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm)
+    );
+    displayUsers(filteredUsers);
+}
+
+function viewUser(userId) {
+    showNotification('View user functionality coming soon!', 'info');
+}
+
+function toggleUserStatus(userId) {
+    showNotification('Toggle user status functionality coming soon!', 'info');
+}
+
+// Quick actions
+function reviewContent() {
+    showNotification('Content review functionality coming soon!', 'info');
+}
+
+function manageUsers() {
+    showNotification('User management functionality coming soon!', 'info');
+}
+
+function viewAnalytics() {
+    showNotification('Analytics view functionality coming soon!', 'info');
+}
+
+function exportReports() {
+    showNotification('Exporting reports...', 'info');
+    setTimeout(() => {
+        showNotification('Reports exported successfully!', 'success');
+    }, 2000);
+}
+
+// Utility function
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

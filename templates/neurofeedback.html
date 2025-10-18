@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurofeedback Dashboard - LearnStyle AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .metric-card {
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .focus-indicator {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto;
+        }
+        .focus-excellent { background-color: #28a745; }
+        .focus-good { background-color: #17a2b8; }
+        .focus-fair { background-color: #ffc107; color: #212529; }
+        .focus-poor { background-color: #dc3545; }
+        .fatigue-bar {
+            height: 20px;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .fatigue-low { background-color: #28a745; }
+        .fatigue-medium { background-color: #ffc107; }
+        .fatigue-high { background-color: #dc3545; }
+        .eeg-visualization {
+            height: 200px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .eeg-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100"><path d="M0,50 Q50,20 100,50 T200,50 T300,50 T400,50" stroke="%23007bff" stroke-width="2" fill="none"/></svg>') repeat-x;
+            animation: wave 2s linear infinite;
+        }
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-400px); }
+        }
+        .recommendation-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    
+    {% block content %}
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="fas fa-brain"></i> Neurofeedback Dashboard
+                    <small class="text-muted">Real-time Brain Activity Monitoring</small>
+                </h1>
+            </div>
+        </div>
+
+        <!-- Real-time Status Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Focus Level</h5>
+                        <div id="focus-indicator" class="focus-indicator focus-fair">
+                            <span id="focus-value">--</span>
+                        </div>
+                        <p class="mt-2 mb-0" id="focus-classification">Analyzing...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Mental Fatigue</h5>
+                        <div class="fatigue-bar fatigue-low" id="fatigue-bar" style="width: 0%"></div>
+                        <p class="mt-2 mb-0" id="fatigue-level">Low</p>
+                        <small class="text-muted" id="fatigue-percentage">0%</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Cognitive Load</h5>
+                        <div class="progress mb-2">
+                            <div id="cognitive-load-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p class="mb-0" id="cognitive-load-level">Medium</p>
+                        <small class="text-muted" id="cognitive-load-efficiency">Efficiency: --</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Overall State</h5>
+                        <h3 id="overall-state" class="text-primary">--</h3>
+                        <p class="mb-0" id="overall-score">Score: --</p>
+                        <small class="text-muted" id="session-duration">Session: 0m</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EEG Visualization -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-wave-square"></i> Real-time EEG Visualization
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="eeg-visualization">
+                            <div class="eeg-wave"></div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <small class="text-muted">Alpha Power: <span id="alpha-power">--</span></small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Beta Power: <span id="beta-power">--</span></small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Theta Power: <span id="theta-power">--</span></small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Gamma Power: <span id="gamma-power">--</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Focus Trend</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="focusChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Fatigue Progression</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="fatigueChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="row">
+            <div class="col-12">
+                <div class="recommendation-box">
+                    <h5 class="mb-3">
+                        <i class="fas fa-lightbulb"></i> AI Recommendations
+                    </h5>
+                    <div id="recommendations">
+                        <p class="mb-0">Initializing neurofeedback analysis...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Neurofeedback Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button id="start-session" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-play"></i> Start Session
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button id="pause-session" class="btn btn-warning btn-lg w-100" disabled>
+                                    <i class="fas fa-pause"></i> Pause Session
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button id="end-session" class="btn btn-danger btn-lg w-100" disabled>
+                                    <i class="fas fa-stop"></i> End Session
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="auto-adjust" checked>
+                                    <label class="form-check-label" for="auto-adjust">
+                                        Auto-adjust content based on neurofeedback
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let sessionActive = false;
+        let sessionStartTime = null;
+        let focusChart = null;
+        let fatigueChart = null;
+        let focusData = [];
+        let fatigueData = [];
+        let timeLabels = [];
+
+        // Initialize charts
+        function initializeCharts() {
+            // Focus Chart
+            const focusCtx = document.getElementById('focusChart').getContext('2d');
+            focusChart = new Chart(focusCtx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: 'Focus Level',
+                        data: focusData,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // Fatigue Chart
+            const fatigueCtx = document.getElementById('fatigueChart').getContext('2d');
+            fatigueChart = new Chart(fatigueCtx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: 'Fatigue Level',
+                        data: fatigueData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Simulate EEG data (in real implementation, this would come from hardware)
+        function generateSimulatedEEGData() {
+            const data = [];
+            const samples = 256; // 1 second of data at 256 Hz
+            
+            for (let i = 0; i < samples; i++) {
+                // Generate realistic EEG-like signal
+                const alpha = Math.sin(2 * Math.PI * 10 * i / samples) * 0.5;
+                const beta = Math.sin(2 * Math.PI * 20 * i / samples) * 0.3;
+                const theta = Math.sin(2 * Math.PI * 6 * i / samples) * 0.4;
+                const noise = (Math.random() - 0.5) * 0.2;
+                
+                data.push(alpha + beta + theta + noise);
+            }
+            
+            return data;
+        }
+
+        // Process neurofeedback data
+        async function processNeurofeedback() {
+            if (!sessionActive) return;
+
+            try {
+                // Generate simulated EEG data
+                const eegData = generateSimulatedEEGData();
+                
+                // Send to API
+                const response = await fetch('/api/neurofeedback/comprehensive', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        eeg_data: eegData,
+                        session_duration: getSessionDuration()
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDashboard(data);
+                }
+            } catch (error) {
+                console.error('Error processing neurofeedback:', error);
+            }
+        }
+
+        // Update dashboard with new data
+        function updateDashboard(data) {
+            // Update focus metrics
+            const focusLevel = data.focus.level;
+            const focusClassification = data.focus.classification;
+            const focusIndicator = document.getElementById('focus-indicator');
+            const focusValue = document.getElementById('focus-value');
+            const focusClassificationText = document.getElementById('focus-classification');
+
+            focusValue.textContent = Math.round(focusLevel * 100) + '%';
+            focusClassificationText.textContent = focusClassification.replace('_', ' ').toUpperCase();
+
+            // Update focus indicator color
+            focusIndicator.className = 'focus-indicator';
+            if (focusLevel >= 0.8) {
+                focusIndicator.classList.add('focus-excellent');
+            } else if (focusLevel >= 0.6) {
+                focusIndicator.classList.add('focus-good');
+            } else if (focusLevel >= 0.4) {
+                focusIndicator.classList.add('focus-fair');
+            } else {
+                focusIndicator.classList.add('focus-poor');
+            }
+
+            // Update fatigue metrics
+            const fatigueLevel = data.fatigue.level;
+            const fatigueBar = document.getElementById('fatigue-bar');
+            const fatigueLevelText = document.getElementById('fatigue-level');
+            const fatiguePercentage = document.getElementById('fatigue-percentage');
+
+            fatigueBar.style.width = (fatigueLevel * 100) + '%';
+            fatiguePercentage.textContent = Math.round(fatigueLevel * 100) + '%';
+
+            fatigueBar.className = 'fatigue-bar';
+            if (fatigueLevel < 0.3) {
+                fatigueBar.classList.add('fatigue-low');
+                fatigueLevelText.textContent = 'Low';
+            } else if (fatigueLevel < 0.7) {
+                fatigueBar.classList.add('fatigue-medium');
+                fatigueLevelText.textContent = 'Medium';
+            } else {
+                fatigueBar.classList.add('fatigue-high');
+                fatigueLevelText.textContent = 'High';
+            }
+
+            // Update cognitive load
+            const cognitiveLoad = data.cognitive_load.total_load;
+            const learningEfficiency = data.cognitive_load.learning_efficiency;
+            const cognitiveLoadBar = document.getElementById('cognitive-load-bar');
+            const cognitiveLoadLevel = document.getElementById('cognitive-load-level');
+            const cognitiveLoadEfficiency = document.getElementById('cognitive-load-efficiency');
+
+            cognitiveLoadBar.style.width = (cognitiveLoad * 100) + '%';
+            cognitiveLoadEfficiency.textContent = 'Efficiency: ' + Math.round(learningEfficiency * 100) + '%';
+
+            if (cognitiveLoad < 0.4) {
+                cognitiveLoadLevel.textContent = 'Low';
+                cognitiveLoadBar.className = 'progress-bar bg-success';
+            } else if (cognitiveLoad < 0.7) {
+                cognitiveLoadLevel.textContent = 'Medium';
+                cognitiveLoadBar.className = 'progress-bar bg-warning';
+            } else {
+                cognitiveLoadLevel.textContent = 'High';
+                cognitiveLoadBar.className = 'progress-bar bg-danger';
+            }
+
+            // Update overall state
+            const overallState = data.overall_state.state;
+            const overallScore = data.overall_state.score;
+            document.getElementById('overall-state').textContent = overallState.toUpperCase();
+            document.getElementById('overall-score').textContent = 'Score: ' + Math.round(overallScore * 100);
+
+            // Update EEG power values
+            const eegFeatures = data.eeg_features;
+            document.getElementById('alpha-power').textContent = eegFeatures.alpha_power_raw ? eegFeatures.alpha_power_raw.toFixed(2) : '--';
+            document.getElementById('beta-power').textContent = eegFeatures.beta_power_raw ? eegFeatures.beta_power_raw.toFixed(2) : '--';
+            document.getElementById('theta-power').textContent = eegFeatures.theta_power_raw ? eegFeatures.theta_power_raw.toFixed(2) : '--';
+            document.getElementById('gamma-power').textContent = eegFeatures.gamma_power_raw ? eegFeatures.gamma_power_raw.toFixed(2) : '--';
+
+            // Update recommendations
+            const recommendations = document.getElementById('recommendations');
+            recommendations.innerHTML = `
+                <p><strong>Focus:</strong> ${data.focus.recommendation}</p>
+                <p><strong>Fatigue:</strong> ${data.fatigue.recommendation}</p>
+                <p><strong>Cognitive Load:</strong> ${data.cognitive_load.recommendation}</p>
+                <p><strong>Overall:</strong> ${data.overall_state.recommendation}</p>
+            `;
+
+            // Update charts
+            updateCharts(focusLevel, fatigueLevel);
+        }
+
+        // Update charts with new data
+        function updateCharts(focusLevel, fatigueLevel) {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString();
+            
+            timeLabels.push(timeLabel);
+            focusData.push(focusLevel);
+            fatigueData.push(fatigueLevel);
+
+            // Keep only last 20 data points
+            if (timeLabels.length > 20) {
+                timeLabels.shift();
+                focusData.shift();
+                fatigueData.shift();
+            }
+
+            focusChart.update();
+            fatigueChart.update();
+        }
+
+        // Get session duration in minutes
+        function getSessionDuration() {
+            if (!sessionStartTime) return 0;
+            return Math.floor((Date.now() - sessionStartTime) / 60000);
+        }
+
+        // Update session duration display
+        function updateSessionDuration() {
+            const duration = getSessionDuration();
+            document.getElementById('session-duration').textContent = `Session: ${duration}m`;
+        }
+
+        // Event listeners
+        document.getElementById('start-session').addEventListener('click', function() {
+            sessionActive = true;
+            sessionStartTime = Date.now();
+            this.disabled = true;
+            document.getElementById('pause-session').disabled = false;
+            document.getElementById('end-session').disabled = false;
+            
+            // Start processing
+            setInterval(processNeurofeedback, 2000); // Process every 2 seconds
+            setInterval(updateSessionDuration, 1000); // Update duration every second
+        });
+
+        document.getElementById('pause-session').addEventListener('click', function() {
+            sessionActive = false;
+            this.disabled = true;
+            document.getElementById('start-session').disabled = false;
+        });
+
+        document.getElementById('end-session').addEventListener('click', function() {
+            sessionActive = false;
+            sessionStartTime = null;
+            this.disabled = true;
+            document.getElementById('pause-session').disabled = true;
+            document.getElementById('start-session').disabled = false;
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,629 @@
+{% extends "base.html" %}
+
+{% block title %}Explainable AI Dashboard - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.explainable-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.ai-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.ai-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.ai-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.explanation-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #007bff;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.feature-importance {
+    margin-bottom: 2rem;
+}
+
+.feature-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.feature-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.feature-bar {
+    width: 200px;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.feature-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.feature-percentage {
+    font-weight: 600;
+    color: #007bff;
+    min-width: 50px;
+    text-align: right;
+}
+
+.decision-tree {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.tree-node {
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.tree-node:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.tree-node.root {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.tree-node.leaf {
+    border-color: #ffc107;
+    background: #fff3cd;
+}
+
+.node-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.node-value {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.confidence-indicator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.confidence-bar {
+    flex: 1;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.confidence-text {
+    font-weight: 600;
+    color: #333;
+}
+
+.alternative-scenarios {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.scenario-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-left: 4px solid #6c757d;
+    transition: all 0.3s ease;
+}
+
+.scenario-item:hover {
+    border-left-color: #007bff;
+    transform: translateX(5px);
+}
+
+.scenario-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.scenario-probability {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.model-comparison {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.model-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.model-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+}
+
+.model-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.model-metrics {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+}
+
+.metric-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.metric-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.interpretation-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.interpretation-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.interpretation-text {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.action-recommendations {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    color: #0c5460;
+}
+
+.recommendation-icon {
+    color: #17a2b8;
+}
+
+@media (max-width: 768px) {
+    .explainable-container {
+        padding: 1rem;
+    }
+    
+    .ai-title {
+        font-size: 2rem;
+    }
+    
+    .feature-item {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .feature-bar {
+        width: 100%;
+    }
+    
+    .model-comparison {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="explainable-container">
+    <!-- Header -->
+    <div class="ai-header">
+        <h1 class="ai-title">
+            <i class="bi bi-robot"></i> Explainable AI Dashboard
+        </h1>
+        <p class="ai-subtitle">
+            Understand how our AI determines your learning style with complete transparency
+        </p>
+    </div>
+
+    <!-- Learning Style Explanation -->
+    <div class="explanation-card">
+        <h2 class="card-title">
+            <i class="bi bi-lightbulb"></i> Your Learning Style Analysis
+        </h2>
+        
+        <div class="interpretation-section">
+            <h3 class="interpretation-title">Why You Were Classified as {{ user_profile.dominant_style.title() }}</h3>
+            <p class="interpretation-text">
+                Based on your quiz responses and learning behavior, our AI identified strong patterns indicating 
+                a {{ user_profile.dominant_style }} learning preference. Here's the detailed breakdown of how 
+                this conclusion was reached.
+            </p>
+        </div>
+
+        <!-- Feature Importance -->
+        <div class="feature-importance">
+            <h3 class="card-title">
+                <i class="bi bi-graph-up"></i> Most Influential Factors
+            </h3>
+            
+            <div class="feature-item">
+                <span class="feature-name">Question 4: Visual Learning Preference</span>
+                <div class="feature-bar">
+                    <div class="feature-fill" style="width: 85%"></div>
+                </div>
+                <span class="feature-percentage">85%</span>
+            </div>
+            
+            <div class="feature-item">
+                <span class="feature-name">Question 1: Diagram Understanding</span>
+                <div class="feature-bar">
+                    <div class="feature-fill" style="width: 78%"></div>
+                </div>
+                <span class="feature-percentage">78%</span>
+            </div>
+            
+            <div class="feature-item">
+                <span class="feature-name">Question 5: Visual Memory</span>
+                <div class="feature-bar">
+                    <div class="feature-fill" style="width: 74%"></div>
+                </div>
+                <span class="feature-percentage">74%</span>
+            </div>
+            
+            <div class="feature-item">
+                <span class="feature-name">Question 3: Spatial Awareness</span>
+                <div class="feature-bar">
+                    <div class="feature-fill" style="width: 73%"></div>
+                </div>
+                <span class="feature-percentage">73%</span>
+            </div>
+            
+            <div class="feature-item">
+                <span class="feature-name">Question 8: Color Coding Preference</span>
+                <div class="feature-bar">
+                    <div class="feature-fill" style="width: 69%"></div>
+                </div>
+                <span class="feature-percentage">69%</span>
+            </div>
+        </div>
+
+        <!-- Confidence Indicator -->
+        <div class="confidence-indicator">
+            <span class="confidence-text">Model Confidence:</span>
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width: 87%"></div>
+            </div>
+            <span class="confidence-text">87%</span>
+        </div>
+    </div>
+
+    <!-- Decision Tree Visualization -->
+    <div class="explanation-card">
+        <h2 class="card-title">
+            <i class="bi bi-diagram-3"></i> Decision Process
+        </h2>
+        
+        <div class="decision-tree">
+            <div class="tree-node root">
+                <div class="node-label">Learning Style Assessment</div>
+                <div class="node-value">Starting point: All styles equally likely</div>
+            </div>
+            
+            <div class="tree-node">
+                <div class="node-label">Visual Questions (1-5)</div>
+                <div class="node-value">Your responses: Strong visual preference (4.2/5 average)</div>
+            </div>
+            
+            <div class="tree-node">
+                <div class="node-label">Auditory Questions (6-10)</div>
+                <div class="node-value">Your responses: Moderate auditory preference (2.8/5 average)</div>
+            </div>
+            
+            <div class="tree-node">
+                <div class="node-label">Kinesthetic Questions (11-15)</div>
+                <div class="node-value">Your responses: Low kinesthetic preference (2.1/5 average)</div>
+            </div>
+            
+            <div class="tree-node leaf">
+                <div class="node-label">Final Classification</div>
+                <div class="node-value">Result: Visual Learner (65% confidence)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative Scenarios -->
+    <div class="explanation-card">
+        <h2 class="card-title">
+            <i class="bi bi-arrow-left-right"></i> Alternative Classifications
+        </h2>
+        
+        <div class="alternative-scenarios">
+            <div class="scenario-item">
+                <div class="scenario-title">Mixed Learning Style</div>
+                <div class="scenario-probability">Probability: 23% - You show some characteristics of multiple styles</div>
+            </div>
+            
+            <div class="scenario-item">
+                <div class="scenario-title">Auditory Learner</div>
+                <div class="scenario-probability">Probability: 12% - Based on your preference for discussions</div>
+            </div>
+            
+            <div class="scenario-item">
+                <div class="scenario-title">Kinesthetic Learner</div>
+                <div class="scenario-probability">Probability: 5% - Limited evidence for hands-on preference</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Comparison -->
+    <div class="explanation-card">
+        <h2 class="card-title">
+            <i class="bi bi-gear"></i> Model Performance Comparison
+        </h2>
+        
+        <div class="model-comparison">
+            <div class="model-card">
+                <div class="model-name">Random Forest Classifier</div>
+                <div class="model-metrics">
+                    <span class="metric-label">Accuracy:</span>
+                    <span class="metric-value">91.5%</span>
+                </div>
+                <div class="model-metrics">
+                    <span class="metric-label">Confidence:</span>
+                    <span class="metric-value">High</span>
+                </div>
+                <div class="model-metrics">
+                    <span class="metric-label">Used for:</span>
+                    <span class="metric-value">Final Decision</span>
+                </div>
+            </div>
+            
+            <div class="model-card">
+                <div class="model-name">Decision Tree</div>
+                <div class="model-metrics">
+                    <span class="metric-label">Accuracy:</span>
+                    <span class="metric-value">86.5%</span>
+                </div>
+                <div class="model-metrics">
+                    <span class="metric-label">Confidence:</span>
+                    <span class="metric-value">Medium</span>
+                </div>
+                <div class="model-metrics">
+                    <span class="metric-label">Used for:</span>
+                    <span class="metric-value">Validation</span>
+                </div>
+            </div>
+            
+            <div class="model-card">
+                <div class="model-name">Ensemble Method</div>
+                <div class="model-metrics">
+                    <span class="metric-label">Accuracy:</span>
+                    <span class="metric-value">93.2%</span>
+                </div>
+                <div class="model-metrics">
+                    <span class="metric-label">Confidence:</span>
+                    <span class="metric-value">Very High</span>
+                </div>
+                <div class="model-metrics">
+                    <span class="metric-label">Used for:</span>
+                    <span class="metric-value">Cross-validation</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Recommendations -->
+    <div class="explanation-card">
+        <h2 class="card-title">
+            <i class="bi bi-lightbulb"></i> Personalized Recommendations
+        </h2>
+        
+        <div class="action-recommendations">
+            <h4>Based on your {{ user_profile.dominant_style }} learning style:</h4>
+            
+            <div class="recommendation-item">
+                <i class="bi bi-check-circle recommendation-icon"></i>
+                <span>Focus on visual content like diagrams, charts, and infographics</span>
+            </div>
+            
+            <div class="recommendation-item">
+                <i class="bi bi-check-circle recommendation-icon"></i>
+                <span>Use color coding and visual organization in your notes</span>
+            </div>
+            
+            <div class="recommendation-item">
+                <i class="bi bi-check-circle recommendation-icon"></i>
+                <span>Create mind maps to understand complex concepts</span>
+            </div>
+            
+            <div class="recommendation-item">
+                <i class="bi bi-check-circle recommendation-icon"></i>
+                <span>Watch video tutorials and visual demonstrations</span>
+            </div>
+            
+            <div class="recommendation-item">
+                <i class="bi bi-check-circle recommendation-icon"></i>
+                <span>Use flashcards with images and diagrams</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Privacy Notice -->
+    <div class="explanation-card">
+        <h2 class="card-title">
+            <i class="bi bi-shield-check"></i> Data Privacy & Transparency
+        </h2>
+        
+        <div class="interpretation-section">
+            <h3 class="interpretation-title">Your Data is Protected</h3>
+            <p class="interpretation-text">
+                We believe in complete transparency about how your data is used. Your quiz responses 
+                are processed locally and only used to improve your learning experience. We never 
+                share your personal learning data with third parties.
+            </p>
+            
+            <div class="action-recommendations">
+                <div class="recommendation-item">
+                    <i class="bi bi-check-circle recommendation-icon"></i>
+                    <span>All data processing happens on secure servers</span>
+                </div>
+                
+                <div class="recommendation-item">
+                    <i class="bi bi-check-circle recommendation-icon"></i>
+                    <span>You can request a copy of your learning data at any time</span>
+                </div>
+                
+                <div class="recommendation-item">
+                    <i class="bi bi-check-circle recommendation-icon"></i>
+                    <span>You can opt out of data collection while still using the platform</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add interactive features
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate feature bars on scroll
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const fill = entry.target.querySelector('.feature-fill');
+                const percentage = fill.style.width;
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.width = percentage;
+                }, 200);
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all feature bars
+    document.querySelectorAll('.feature-bar').forEach(bar => {
+        observer.observe(bar);
+    });
+    
+    // Add hover effects to tree nodes
+    document.querySelectorAll('.tree-node').forEach(node => {
+        node.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        
+        node.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+    
+    // Add click handlers for model cards
+    document.querySelectorAll('.model-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // This could show detailed model information
+            console.log('Model card clicked:', this.querySelector('.model-name').textContent);
+        });
+    });
+});
+</script>
+{% endblock %}

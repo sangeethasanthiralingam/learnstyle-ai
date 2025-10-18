@@ -16,6 +16,9 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), default='user')  # 'user', 'admin', 'moderator'
+    is_active = db.Column(db.Boolean, default=True)
+    last_login = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -30,8 +33,28 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
+    def is_admin(self):
+        """Check if user is an admin"""
+        return self.role == 'admin'
+    
+    def is_moderator(self):
+        """Check if user is a moderator"""
+        return self.role in ['admin', 'moderator']
+    
+    def can_manage_users(self):
+        """Check if user can manage other users"""
+        return self.role == 'admin'
+    
+    def can_view_analytics(self):
+        """Check if user can view system analytics"""
+        return self.role in ['admin', 'moderator']
+    
+    def can_manage_content(self):
+        """Check if user can manage content"""
+        return self.role in ['admin', 'moderator']
+    
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<User {self.username} ({self.role})>'
 
 class LearningProfile(db.Model):
     """Learning profile with style preferences and scores"""

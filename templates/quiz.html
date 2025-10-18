@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Style Assessment - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.question-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    padding: 2rem;
+    border-left: 5px solid #007bff;
+}
+
+.question-number {
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.question-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.option-item:hover {
+    border-color: #007bff;
+    background: #e3f2fd;
+    transform: translateY(-2px);
+}
+
+.option-item.selected {
+    border-color: #007bff;
+    background: #e3f2fd;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.option-radio {
+    margin-right: 1rem;
+    transform: scale(1.2);
+}
+
+.option-text {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.progress-container {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    transition: width 0.3s ease;
+    border-radius: 5px;
+}
+
+.progress-text {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-weight: 500;
+    color: #666;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.btn-quiz {
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-quiz:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quiz-complete {
+    text-align: center;
+    padding: 3rem;
+}
+
+.completion-icon {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .quiz-container {
+        padding: 1rem;
+    }
+    
+    .question-card {
+        padding: 1.5rem;
+    }
+    
+    .option-item {
+        padding: 0.75rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <div class="text-center mb-4">
+        <h1 class="display-4 text-primary mb-3">
+            <i class="bi bi-clipboard-check"></i> Learning Style Assessment
+        </h1>
+        <p class="lead text-muted">
+            Answer these 15 questions to discover your unique learning style. 
+            There are no right or wrong answers - just be honest about your preferences!
+        </p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text">
+            <span id="progressText">Question 1 of 15</span>
+        </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <form id="quizForm" method="POST" action="{{ url_for('submit_quiz') }}">
+        <div id="quizQuestions">
+            <!-- Questions will be dynamically loaded here -->
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons">
+            <button type="button" id="prevBtn" class="btn btn-outline-secondary btn-quiz" style="display: none;">
+                <i class="bi bi-arrow-left"></i> Previous
+            </button>
+            <button type="button" id="nextBtn" class="btn btn-primary btn-quiz">
+                Next <i class="bi bi-arrow-right"></i>
+            </button>
+            <button type="submit" id="submitBtn" class="btn btn-success btn-quiz" style="display: none;">
+                <i class="bi bi-check-circle"></i> Complete Assessment
+            </button>
+        </div>
+    </form>
+
+    <!-- Completion Message (hidden initially) -->
+    <div id="quizComplete" class="quiz-complete" style="display: none;">
+        <div class="completion-icon">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h2 class="text-success mb-3">Assessment Complete!</h2>
+        <p class="lead">Thank you for completing the learning style assessment. Your results are being analyzed...</p>
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// Quiz data - 15 carefully designed questions
+const quizQuestions = [
+    {
+        id: 1,
+        question: "When learning something new, I prefer to:",
+        options: [
+            "See diagrams, charts, and visual aids",
+            "Listen to explanations and discussions", 
+            "Try it out hands-on or practice it"
+        ]
+    },
+    {
+        id: 2,
+        question: "I remember information best when it's presented as:",
+        options: [
+            "Pictures, graphs, or written text",
+            "Spoken words or audio recordings",
+            "Physical activities or demonstrations"
+        ]
+    },
+    {
+        id: 3,
+        question: "In a classroom, I learn most effectively from:",
+        options: [
+            "Visual presentations and written materials",
+            "Lectures and group discussions",
+            "Interactive activities and experiments"
+        ]
+    },
+    {
+        id: 4,
+        question: "When studying, I prefer to:",
+        options: [
+            "Create mind maps and use highlighters",
+            "Read aloud or discuss with others",
+            "Take frequent breaks and move around"
+        ]
+    },
+    {
+        id: 5,
+        question: "I understand complex concepts better when they are:",
+        options: [
+            "Shown with diagrams or flowcharts",
+            "Explained step-by-step verbally",
+            "Demonstrated with hands-on examples"
+        ]
+    },
+    {
+        id: 6,
+        question: "When giving directions, I tend to:",
+        options: [
+            "Draw a map or write them down",
+            "Explain verbally in detail",
+            "Show the way by walking through it"
+        ]
+    },
+    {
+        id: 7,
+        question: "I remember people best by their:",
+        options: [
+            "Face and appearance",
+            "Name and voice",
+            "Handshake and mannerisms"
+        ]
+    },
+    {
+        id: 8,
+        question: "When learning a new skill, I prefer to:",
+        options: [
+            "Watch instructional videos or read guides",
+            "Listen to audio instructions or podcasts",
+            "Practice immediately with trial and error"
+        ]
+    },
+    {
+        id: 9,
+        question: "I concentrate best when:",
+        options: [
+            "In a quiet room with good lighting",
+            "With background music or ambient sounds",
+            "While moving or fidgeting with something"
+        ]
+    },
+    {
+        id: 10,
+        question: "When solving problems, I typically:",
+        options: [
+            "Draw diagrams or write out the steps",
+            "Talk through the problem aloud",
+            "Manipulate objects or walk around"
+        ]
+    },
+    {
+        id: 11,
+        question: "I prefer learning materials that are:",
+        options: [
+            "Rich in images, colors, and visual elements",
+            "Audio-based or discussion-focused",
+            "Interactive and hands-on"
+        ]
+    },
+    {
+        id: 12,
+        question: "When taking notes, I usually:",
+        options: [
+            "Use lots of diagrams, arrows, and symbols",
+            "Write detailed explanations and summaries",
+            "Keep notes brief and focus on key points"
+        ]
+    },
+    {
+        id: 13,
+        question: "I learn best in groups when we:",
+        options: [
+            "Use visual aids and presentations",
+            "Have discussions and verbal exchanges",
+            "Work on projects and activities together"
+        ]
+    },
+    {
+        id: 14,
+        question: "When I'm stuck on a problem, I:",
+        options: [
+            "Draw it out or visualize the solution",
+            "Talk it through with someone",
+            "Try different approaches physically"
+        ]
+    },
+    {
+        id: 15,
+        question: "I feel most confident when I can:",
+        options: [
+            "See the big picture and how things connect",
+            "Explain concepts clearly to others",
+            "Apply knowledge in real-world situations"
+        ]
+    }
+];
+
+let currentQuestion = 0;
+let answers = {};
+
+// Initialize quiz
+function initQuiz() {
+    showQuestion(0);
+    updateProgress();
+}
+
+// Show specific question
+function showQuestion(questionIndex) {
+    const questionsContainer = document.getElementById('quizQuestions');
+    const question = quizQuestions[questionIndex];
+    
+    questionsContainer.innerHTML = `
+        <div class="question-card">
+            <div class="question-number">${question.id}</div>
+            <div class="question-text">${question.question}</div>
+            <div class="option-group">
+                ${question.options.map((option, index) => `
+                    <div class="option-item" onclick="selectOption(${questionIndex}, ${index + 1})">
+                        <input type="radio" name="question_${question.id}" value="${index + 1}" 
+                               class="option-radio" ${answers[question.id] === index + 1 ? 'checked' : ''}>
+                        <span class="option-text">${option}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    // Update navigation buttons
+    document.getElementById('prevBtn').style.display = questionIndex > 0 ? 'inline-block' : 'none';
+    document.getElementById('nextBtn').style.display = questionIndex < quizQuestions.length - 1 ? 'inline-block' : 'none';
+    document.getElementById('submitBtn').style.display = questionIndex === quizQuestions.length - 1 ? 'inline-block' : 'none';
+}
+
+// Select an option
+function selectOption(questionIndex, optionValue) {
+    const question = quizQuestions[questionIndex];
+    answers[question.id] = optionValue;
+    
+    // Update visual selection
+    const optionItems = document.querySelectorAll('.option-item');
+    optionItems.forEach(item => item.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    
+    // Check radio button
+    const radio = event.currentTarget.querySelector('input[type="radio"]');
+    radio.checked = true;
+}
+
+// Next question
+function nextQuestion() {
+    if (currentQuestion < quizQuestions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+        updateProgress();
+    }
+}
+
+// Previous question
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+        updateProgress();
+    }
+}
+
+// Update progress bar
+function updateProgress() {
+    const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${quizQuestions.length}`;
+}
+
+// Submit quiz
+function submitQuiz() {
+    // Validate all questions are answered
+    const unansweredQuestions = [];
+    for (let i = 1; i <= 15; i++) {
+        if (!answers[i]) {
+            unansweredQuestions.push(i);
+        }
+    }
+    
+    if (unansweredQuestions.length > 0) {
+        alert(`Please answer all questions. You still need to answer questions: ${unansweredQuestions.join(', ')}`);
+        return;
+    }
+    
+    // Add answers to form
+    const form = document.getElementById('quizForm');
+    for (let i = 1; i <= 15; i++) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = `question_${i}`;
+        input.value = answers[i];
+        form.appendChild(input);
+    }
+    
+    // Show completion message
+    document.getElementById('quizQuestions').style.display = 'none';
+    document.getElementById('quizComplete').style.display = 'block';
+    
+    // Submit form
+    form.submit();
+}
+
+// Event listeners
+document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+document.getElementById('prevBtn').addEventListener('click', prevQuestion);
+document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+
+// Initialize quiz when page loads
+document.addEventListener('DOMContentLoaded', initQuiz);
+</script>
+{% endblock %}

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnStyle AI - Collaborative Learning Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .group-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .group-metric {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .group-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .collaboration-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-active { background-color: #28a745; }
+        .status-idle { background-color: #ffc107; }
+        .status-offline { background-color: #6c757d; }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .network-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .network-node:hover {
+            transform: scale(1.1);
+        }
+        .collaboration-activity {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-card p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="mb-0"><i class="fas fa-users me-3"></i>Collaborative Learning Dashboard</h1>
+                                <p class="text-muted mb-0">Real-time group learning and peer collaboration</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success fs-6">Collaboration Active</span>
+                                <p class="text-muted mb-0">Last updated: <span id="lastUpdated"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Metrics -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="group-card">
+                        <div class="group-metric" id="activeGroups">--</div>
+                        <div class="group-label">Active Groups</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="group-card">
+                        <div class="group-metric" id="totalCollaborations">--</div>
+                        <div class="group-label">Total Collaborations</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="group-card">
+                        <div class="group-metric" id="peerMatches">--</div>
+                        <div class="group-label">Peer Matches</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="group-card">
+                        <div class="group-metric" id="successRate">--</div>
+                        <div class="group-label">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Tabs -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-card p-3">
+                        <ul class="nav nav-pills justify-content-center" id="collaborativeTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Overview
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="groups-tab" data-bs-toggle="pill" data-bs-target="#groups" type="button">
+                                    <i class="fas fa-users me-2"></i>Group Dynamics
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="matching-tab" data-bs-toggle="pill" data-bs-target="#matching" type="button">
+                                    <i class="fas fa-handshake me-2"></i>Peer Matching
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="content-tab" data-bs-toggle="pill" data-bs-target="#content" type="button">
+                                    <i class="fas fa-file-alt me-2"></i>Collaborative Content
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="analytics-tab" data-bs-toggle="pill" data-bs-target="#analytics" type="button">
+                                    <i class="fas fa-chart-network me-2"></i>Social Analytics
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="collaborativeTabsContent">
+                <!-- Overview Tab -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-line me-2"></i>Collaboration Trends</h5>
+                                <div class="chart-container">
+                                    <canvas id="collaborationTrendsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+                                <div id="recentActivity">
+                                    <!-- Recent activity will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-network-wired me-2"></i>Learning Network</h5>
+                                <div id="learningNetwork" style="position: relative; height: 400px;">
+                                    <!-- Network visualization will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group Dynamics Tab -->
+                <div class="tab-pane fade" id="groups" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-users me-2"></i>Group Cohesion Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="groupCohesionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-pie me-2"></i>Role Distribution</h5>
+                                <div class="chart-container">
+                                    <canvas id="roleDistributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-users-cog me-2"></i>Active Groups</h5>
+                                <div id="activeGroupsList">
+                                    <!-- Active groups will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Peer Matching Tab -->
+                <div class="tab-pane fade" id="matching" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-handshake me-2"></i>Peer Compatibility Matrix</h5>
+                                <div class="chart-container">
+                                    <canvas id="compatibilityMatrixChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-star me-2"></i>Top Matches</h5>
+                                <div id="topMatches">
+                                    <!-- Top matches will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-user-friends me-2"></i>Matching Recommendations</h5>
+                                <div id="matchingRecommendations">
+                                    <!-- Matching recommendations will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaborative Content Tab -->
+                <div class="tab-pane fade" id="content" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-file-alt me-2"></i>Content Creation Activity</h5>
+                                <div class="chart-container">
+                                    <canvas id="contentActivityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-bar me-2"></i>Content Types</h5>
+                                <div class="chart-container">
+                                    <canvas id="contentTypesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-folder-open me-2"></i>Recent Collaborative Content</h5>
+                                <div id="recentContent">
+                                    <!-- Recent content will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Analytics Tab -->
+                <div class="tab-pane fade" id="analytics" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-network me-2"></i>Social Learning Network</h5>
+                                <div class="chart-container">
+                                    <canvas id="socialNetworkChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-line me-2"></i>Learning Influence</h5>
+                                <div class="chart-container">
+                                    <canvas id="influenceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-chart-pie me-2"></i>Network Centrality</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#667eea" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="centralityScore">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-chart-bar me-2"></i>Peer Influence</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#28a745" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="influenceScore">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-chart-area me-2"></i>Knowledge Flow</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#17a2b8" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="knowledgeFlow">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLastUpdated();
+            initializeCharts();
+            loadCollaborativeData();
+            setInterval(updateCollaborativeData, 10000); // Update every 10 seconds
+        });
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+        }
+
+        function loadCollaborativeData() {
+            // Simulate collaborative learning data
+            updateGroupMetrics();
+            updateRecentActivity();
+            updateLearningNetwork();
+        }
+
+        function updateGroupMetrics() {
+            document.getElementById('activeGroups').textContent = Math.floor(Math.random() * 10) + 5;
+            document.getElementById('totalCollaborations').textContent = Math.floor(Math.random() * 100) + 200;
+            document.getElementById('peerMatches').textContent = Math.floor(Math.random() * 50) + 30;
+            document.getElementById('successRate').textContent = (Math.random() * 20 + 80).toFixed(1) + '%';
+        }
+
+        function updateRecentActivity() {
+            const activities = [
+                "John joined Group Alpha",
+                "Sarah completed collaborative project",
+                "Mike shared learning resource",
+                "Lisa provided peer feedback",
+                "Alex started new discussion"
+            ];
+            
+            const activityHtml = activities.map(activity => 
+                `<div class="collaboration-activity">
+                    <i class="fas fa-circle text-success me-2"></i>
+                    ${activity}
+                    <small class="text-muted float-end">2 min ago</small>
+                </div>`
+            ).join('');
+            
+            document.getElementById('recentActivity').innerHTML = activityHtml;
+        }
+
+        function updateLearningNetwork() {
+            // Create network visualization
+            const networkContainer = document.getElementById('learningNetwork');
+            networkContainer.innerHTML = '';
+            
+            // Add network nodes
+            const nodes = [
+                {id: 'You', x: 200, y: 200, color: '#667eea'},
+                {id: 'A', x: 100, y: 100, color: '#28a745'},
+                {id: 'B', x: 300, y: 100, color: '#17a2b8'},
+                {id: 'C', x: 100, y: 300, color: '#ffc107'},
+                {id: 'D', x: 300, y: 300, color: '#dc3545'}
+            ];
+            
+            nodes.forEach(node => {
+                const nodeElement = document.createElement('div');
+                nodeElement.className = 'network-node';
+                nodeElement.style.left = node.x + 'px';
+                nodeElement.style.top = node.y + 'px';
+                nodeElement.style.background = node.color;
+                nodeElement.textContent = node.id;
+                networkContainer.appendChild(nodeElement);
+            });
+        }
+
+        function updateCollaborativeData() {
+            loadCollaborativeData();
+            updateLastUpdated();
+        }
+
+        function initializeCharts() {
+            // Collaboration Trends Chart
+            const trendsCtx = document.getElementById('collaborationTrendsChart').getContext('2d');
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                    datasets: [{
+                        label: 'Active Groups',
+                        data: [8, 12, 15, 18, 16, 20],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Collaborations',
+                        data: [45, 60, 75, 90, 85, 100],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+
+            // Group Cohesion Chart
+            const cohesionCtx = document.getElementById('groupCohesionChart').getContext('2d');
+            new Chart(cohesionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Group Alpha', 'Group Beta', 'Group Gamma', 'Group Delta', 'Group Epsilon'],
+                    datasets: [{
+                        label: 'Cohesion Score',
+                        data: [85, 72, 90, 68, 78],
+                        backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Role Distribution Chart
+            const roleCtx = document.getElementById('roleDistributionChart').getContext('2d');
+            new Chart(roleCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Leader', 'Collaborator', 'Contributor', 'Observer', 'Facilitator'],
+                    datasets: [{
+                        data: [20, 35, 25, 10, 10],
+                        backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Compatibility Matrix Chart
+            const compatCtx = document.getElementById('compatibilityMatrixChart').getContext('2d');
+            new Chart(compatCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Peer Compatibility',
+                        data: [
+                            {x: 85, y: 90, label: 'You & Alice'},
+                            {x: 72, y: 78, label: 'You & Bob'},
+                            {x: 90, y: 85, label: 'You & Carol'},
+                            {x: 65, y: 70, label: 'You & David'}
+                        ],
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Learning Style Match'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Goal Alignment'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Content Activity Chart
+            const contentCtx = document.getElementById('contentActivityChart').getContext('2d');
+            new Chart(contentCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Content Created',
+                        data: [5, 8, 12, 10, 15, 8, 6],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Content Shared',
+                        data: [3, 6, 9, 7, 12, 5, 4],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+
+            // Content Types Chart
+            const typesCtx = document.getElementById('contentTypesChart').getContext('2d');
+            new Chart(typesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Documents', 'Presentations', 'Videos', 'Quizzes', 'Discussions'],
+                    datasets: [{
+                        label: 'Content Types',
+                        data: [25, 15, 20, 30, 10],
+                        backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Social Network Chart
+            const socialCtx = document.getElementById('socialNetworkChart').getContext('2d');
+            new Chart(socialCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i),
+                    datasets: [{
+                        label: 'Network Connections',
+                        data: Array.from({length: 20}, () => Math.random() * 50 + 20),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Influence Chart
+            const influenceCtx = document.getElementById('influenceChart').getContext('2d');
+            new Chart(influenceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['You', 'Alice', 'Bob', 'Carol', 'David'],
+                    datasets: [{
+                        label: 'Influence Score',
+                        data: [85, 72, 68, 90, 75],
+                        backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize progress rings
+        function updateProgressRing(elementId, percentage) {
+            const circle = document.querySelector(`#${elementId} .progress-ring-circle`);
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            const offset = circumference - (percentage / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // Update progress rings on load
+        setTimeout(() => {
+            updateProgressRing('centralityScore', 75);
+            updateProgressRing('influenceScore', 85);
+            updateProgressRing('knowledgeFlow', 70);
+        }, 1000);
+    </script>
+</body>
+</html>

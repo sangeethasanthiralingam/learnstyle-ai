@@ -1,0 +1,548 @@
+{% extends "base.html" %}
+
+{% block title %}AI Tutor Chat - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.chat-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.chat-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.chat-subtitle {
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.chat-messages {
+    flex: 1;
+    background: #f8f9fa;
+    padding: 1.5rem;
+    overflow-y: auto;
+    border-left: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+    max-height: 500px;
+}
+
+.message {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message.ai {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 1rem 1.5rem;
+    border-radius: 20px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.message.user .message-content {
+    background: #007bff;
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.message.ai .message-content {
+    background: white;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 1rem;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.message.user .message-avatar {
+    background: #007bff;
+    color: white;
+    order: 1;
+}
+
+.message.ai .message-avatar {
+    background: #28a745;
+    color: white;
+}
+
+.message-time {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 0.5rem;
+}
+
+.chat-input-container {
+    background: white;
+    border-radius: 0 0 15px 15px;
+    padding: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-top: none;
+}
+
+.input-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    resize: none;
+    min-height: 50px;
+    max-height: 120px;
+    transition: all 0.3s ease;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.send-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.send-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.typing-indicator {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 2px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #666;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.learning-style-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.learning-style-badge.visual {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.learning-style-badge.auditory {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.learning-style-badge.kinesthetic {
+    background: #e8f5e8;
+    color: #388e3c;
+}
+
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.suggestion-chip {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.suggestion-chip:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        padding: 1rem;
+        height: calc(100vh - 150px);
+    }
+    
+    .message-content {
+        max-width: 85%;
+    }
+    
+    .input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .send-button {
+        align-self: flex-end;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <h1 class="chat-title">
+            <i class="bi bi-robot"></i> AI Learning Tutor
+        </h1>
+        <p class="chat-subtitle">
+            Your personalized learning assistant, adapted to your {{ user_profile.dominant_style if user_profile else 'learning' }} style
+        </p>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chat-messages" id="chatMessages">
+        <!-- Welcome Message -->
+        <div class="message ai">
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="learning-style-badge {{ user_profile.dominant_style if user_profile else 'visual' }}">
+                    {{ user_profile.dominant_style.title() if user_profile else 'Visual' }} Learning Style
+                </div>
+                <p class="mb-0">
+                    {% if user_profile and user_profile.dominant_style == 'visual' %}
+                    Hello! I'm your AI tutor, and I know you're a visual learner. I'll help you understand concepts through diagrams, charts, and visual explanations. What would you like to learn about today?
+                    {% elif user_profile and user_profile.dominant_style == 'auditory' %}
+                    Hi there! As your AI tutor, I understand you learn best through listening and discussion. I'll explain things verbally and use storytelling to help you grasp concepts. What topic interests you?
+                    {% elif user_profile and user_profile.dominant_style == 'kinesthetic' %}
+                    Hey! I'm your AI tutor, and I know you're a hands-on learner. I'll provide practical examples and interactive explanations to help you learn by doing. What would you like to explore?
+                    {% else %}
+                    Hello! I'm your AI learning tutor. I'll adapt my teaching style to help you learn effectively. What would you like to know about?
+                    {% endif %}
+                </p>
+                <div class="message-time" id="welcomeTime"></div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chat-input-container">
+        <!-- Quick Suggestions -->
+        <div class="suggestions" id="suggestions">
+            <div class="suggestion-chip" onclick="sendSuggestion('Explain machine learning concepts')">
+                Explain machine learning concepts
+            </div>
+            <div class="suggestion-chip" onclick="sendSuggestion('Help me with Python programming')">
+                Help me with Python programming
+            </div>
+            <div class="suggestion-chip" onclick="sendSuggestion('What are neural networks?')">
+                What are neural networks?
+            </div>
+            <div class="suggestion-chip" onclick="sendSuggestion('Show me data visualization techniques')">
+                Show me data visualization techniques
+            </div>
+        </div>
+
+        <form id="chatForm" onsubmit="sendMessage(event)">
+            <div class="input-group">
+                <textarea 
+                    id="chatInput" 
+                    class="chat-input" 
+                    placeholder="Ask me anything about learning..."
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"
+                    oninput="autoResize(this)"
+                ></textarea>
+                <button type="submit" class="send-button" id="sendButton">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Chat functionality
+let isTyping = false;
+
+// Format time function
+function formatTime(date = new Date()) {
+    return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+    });
+}
+
+// Set welcome message time
+document.addEventListener('DOMContentLoaded', function() {
+    const welcomeTime = document.getElementById('welcomeTime');
+    if (welcomeTime) {
+        welcomeTime.textContent = formatTime();
+    }
+});
+
+// Auto-resize textarea
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+}
+
+// Handle Enter key
+function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage(event);
+    }
+}
+
+// Send suggestion
+function sendSuggestion(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+}
+
+// Send message
+function sendMessage(event) {
+    if (event) event.preventDefault();
+    
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message to chat
+    addMessage(message, 'user');
+    
+    // Clear input
+    input.value = '';
+    input.style.height = 'auto';
+    
+    // Hide suggestions after first message
+    document.getElementById('suggestions').style.display = 'none';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Simulate AI response (in real app, this would be an API call)
+    setTimeout(() => {
+        hideTypingIndicator();
+        const response = generateAIResponse(message);
+        addMessage(response, 'ai');
+    }, 1500 + Math.random() * 1000);
+}
+
+// Add message to chat
+function addMessage(content, sender) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const timeString = formatTime();
+    
+    if (sender === 'user') {
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="message-content">
+                <p class="mb-0">${content}</p>
+                <div class="message-time">${timeString}</div>
+            </div>
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-content">
+                <p class="mb-0">${content}</p>
+                <div class="message-time">${timeString}</div>
+            </div>
+        `;
+    }
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Show typing indicator
+function showTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'flex';
+    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+}
+
+// Hide typing indicator
+function hideTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'none';
+}
+
+// Generate AI response (simplified - in real app, this would call your AI API)
+function generateAIResponse(userMessage) {
+    const learningStyle = '{{ user_profile.dominant_style if user_profile else "visual" }}';
+    const message = userMessage.toLowerCase();
+    
+    // Simple response generation based on learning style and message content
+    let response = '';
+    
+    if (message.includes('machine learning') || message.includes('ml')) {
+        if (learningStyle === 'visual') {
+            response = "Great question about machine learning! Let me explain this visually: Imagine machine learning as a process where we feed data into an algorithm (like ingredients into a recipe), and it learns patterns to make predictions. I'd recommend looking at flowcharts and diagrams to understand the data flow from input → processing → output. Would you like me to suggest some visual resources?";
+        } else if (learningStyle === 'auditory') {
+            response = "Machine learning is fascinating! Think of it like teaching a child to recognize patterns through repetition and feedback. The algorithm 'listens' to the data, learns from examples, and gradually improves its predictions. I can walk you through this step-by-step verbally, or we could discuss different ML algorithms and their 'personalities'. What aspect interests you most?";
+        } else {
+            response = "Machine learning is like learning to ride a bike - you need hands-on practice! The algorithm learns by doing: it tries different approaches, gets feedback on its performance, and adjusts its strategy. I can guide you through building your first ML model or show you interactive tools where you can experiment with different algorithms. Ready to get your hands dirty?";
+        }
+    } else if (message.includes('python') || message.includes('programming')) {
+        if (learningStyle === 'visual') {
+            response = "Python programming is perfect for visual learners! I can show you code structure through syntax highlighting, flow diagrams of program execution, and visual debugging tools. Python's clean syntax makes it easy to see the logic flow. Would you like to see some code examples with visual explanations?";
+        } else if (learningStyle === 'auditory') {
+            response = "Python is like learning a new language - it has its own vocabulary and grammar! I can explain the concepts verbally, walk through code line by line, and discuss programming patterns. Python's readable syntax makes it great for verbal explanations. Shall we go through some examples together?";
+        } else {
+            response = "Python is hands-on and interactive! The best way to learn is by writing code, running it, and seeing immediate results. I can guide you through practical exercises, coding challenges, and real projects. Python's interactive shell lets you experiment and learn by doing. Ready to start coding?";
+        }
+    } else if (message.includes('neural network') || message.includes('deep learning')) {
+        if (learningStyle === 'visual') {
+            response = "Neural networks are like interconnected webs of decision-making nodes! I can show you beautiful diagrams of how data flows through layers, activation functions as filters, and backpropagation as error correction flowing backward. Visualizing the network architecture really helps understand how they work. Want to see some network diagrams?";
+        } else if (learningStyle === 'auditory') {
+            response = "Neural networks are like a symphony of interconnected musicians! Each neuron is like a musician that listens to others, processes the information, and contributes to the final performance. I can explain how signals flow through the network, how learning happens through feedback, and discuss different architectures. Shall we explore this together?";
+        } else {
+            response = "Neural networks are like building with LEGO blocks! Each layer is a set of building blocks that transform the data. You can actually build simple networks by hand, experiment with different architectures, and see how changing parameters affects performance. I can guide you through hands-on exercises with neural network simulators. Ready to build?";
+        }
+    } else {
+        // Generic response based on learning style
+        if (learningStyle === 'visual') {
+            response = "That's an interesting question! Let me break this down visually for you. I can create diagrams, charts, or step-by-step visual guides to help you understand this concept better. Visual learners like you often benefit from seeing the big picture and how different parts connect. What specific aspect would you like me to illustrate?";
+        } else if (learningStyle === 'auditory') {
+            response = "Great question! Let me walk you through this step by step. I'll explain the concepts verbally, use analogies and stories to make it memorable, and we can discuss different aspects until it clicks. Auditory learners like you often benefit from hearing explanations and having conversations about the topic. What would you like to explore further?";
+        } else {
+            response = "Excellent question! Let's approach this hands-on. I can provide practical examples, interactive exercises, and real-world applications that you can work through. Kinesthetic learners like you often learn best by doing and experimenting. What kind of practical approach would help you understand this better?";
+        }
+    }
+    
+    return response;
+}
+
+// Initialize chat
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on input
+    document.getElementById('chatInput').focus();
+    
+    // Add some sample conversation if this is a new chat
+    const messagesContainer = document.getElementById('chatMessages');
+    if (messagesContainer.children.length <= 1) {
+        // This is a new chat, show welcome message
+        console.log('New chat session started');
+    }
+});
+</script>
+{% endblock %}

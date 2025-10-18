@@ -1,0 +1,1045 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.welcome-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.welcome-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.learning-style-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #28a745;
+}
+
+.style-breakdown {
+    display: flex;
+    justify-content: space-around;
+    margin: 2rem 0;
+}
+
+.style-item {
+    text-align: center;
+    flex: 1;
+    margin: 0 1rem;
+}
+
+.style-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+    color: white;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+}
+
+.style-circle.visual {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.style-circle.auditory {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.style-circle.kinesthetic {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.style-percentage {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.style-label {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.dominant-style {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.dominant-style h3 {
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+.content-recommendations {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.content-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #007bff;
+}
+
+.content-type {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.content-type.video {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.content-type.audio {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.content-type.interactive {
+    background: #e8f5e8;
+    color: #388e3c;
+}
+
+.content-type.text {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.content-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.content-description {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.content-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.progress-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.progress-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    flex: 1;
+    min-width: 200px;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+/* Question & Answer Styles */
+.question-answer-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.question-input-container {
+    margin-bottom: 2rem;
+}
+
+.quick-questions {
+    margin-top: 1rem;
+}
+
+.question-answer-result {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.answer-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #007bff;
+}
+
+.answer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.answer-content {
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.answer-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Enhanced Content Cards */
+.content-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.content-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.content-card:hover::before {
+    left: 100%;
+}
+
+.content-card .content-type {
+    position: relative;
+    z-index: 2;
+}
+
+/* Recommendation Filters */
+.recommendation-filters {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+/* Loading States */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Progress Enhancement */
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    transition: stroke-dashoffset 0.5s ease-in-out;
+}
+
+/* Interactive Elements */
+.interactive-element {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.interactive-element:hover {
+    transform: scale(1.02);
+}
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+    .answer-actions {
+        flex-direction: column;
+    }
+    
+    .answer-actions .btn {
+        width: 100%;
+    }
+    
+    .quick-questions {
+        text-align: center;
+    }
+    
+    .quick-questions .btn {
+        margin: 0.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .style-breakdown {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .style-item {
+        margin: 0;
+    }
+    
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        min-width: auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h1 class="welcome-title">
+            <i class="bi bi-person-circle"></i> Welcome back, {{ current_user.username }}!
+            {% if current_user.is_admin() %}
+            <span class="badge bg-danger ms-2">Admin</span>
+            {% elif current_user.is_moderator() %}
+            <span class="badge bg-warning ms-2">Moderator</span>
+            {% endif %}
+        </h1>
+        <p class="welcome-subtitle">
+            Your personalized learning journey continues. Here's what we've prepared for you today.
+        </p>
+    </div>
+
+    <!-- Learning Style Results -->
+    <div class="learning-style-card">
+        <h2 class="mb-4">
+            <i class="bi bi-graph-up"></i> Your Learning Style Profile
+        </h2>
+        
+        {% if user_profile and user_profile.visual_score > 0 %}
+        <div class="style-breakdown">
+            <div class="style-item">
+                <div class="style-circle visual">
+                    <i class="bi bi-eye"></i>
+                </div>
+                <div class="style-percentage">{{ user_profile.get_style_breakdown().visual }}%</div>
+                <div class="style-label">Visual Learner</div>
+            </div>
+            
+            <div class="style-item">
+                <div class="style-circle auditory">
+                    <i class="bi bi-volume-up"></i>
+                </div>
+                <div class="style-percentage">{{ user_profile.get_style_breakdown().auditory }}%</div>
+                <div class="style-label">Auditory Learner</div>
+            </div>
+            
+            <div class="style-item">
+                <div class="style-circle kinesthetic">
+                    <i class="bi bi-hand-index"></i>
+                </div>
+                <div class="style-percentage">{{ user_profile.get_style_breakdown().kinesthetic }}%</div>
+                <div class="style-label">Kinesthetic Learner</div>
+            </div>
+        </div>
+        
+        <div class="dominant-style">
+            <h3>
+                <i class="bi bi-star-fill"></i> 
+                Your Dominant Learning Style: {{ user_profile.dominant_style.title() }}
+            </h3>
+            <p class="mb-0">
+                {% if user_profile.dominant_style == 'visual' %}
+                You learn best through visual aids, diagrams, and written materials. We'll focus on providing you with charts, infographics, and visual content.
+                {% elif user_profile.dominant_style == 'auditory' %}
+                You learn best through listening and verbal communication. We'll prioritize audio content, discussions, and spoken explanations.
+                {% else %}
+                You learn best through hands-on activities and physical engagement. We'll provide interactive content and practical exercises.
+                {% endif %}
+            </p>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-clipboard-check text-muted" style="font-size: 3rem;"></i>
+            <h4 class="mt-3 text-muted">Complete Your Learning Style Assessment</h4>
+            <p class="text-muted">Take our 15-question quiz to discover your unique learning preferences and get personalized recommendations.</p>
+            <a href="{{ url_for('quiz') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-play-circle"></i> Start Assessment
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Interactive Question & Answer Section -->
+    <div class="content-recommendations">
+        <h2 class="mb-4">
+            <i class="bi bi-question-circle"></i> Ask Questions & Get Answers
+        </h2>
+        
+        <div class="question-answer-section">
+            <div class="question-input-container">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="questionInput" 
+                           placeholder="Ask me anything about learning, topics, or concepts..." 
+                           onkeypress="handleQuestionKeyPress(event)">
+                    <button class="btn btn-primary" onclick="askQuestion()">
+                        <i class="bi bi-search"></i> Ask
+                    </button>
+                </div>
+                <div class="quick-questions">
+                    <span class="text-muted me-2">Quick questions:</span>
+                    <button class="btn btn-outline-primary btn-sm me-2" onclick="askQuickQuestion('What is machine learning?')">What is ML?</button>
+                    <button class="btn btn-outline-primary btn-sm me-2" onclick="askQuickQuestion('How do neural networks work?')">Neural Networks</button>
+                    <button class="btn btn-outline-primary btn-sm me-2" onclick="askQuickQuestion('Explain data visualization')">Data Viz</button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="askQuickQuestion('Python programming tips')">Python Tips</button>
+                </div>
+            </div>
+            
+            <div id="questionAnswer" class="question-answer-result" style="display: none;">
+                <div class="answer-card">
+                    <div class="answer-header">
+                        <h5 id="answerTitle" class="mb-2"></h5>
+                        <span class="badge bg-info" id="answerStyle"></span>
+                    </div>
+                    <div id="answerContent" class="answer-content"></div>
+                    <div class="answer-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="generateContent()">
+                            <i class="bi bi-plus-circle"></i> Generate Content
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="saveToLibrary()">
+                            <i class="bi bi-bookmark"></i> Save
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="askFollowUp()">
+                            <i class="bi bi-arrow-right"></i> Ask Follow-up
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Content Recommendations -->
+    <div class="content-recommendations">
+        <h2 class="mb-4">
+            <i class="bi bi-bookmark-star"></i> Personalized Recommendations
+            <button class="btn btn-sm btn-outline-primary float-end" onclick="refreshRecommendations()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </h2>
+        
+        <div class="recommendation-filters mb-3">
+            <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="contentFilter" id="allContent" checked>
+                <label class="btn btn-outline-primary" for="allContent">All</label>
+                
+                <input type="radio" class="btn-check" name="contentFilter" id="videoContent">
+                <label class="btn btn-outline-primary" for="videoContent">Videos</label>
+                
+                <input type="radio" class="btn-check" name="contentFilter" id="interactiveContent">
+                <label class="btn btn-outline-primary" for="interactiveContent">Interactive</label>
+                
+                <input type="radio" class="btn-check" name="contentFilter" id="textContent">
+                <label class="btn btn-outline-primary" for="textContent">Articles</label>
+            </div>
+        </div>
+        
+        <div class="content-grid" id="recommendationsGrid">
+            <!-- Dynamic content will be loaded here -->
+        </div>
+        
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="generatePersonalizedContent()">
+                <i class="bi bi-magic"></i> Generate New Content for Me
+            </button>
+        </div>
+    </div>
+
+    <!-- Progress Tracking -->
+    <div class="progress-section">
+        <h2 class="mb-4">
+            <i class="bi bi-graph-up-arrow"></i> Your Learning Progress
+        </h2>
+        
+        <div class="progress-stats">
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Content Completed</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">8.5</div>
+                <div class="stat-label">Hours Learned</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Achievement Badges</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">85%</div>
+                <div class="stat-label">Average Score</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="{{ url_for('quiz') }}" class="btn btn-primary btn-action">
+            <i class="bi bi-clipboard-check"></i> Retake Assessment
+        </a>
+        
+        <a href="{{ url_for('chat') }}" class="btn btn-success btn-action">
+            <i class="bi bi-chat-dots"></i> AI Tutor Chat
+        </a>
+        
+        <a href="#" class="btn btn-info btn-action">
+            <i class="bi bi-gear"></i> Learning Preferences
+        </a>
+        
+        <a href="#" class="btn btn-warning btn-action">
+            <i class="bi bi-trophy"></i> View Achievements
+        </a>
+        
+        {% if current_user.is_admin() %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-danger btn-action">
+            <i class="bi bi-shield-check"></i> Admin Panel
+        </a>
+        {% endif %}
+        
+        {% if current_user.is_moderator() %}
+        <a href="{{ url_for('moderator_dashboard') }}" class="btn btn-warning btn-action">
+            <i class="bi bi-user-shield"></i> Moderator Panel
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Enhanced Dashboard Functionality
+let currentRecommendations = [];
+let userLearningStyle = '{{ user_profile.dominant_style if user_profile else "visual" }}';
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboard();
+    loadRecommendations();
+    setupEventListeners();
+});
+
+// Initialize dashboard components
+function initializeDashboard() {
+    // Animate progress bars on scroll
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all cards
+    document.querySelectorAll('.content-card, .stat-card').forEach(card => {
+        observer.observe(card);
+    });
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Content filter listeners
+    document.querySelectorAll('input[name="contentFilter"]').forEach(radio => {
+        radio.addEventListener('change', filterContent);
+    });
+}
+
+// Question & Answer System
+function handleQuestionKeyPress(event) {
+    if (event.key === 'Enter') {
+        askQuestion();
+    }
+}
+
+function askQuestion() {
+    const questionInput = document.getElementById('questionInput');
+    const question = questionInput.value.trim();
+    
+    if (!question) return;
+    
+    showLoadingState();
+    
+    // Simulate API call
+    setTimeout(() => {
+        const answer = generateAnswer(question);
+        displayAnswer(question, answer);
+        hideLoadingState();
+    }, 1500);
+}
+
+function askQuickQuestion(question) {
+    document.getElementById('questionInput').value = question;
+    askQuestion();
+}
+
+function generateAnswer(question) {
+    const learningStyle = userLearningStyle;
+    const questionLower = question.toLowerCase();
+    
+    let answer = {
+        title: "Answer to: " + question,
+        style: learningStyle.charAt(0).toUpperCase() + learningStyle.slice(1) + " Learning Style",
+        content: ""
+    };
+    
+    if (questionLower.includes('machine learning') || questionLower.includes('ml')) {
+        if (learningStyle === 'visual') {
+            answer.content = `
+                <h6>Machine Learning - Visual Explanation</h6>
+                <p>Machine Learning is like teaching a computer to recognize patterns through visual examples. Think of it as:</p>
+                <ul>
+                    <li><strong>Data Input:</strong> Like feeding images into a photo album</li>
+                    <li><strong>Training:</strong> The algorithm studies patterns in the images</li>
+                    <li><strong>Prediction:</strong> It can then identify new images it hasn't seen before</li>
+                </ul>
+                <p>I recommend looking at flowcharts and diagrams to understand how data flows through ML algorithms. Would you like me to generate some visual content to illustrate this concept?</p>
+            `;
+        } else if (learningStyle === 'auditory') {
+            answer.content = `
+                <h6>Machine Learning - Audio Explanation</h6>
+                <p>Machine Learning is like teaching a child to recognize sounds and patterns. Here's how it works:</p>
+                <ul>
+                    <li><strong>Listening Phase:</strong> The algorithm "listens" to lots of data examples</li>
+                    <li><strong>Learning Phase:</strong> It identifies patterns and relationships in the data</li>
+                    <li><strong>Application Phase:</strong> It can now make predictions on new, unseen data</li>
+                </ul>
+                <p>I can walk you through this step-by-step verbally, or we could discuss different ML algorithms and their "personalities". What aspect interests you most?</p>
+            `;
+        } else {
+            answer.content = `
+                <h6>Machine Learning - Hands-on Approach</h6>
+                <p>Machine Learning is like learning to ride a bike - you need hands-on practice! Here's how to approach it:</p>
+                <ul>
+                    <li><strong>Start Simple:</strong> Try building a basic classifier with real data</li>
+                    <li><strong>Experiment:</strong> Change parameters and see how it affects results</li>
+                    <li><strong>Practice:</strong> Work on different datasets and problem types</li>
+                </ul>
+                <p>I can guide you through building your first ML model or show you interactive tools where you can experiment. Ready to get your hands dirty?</p>
+            `;
+        }
+    } else if (questionLower.includes('neural network')) {
+        if (learningStyle === 'visual') {
+            answer.content = `
+                <h6>Neural Networks - Visual Guide</h6>
+                <p>Neural networks are like interconnected webs of decision-making nodes! Here's the visual breakdown:</p>
+                <ul>
+                    <li><strong>Input Layer:</strong> Data enters like water flowing into pipes</li>
+                    <li><strong>Hidden Layers:</strong> Processing happens through interconnected nodes</li>
+                    <li><strong>Output Layer:</strong> Final decision emerges from the network</li>
+                </ul>
+                <p>I can show you beautiful diagrams of how data flows through layers and how backpropagation works. Want to see some network visualizations?</p>
+            `;
+        } else if (learningStyle === 'auditory') {
+            answer.content = `
+                <h6>Neural Networks - Audio Explanation</h6>
+                <p>Neural networks are like a symphony of interconnected musicians! Here's how they work:</p>
+                <ul>
+                    <li><strong>Each Neuron:</strong> Like a musician that listens to others and contributes to the performance</li>
+                    <li><strong>Signals Flow:</strong> Information travels through the network like musical notes</li>
+                    <li><strong>Learning:</strong> The network adjusts its "tuning" based on feedback</li>
+                </ul>
+                <p>I can explain how signals flow through the network and discuss different architectures. Shall we explore this together?</p>
+            `;
+        } else {
+            answer.content = `
+                <h6>Neural Networks - Hands-on Approach</h6>
+                <p>Neural networks are like building with LEGO blocks! Here's how to understand them:</p>
+                <ul>
+                    <li><strong>Build Layer by Layer:</strong> Each layer transforms the data in a specific way</li>
+                    <li><strong>Experiment:</strong> Try different architectures and see how they perform</li>
+                    <li><strong>Practice:</strong> Use neural network simulators to build and test networks</li>
+                </ul>
+                <p>I can guide you through hands-on exercises with neural network simulators. Ready to build your first network?</p>
+            `;
+        }
+    } else {
+        // Generic answer based on learning style
+        if (learningStyle === 'visual') {
+            answer.content = `
+                <h6>Learning-Style Adapted Answer</h6>
+                <p>That's an interesting question! Let me break this down visually for you. I can create diagrams, charts, or step-by-step visual guides to help you understand this concept better.</p>
+                <p>Visual learners like you often benefit from seeing the big picture and how different parts connect. What specific aspect would you like me to illustrate?</p>
+            `;
+        } else if (learningStyle === 'auditory') {
+            answer.content = `
+                <h6>Learning-Style Adapted Answer</h6>
+                <p>Great question! Let me walk you through this step by step. I'll explain the concepts verbally, use analogies and stories to make it memorable, and we can discuss different aspects until it clicks.</p>
+                <p>Auditory learners like you often benefit from hearing explanations and having conversations about the topic. What would you like to explore further?</p>
+            `;
+        } else {
+            answer.content = `
+                <h6>Learning-Style Adapted Answer</h6>
+                <p>Excellent question! Let's approach this hands-on. I can provide practical examples, interactive exercises, and real-world applications that you can work through.</p>
+                <p>Kinesthetic learners like you often learn best by doing and experimenting. What kind of practical approach would help you understand this better?</p>
+            `;
+        }
+    }
+    
+    return answer;
+}
+
+function displayAnswer(question, answer) {
+    const answerDiv = document.getElementById('questionAnswer');
+    const titleElement = document.getElementById('answerTitle');
+    const styleElement = document.getElementById('answerStyle');
+    const contentElement = document.getElementById('answerContent');
+    
+    titleElement.textContent = answer.title;
+    styleElement.textContent = answer.style;
+    contentElement.innerHTML = answer.content;
+    
+    answerDiv.style.display = 'block';
+    answerDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showLoadingState() {
+    const button = document.querySelector('button[onclick="askQuestion()"]');
+    button.innerHTML = '<span class="loading-spinner"></span> Thinking...';
+    button.disabled = true;
+}
+
+function hideLoadingState() {
+    const button = document.querySelector('button[onclick="askQuestion()"]');
+    button.innerHTML = '<i class="bi bi-search"></i> Ask';
+    button.disabled = false;
+}
+
+// Content Generation Functions
+function generateContent() {
+    const question = document.getElementById('questionInput').value;
+    if (!question) return;
+    
+    showNotification('Generating personalized content for you...', 'info');
+    
+    // Simulate content generation
+    setTimeout(() => {
+        showNotification('Content generated successfully! Check your library.', 'success');
+    }, 2000);
+}
+
+function saveToLibrary() {
+    showNotification('Answer saved to your personal library!', 'success');
+}
+
+function askFollowUp() {
+    const followUpInput = prompt('What would you like to know more about?');
+    if (followUpInput) {
+        document.getElementById('questionInput').value = followUpInput;
+        askQuestion();
+    }
+}
+
+// Recommendation System
+function loadRecommendations() {
+    const recommendations = generatePersonalizedRecommendations();
+    currentRecommendations = recommendations;
+    displayRecommendations(recommendations);
+}
+
+function generatePersonalizedRecommendations() {
+    const learningStyle = userLearningStyle;
+    const baseRecommendations = [
+        {
+            id: 1,
+            type: 'video',
+            title: 'Introduction to Machine Learning',
+            description: 'A comprehensive visual guide to machine learning concepts with interactive diagrams and flowcharts.',
+            duration: '15 min',
+            rating: 4.8,
+            difficulty: 'Beginner',
+            style: 'visual'
+        },
+        {
+            id: 2,
+            type: 'audio',
+            title: 'Data Science Podcast Series',
+            description: 'Expert discussions on data science trends and techniques, perfect for auditory learners.',
+            duration: '25 min',
+            rating: 4.6,
+            difficulty: 'Intermediate',
+            style: 'auditory'
+        },
+        {
+            id: 3,
+            type: 'interactive',
+            title: 'Hands-on Python Workshop',
+            description: 'Practice coding exercises and build real projects to master Python programming.',
+            duration: '45 min',
+            rating: 4.9,
+            difficulty: 'Advanced',
+            style: 'kinesthetic'
+        },
+        {
+            id: 4,
+            type: 'text',
+            title: 'Deep Learning Fundamentals',
+            description: 'In-depth written guide covering neural networks, backpropagation, and advanced concepts.',
+            duration: '20 min',
+            rating: 4.7,
+            difficulty: 'Intermediate',
+            style: 'visual'
+        }
+    ];
+    
+    // Filter and prioritize based on learning style
+    return baseRecommendations.filter(rec => rec.style === learningStyle)
+        .concat(baseRecommendations.filter(rec => rec.style !== learningStyle))
+        .slice(0, 8);
+}
+
+function displayRecommendations(recommendations) {
+    const grid = document.getElementById('recommendationsGrid');
+    grid.innerHTML = '';
+    
+    recommendations.forEach(rec => {
+        const card = createRecommendationCard(rec);
+        grid.appendChild(card);
+    });
+}
+
+function createRecommendationCard(recommendation) {
+    const card = document.createElement('div');
+    card.className = 'content-card interactive-element';
+    
+    card.innerHTML = `
+        <span class="content-type ${recommendation.type}">${recommendation.type.charAt(0).toUpperCase() + recommendation.type.slice(1)}</span>
+        <h4 class="content-title">${recommendation.title}</h4>
+        <p class="content-description">${recommendation.description}</p>
+        <div class="content-meta">
+            <span><i class="bi bi-clock"></i> ${recommendation.duration}</span>
+            <span><i class="bi bi-star"></i> ${recommendation.rating}</span>
+            <span><i class="bi bi-graph-up"></i> ${recommendation.difficulty}</span>
+        </div>
+    `;
+    
+    card.addEventListener('click', () => {
+        openContent(recommendation);
+    });
+    
+    return card;
+}
+
+function openContent(recommendation) {
+    showNotification(`Opening ${recommendation.title}...`, 'info');
+    // In a real app, this would open the content
+}
+
+function filterContent() {
+    const selectedFilter = document.querySelector('input[name="contentFilter"]:checked').id;
+    let filteredRecommendations = currentRecommendations;
+    
+    if (selectedFilter !== 'allContent') {
+        const filterType = selectedFilter.replace('Content', '').toLowerCase();
+        filteredRecommendations = currentRecommendations.filter(rec => rec.type === filterType);
+    }
+    
+    displayRecommendations(filteredRecommendations);
+}
+
+function refreshRecommendations() {
+    showNotification('Refreshing recommendations...', 'info');
+    setTimeout(() => {
+        loadRecommendations();
+        showNotification('Recommendations updated!', 'success');
+    }, 1000);
+}
+
+function generatePersonalizedContent() {
+    showNotification('Generating personalized content based on your learning style...', 'info');
+    
+    setTimeout(() => {
+        const newContent = {
+            id: Date.now(),
+            type: userLearningStyle === 'visual' ? 'video' : userLearningStyle === 'auditory' ? 'audio' : 'interactive',
+            title: `Personalized ${userLearningStyle.charAt(0).toUpperCase() + userLearningStyle.slice(1)} Learning Content`,
+            description: `Custom content tailored to your ${userLearningStyle} learning style, generated just for you.`,
+            duration: '30 min',
+            rating: 5.0,
+            difficulty: 'Personalized',
+            style: userLearningStyle
+        };
+        
+        currentRecommendations.unshift(newContent);
+        displayRecommendations(currentRecommendations);
+        showNotification('New personalized content generated!', 'success');
+    }, 2000);
+}
+
+// Utility Functions
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'info' ? 'info' : type === 'success' ? 'success' : 'warning'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .content-card, .stat-card {
+        opacity: 0;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

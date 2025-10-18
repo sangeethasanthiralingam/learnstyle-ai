@@ -1,0 +1,899 @@
+{% extends "base.html" %}
+
+{% block title %}User Guide - LearnStyle AI Documentation{% endblock %}
+
+{% block content %}
+<div class="docs-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 col-md-4 docs-sidebar">
+                <div class="docs-nav">
+                    <div class="docs-brand">
+                        <h4><i class="fas fa-book"></i> LearnStyle AI Docs</h4>
+                    </div>
+                    <nav class="docs-nav-menu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('docs_index') }}">
+                                    <i class="fas fa-home"></i> Overview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('getting_started') }}">
+                                    <i class="fas fa-rocket"></i> Getting Started
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ url_for('user_guide') }}">
+                                    <i class="fas fa-user"></i> User Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('developer_guide') }}">
+                                    <i class="fas fa-code"></i> Developer Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('api_reference') }}">
+                                    <i class="fas fa-cogs"></i> API Reference
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#user-roles">
+                                    <i class="fas fa-users-cog"></i> User Roles & Permissions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#admin-features">
+                                    <i class="fas fa-shield-alt"></i> Admin Features
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#moderator-features">
+                                    <i class="fas fa-user-shield"></i> Moderator Features
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8 docs-content">
+                <div class="docs-main">
+                    <!-- Page Header -->
+                    <div class="docs-header">
+                        <h1>User Guide</h1>
+                        <p class="lead">Complete guide to using LearnStyle AI for personalized learning</p>
+                    </div>
+
+                    <!-- Table of Contents -->
+                    <div class="docs-toc">
+                        <h3>Table of Contents</h3>
+                        <ul>
+                            <li><a href="#getting-started">Getting Started</a></li>
+                            <li><a href="#account-setup">Account Setup</a></li>
+                            <li><a href="#quiz">Taking the Learning Style Quiz</a></li>
+                            <li><a href="#dashboard">Using the Dashboard</a></li>
+                            <li><a href="#ai-tutor">AI Tutor Features</a></li>
+                            <li><a href="#collaborative-learning">Collaborative Learning</a></li>
+                            <li><a href="#biometric-feedback">Biometric Feedback</a></li>
+                            <li><a href="#advanced-features">Advanced Features</a></li>
+                            <li><a href="#troubleshooting">Troubleshooting</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Getting Started Section -->
+                    <section id="getting-started" class="docs-section">
+                        <h2>Getting Started</h2>
+                        <p>Welcome to LearnStyle AI! This guide will help you get the most out of your personalized learning experience.</p>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>First Time?</strong> Start by creating an account and taking the learning style assessment quiz.
+                        </div>
+
+                        <h3>What is LearnStyle AI?</h3>
+                        <p>LearnStyle AI is an intelligent learning platform that uses machine learning to:</p>
+                        <ul>
+                            <li>Analyze your learning preferences and patterns</li>
+                            <li>Deliver personalized educational content</li>
+                            <li>Provide real-time feedback and recommendations</li>
+                            <li>Connect you with like-minded learners</li>
+                            <li>Monitor your learning progress and optimize your experience</li>
+                        </ul>
+                    </section>
+
+                    <!-- Account Setup Section -->
+                    <section id="account-setup" class="docs-section">
+                        <h2>Account Setup</h2>
+                        
+                        <h3>Creating Your Account</h3>
+                        <ol>
+                            <li>Click the <strong>"Get Started Free"</strong> button on the homepage</li>
+                            <li>Fill in your registration form with:
+                                <ul>
+                                    <li>Username (unique identifier)</li>
+                                    <li>Email address</li>
+                                    <li>Password (minimum 8 characters)</li>
+                                </ul>
+                            </li>
+                            <li>Click <strong>"Register"</strong> to create your account</li>
+                            <li>You'll be automatically logged in and redirected to the dashboard</li>
+                        </ol>
+
+                        <h3>Profile Setup</h3>
+                        <p>After registration, you can enhance your profile by:</p>
+                        <ul>
+                            <li>Adding a profile picture</li>
+                            <li>Setting your learning goals</li>
+                            <li>Specifying your areas of interest</li>
+                            <li>Configuring notification preferences</li>
+                        </ul>
+                    </section>
+
+                    <!-- Quiz Section -->
+                    <section id="quiz" class="docs-section">
+                        <h2>Taking the Learning Style Quiz</h2>
+                        <p>The learning style assessment is the foundation of your personalized experience.</p>
+
+                        <h3>Quiz Overview</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="feature-card">
+                                    <h4><i class="fas fa-clipboard-check"></i> 15 Questions</h4>
+                                    <p>Carefully crafted questions designed to identify your learning preferences</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="feature-card">
+                                    <h4><i class="fas fa-clock"></i> 10-15 Minutes</h4>
+                                    <p>Quick and engaging assessment that won't take long to complete</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3>How to Take the Quiz</h3>
+                        <ol>
+                            <li>Navigate to the <strong>"Learning Quiz"</strong> section</li>
+                            <li>Read each question carefully</li>
+                            <li>Select the answer that best describes your preference</li>
+                            <li>Answer honestly - there are no right or wrong answers</li>
+                            <li>Complete all 15 questions</li>
+                            <li>Submit your responses</li>
+                        </ol>
+
+                        <h3>Understanding Your Results</h3>
+                        <p>After completing the quiz, you'll receive a detailed breakdown of your learning style:</p>
+                        <ul>
+                            <li><strong>Visual Learning %</strong> - How much you learn through visual aids</li>
+                            <li><strong>Auditory Learning %</strong> - How much you learn through listening</li>
+                            <li><strong>Kinesthetic Learning %</strong> - How much you learn through hands-on activities</li>
+                        </ul>
+
+                        <div class="alert alert-success">
+                            <i class="fas fa-lightbulb"></i>
+                            <strong>Tip:</strong> You can retake the quiz anytime to update your learning profile as your preferences evolve.
+                        </div>
+                    </section>
+
+                    <!-- Dashboard Section -->
+                    <section id="dashboard" class="docs-section">
+                        <h2>Using the Dashboard</h2>
+                        <p>Your dashboard is the central hub for all your learning activities and progress tracking.</p>
+
+                        <h3>Dashboard Components</h3>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="dashboard-component">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <h4>Learning Style Visualization</h4>
+                                    <p>Interactive charts showing your learning style percentages</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="dashboard-component">
+                                    <i class="fas fa-book"></i>
+                                    <h4>Personalized Content Feed</h4>
+                                    <p>Curated content recommendations based on your learning style</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="dashboard-component">
+                                    <i class="fas fa-trophy"></i>
+                                    <h4>Progress Tracking</h4>
+                                    <p>Track your learning milestones and achievements</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3>Advanced Dashboard Features</h3>
+                        <p>Access the Advanced Dashboard for additional features:</p>
+                        <ul>
+                            <li><strong>Real-time Analytics</strong> - Live data on your learning patterns</li>
+                            <li><strong>AI Insights</strong> - Detailed analysis of your learning behavior</li>
+                            <li><strong>Biometric Feedback</strong> - Monitor your physiological responses</li>
+                            <li><strong>Collaborative Learning</strong> - Connect with other learners</li>
+                        </ul>
+                    </section>
+
+                    <!-- AI Tutor Section -->
+                    <section id="ai-tutor" class="docs-section">
+                        <h2>AI Tutor Features</h2>
+                        <p>Your personal AI tutor provides intelligent, style-aware assistance throughout your learning journey.</p>
+
+                        <h3>Getting Started with AI Tutor</h3>
+                        <ol>
+                            <li>Navigate to the <strong>"AI Tutor"</strong> section</li>
+                            <li>Start a conversation by asking a question</li>
+                            <li>The AI will respond based on your learning style</li>
+                            <li>Continue the conversation to get personalized help</li>
+                        </ol>
+
+                        <h3>AI Tutor Capabilities</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li><strong>Style-Aware Responses</strong> - Tailored to your learning preferences</li>
+                                    <li><strong>Concept Explanations</strong> - Clear, detailed explanations</li>
+                                    <li><strong>Study Recommendations</strong> - Personalized study strategies</li>
+                                    <li><strong>Progress Guidance</strong> - Help with learning goals</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li><strong>Interactive Learning</strong> - Engaging conversations</li>
+                                    <li><strong>Context Awareness</strong> - Remembers your learning history</li>
+                                    <li><strong>Multi-modal Support</strong> - Text, images, and examples</li>
+                                    <li><strong>24/7 Availability</strong> - Always ready to help</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Collaborative Learning Section -->
+                    <section id="collaborative-learning" class="docs-section">
+                        <h2>Collaborative Learning</h2>
+                        <p>Connect with other learners and enhance your learning through social interaction.</p>
+
+                        <h3>Features</h3>
+                        <ul>
+                            <li><strong>Peer Matching</strong> - Find learners with similar interests and styles</li>
+                            <li><strong>Group Activities</strong> - Participate in collaborative learning sessions</li>
+                            <li><strong>Real-time Collaboration</strong> - Work together on projects and assignments</li>
+                            <li><strong>Social Learning Analytics</strong> - Track your collaborative learning progress</li>
+                        </ul>
+
+                        <h3>Getting Started</h3>
+                        <ol>
+                            <li>Visit the <strong>"Collaborative Learning"</strong> dashboard</li>
+                            <li>Complete your learning profile to enable peer matching</li>
+                            <li>Join existing groups or create your own</li>
+                            <li>Participate in group activities and discussions</li>
+                        </ol>
+                    </section>
+
+                    <!-- Biometric Feedback Section -->
+                    <section id="biometric-feedback" class="docs-section">
+                        <h2>Biometric Feedback</h2>
+                        <p>Monitor your physiological responses to optimize your learning conditions.</p>
+
+                        <h3>Available Sensors</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="sensor-info">
+                                    <h4><i class="fas fa-heartbeat"></i> Heart Rate Variability (HRV)</h4>
+                                    <p>Monitor stress levels and learning readiness</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="sensor-info">
+                                    <h4><i class="fas fa-hand-paper"></i> Galvanic Skin Response (GSR)</h4>
+                                    <p>Track emotional arousal and engagement</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3>Using Biometric Feedback</h3>
+                        <ol>
+                            <li>Access the <strong>"Biometric Feedback"</strong> dashboard</li>
+                            <li>Connect your compatible sensors</li>
+                            <li>Start a learning session with monitoring enabled</li>
+                            <li>Review real-time feedback and recommendations</li>
+                        </ol>
+                    </section>
+
+                    <!-- Advanced Features Section -->
+                    <section id="advanced-features" class="docs-section">
+                        <h2>Advanced Features</h2>
+                        <p>Explore the cutting-edge features that make LearnStyle AI unique.</p>
+
+                        <h3>Available Advanced Features</h3>
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <i class="fas fa-brain"></i>
+                                <h4>Neurofeedback</h4>
+                                <p>EEG-based cognitive load optimization</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-eye"></i>
+                                <h4>Eye-Tracking</h4>
+                                <p>Gaze pattern analysis for content optimization</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-smile"></i>
+                                <h4>Emotion AI</h4>
+                                <p>Facial expression and voice emotion detection</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-chart-line"></i>
+                                <h4>Predictive Analytics</h4>
+                                <p>AI-powered success prediction and intervention</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Troubleshooting Section -->
+                    <section id="troubleshooting" class="docs-section">
+                        <h2>Troubleshooting</h2>
+                        <p>Common issues and solutions to help you get the most out of LearnStyle AI.</p>
+
+                        <h3>Common Issues</h3>
+                        <div class="accordion" id="troubleshootingAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#issue1">
+                                        Quiz not loading properly
+                                    </button>
+                                </h2>
+                                <div id="issue1" class="accordion-collapse collapse show" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Solution:</strong> Try refreshing the page or clearing your browser cache. Ensure you have a stable internet connection.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue2">
+                                        AI Tutor not responding
+                                    </button>
+                                </h2>
+                                <div id="issue2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Solution:</strong> Check your internet connection and try again. If the issue persists, contact support.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue3">
+                                        Dashboard not updating
+                                    </button>
+                                </h2>
+                                <div id="issue3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Solution:</strong> Refresh the page or log out and log back in. Your data should sync automatically.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3>Getting Help</h3>
+                        <p>If you need additional assistance:</p>
+                        <ul>
+                            <li>Check the <a href="{{ url_for('developer_guide') }}">Developer Guide</a> for technical issues</li>
+                            <li>Contact our support team through the application</li>
+                            <li>Visit our community forum for peer support</li>
+                        </ul>
+                    </section>
+
+                    <!-- User Roles & Permissions Section -->
+                    <section id="user-roles" class="docs-section">
+                        <h2>User Roles & Permissions</h2>
+                        <p>LearnStyle AI features a comprehensive role-based access control system with three distinct user levels.</p>
+
+                        <h3>Role Hierarchy</h3>
+                        <div class="role-hierarchy">
+                            <div class="role-card admin">
+                                <div class="role-header">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <h4>Administrator</h4>
+                                    <span class="badge bg-danger">Full Access</span>
+                                </div>
+                                <div class="role-permissions">
+                                    <h5>Capabilities:</h5>
+                                    <ul>
+                                        <li>Complete system management</li>
+                                        <li>User account management</li>
+                                        <li>Content library management</li>
+                                        <li>System analytics and reporting</li>
+                                        <li>System configuration and settings</li>
+                                        <li>Data export and backup</li>
+                                        <li>All moderator and user features</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="role-card moderator">
+                                <div class="role-header">
+                                    <i class="fas fa-user-shield"></i>
+                                    <h4>Moderator</h4>
+                                    <span class="badge bg-warning">Limited Access</span>
+                                </div>
+                                <div class="role-permissions">
+                                    <h5>Capabilities:</h5>
+                                    <ul>
+                                        <li>Content management and review</li>
+                                        <li>User overview and basic management</li>
+                                        <li>Basic system analytics</li>
+                                        <li>Content approval and moderation</li>
+                                        <li>Report generation</li>
+                                        <li>All user features</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="role-card user">
+                                <div class="role-header">
+                                    <i class="fas fa-user"></i>
+                                    <h4>User</h4>
+                                    <span class="badge bg-secondary">Basic Access</span>
+                                </div>
+                                <div class="role-permissions">
+                                    <h5>Capabilities:</h5>
+                                    <ul>
+                                        <li>Personal dashboard and learning</li>
+                                        <li>Learning style assessment</li>
+                                        <li>AI tutor chat</li>
+                                        <li>Content consumption and progress tracking</li>
+                                        <li>Personal settings and preferences</li>
+                                        <li>Access to all learning features</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3>Role Assignment</h3>
+                        <p>User roles are assigned by administrators and can be changed at any time. Role changes take effect immediately upon login.</p>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> Your current role is displayed in the navigation menu and dashboard. Contact an administrator if you believe your role needs to be updated.
+                        </div>
+                    </section>
+
+                    <!-- Admin Features Section -->
+                    <section id="admin-features" class="docs-section">
+                        <h2>Administrator Features</h2>
+                        <p>Administrators have access to comprehensive system management tools and analytics.</p>
+
+                        <h3>Admin Dashboard</h3>
+                        <p>Access the admin dashboard through the "Admin Panel" link in the navigation menu (visible only to administrators).</p>
+
+                        <h4>Key Features:</h4>
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <i class="fas fa-users"></i>
+                                <h5>User Management</h5>
+                                <p>View, edit, and manage all user accounts. Create new users, modify roles, and manage account status.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-book"></i>
+                                <h5>Content Management</h5>
+                                <p>Manage the entire content library. Add, edit, and remove educational materials.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-chart-bar"></i>
+                                <h5>System Analytics</h5>
+                                <p>View comprehensive analytics including user activity, learning style distribution, and system performance.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-cog"></i>
+                                <h5>System Settings</h5>
+                                <p>Configure system parameters, manage integrations, and control feature availability.</p>
+                            </div>
+                        </div>
+
+                        <h3>Quick Actions</h3>
+                        <ul>
+                            <li><strong>Export Data:</strong> Download user and analytics data for external analysis</li>
+                            <li><strong>System Backup:</strong> Create system backups for data protection</li>
+                            <li><strong>View Logs:</strong> Access system and error logs for troubleshooting</li>
+                            <li><strong>User Reports:</strong> Generate detailed user activity and progress reports</li>
+                        </ul>
+                    </section>
+
+                    <!-- Moderator Features Section -->
+                    <section id="moderator-features" class="docs-section">
+                        <h2>Moderator Features</h2>
+                        <p>Moderators have access to content management and user oversight tools.</p>
+
+                        <h3>Moderator Dashboard</h3>
+                        <p>Access the moderator dashboard through the "Moderator" link in the navigation menu (visible to moderators and administrators).</p>
+
+                        <h4>Key Features:</h4>
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <i class="fas fa-edit"></i>
+                                <h5>Content Review</h5>
+                                <p>Review and moderate educational content before publication. Approve or reject content submissions.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-users"></i>
+                                <h5>User Overview</h5>
+                                <p>View user information and activity. Monitor user engagement and provide support.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-chart-line"></i>
+                                <h5>Basic Analytics</h5>
+                                <p>Access basic system statistics and user activity metrics.</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-download"></i>
+                                <h5>Report Generation</h5>
+                                <p>Generate and export reports on content usage and user activity.</p>
+                            </div>
+                        </div>
+
+                        <h3>Content Management</h3>
+                        <p>Moderators can:</p>
+                        <ul>
+                            <li>Add new educational content to the library</li>
+                            <li>Edit existing content and metadata</li>
+                            <li>Remove inappropriate or outdated content</li>
+                            <li>Organize content by categories and difficulty levels</li>
+                            <li>Set content visibility and access permissions</li>
+                        </ul>
+
+                        <h3>User Management</h3>
+                        <p>Moderators can:</p>
+                        <ul>
+                            <li>View user profiles and activity</li>
+                            <li>Toggle user account status (active/inactive)</li>
+                            <li>View user learning progress and engagement</li>
+                            <li>Provide user support and assistance</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Include the same styles from index.html plus additional user guide specific styles */
+.docs-container {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.docs-sidebar {
+    background: #2c3e50;
+    color: white;
+    min-height: 100vh;
+    padding: 0;
+    position: sticky;
+    top: 0;
+}
+
+.docs-nav {
+    padding: 2rem 1.5rem;
+}
+
+.docs-brand h4 {
+    color: #ecf0f1;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.docs-nav-menu .nav-link {
+    color: #bdc3c7;
+    padding: 0.75rem 0;
+    border-radius: 0.5rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.docs-nav-menu .nav-link:hover,
+.docs-nav-menu .nav-link.active {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    padding-left: 1rem;
+}
+
+.docs-nav-menu .nav-link i {
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+.docs-content {
+    padding: 2rem;
+}
+
+.docs-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.docs-header h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.docs-toc {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.docs-toc h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.docs-toc ul {
+    list-style: none;
+    padding: 0;
+}
+
+.docs-toc li {
+    margin-bottom: 0.5rem;
+}
+
+.docs-toc a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.docs-toc a:hover {
+    color: #2980b9;
+}
+
+.docs-section {
+    margin: 3rem 0;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.docs-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+.docs-section h3 {
+    color: #34495e;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+}
+
+.feature-card i {
+    font-size: 2rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-component {
+    text-align: center;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-component i {
+    font-size: 2.5rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.dashboard-component h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.sensor-info {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.sensor-info i {
+    color: #e74c3c;
+    margin-right: 0.5rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.accordion-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.accordion-button {
+    background: #f8f9fa;
+    border: none;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.accordion-button:not(.collapsed) {
+    background: #3498db;
+    color: white;
+}
+
+.accordion-body {
+    background: white;
+    padding: 1.5rem;
+}
+
+/* Role-based documentation styles */
+.role-hierarchy {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.role-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.role-card:hover {
+    transform: translateY(-5px);
+}
+
+.role-card.admin {
+    border-top: 5px solid #dc3545;
+}
+
+.role-card.moderator {
+    border-top: 5px solid #ffc107;
+}
+
+.role-card.user {
+    border-top: 5px solid #6c757d;
+}
+
+.role-header {
+    padding: 1.5rem;
+    text-align: center;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.role-header i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.role-card.admin .role-header i {
+    color: #dc3545;
+}
+
+.role-card.moderator .role-header i {
+    color: #ffc107;
+}
+
+.role-card.user .role-header i {
+    color: #6c757d;
+}
+
+.role-header h4 {
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+.role-permissions {
+    padding: 1.5rem;
+}
+
+.role-permissions h5 {
+    color: #495057;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.role-permissions ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.role-permissions li {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.feature-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-3px);
+}
+
+.feature-item i {
+    font-size: 2rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.feature-item h5 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.feature-item p {
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .docs-sidebar {
+        min-height: auto;
+        position: relative;
+    }
+    
+    .docs-content {
+        padding: 1rem;
+    }
+    
+    .docs-section {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

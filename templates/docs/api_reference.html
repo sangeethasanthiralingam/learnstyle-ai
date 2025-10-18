@@ -1,0 +1,670 @@
+{% extends "base.html" %}
+
+{% block title %}API Reference - LearnStyle AI Documentation{% endblock %}
+
+{% block content %}
+<div class="docs-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 col-md-4 docs-sidebar">
+                <div class="docs-nav">
+                    <div class="docs-brand">
+                        <h4><i class="fas fa-book"></i> LearnStyle AI Docs</h4>
+                    </div>
+                    <nav class="docs-nav-menu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('docs_index') }}">
+                                    <i class="fas fa-home"></i> Overview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('getting_started') }}">
+                                    <i class="fas fa-rocket"></i> Getting Started
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('user_guide') }}">
+                                    <i class="fas fa-user"></i> User Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('developer_guide') }}">
+                                    <i class="fas fa-code"></i> Developer Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ url_for('api_reference') }}">
+                                    <i class="fas fa-cogs"></i> API Reference
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8 docs-content">
+                <div class="docs-main">
+                    <!-- Page Header -->
+                    <div class="docs-header">
+                        <h1>API Reference</h1>
+                        <p class="lead">Complete API documentation for LearnStyle AI integration</p>
+                    </div>
+
+                    <!-- API Overview -->
+                    <section class="docs-section">
+                        <h2>API Overview</h2>
+                        <p>LearnStyle AI provides a comprehensive REST API for integrating learning style analysis and personalized content delivery into your applications.</p>
+                        
+                        <div class="api-info">
+                            <div class="info-item">
+                                <strong>Base URL:</strong> <code>https://learnstyle-ai.com/api</code>
+                            </div>
+                            <div class="info-item">
+                                <strong>Authentication:</strong> Session-based or API Key
+                            </div>
+                            <div class="info-item">
+                                <strong>Content-Type:</strong> <code>application/json</code>
+                            </div>
+                            <div class="info-item">
+                                <strong>Rate Limit:</strong> 1000 requests/hour per user
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Authentication -->
+                    <section class="docs-section">
+                        <h2>Authentication</h2>
+                        <p>LearnStyle AI supports two authentication methods:</p>
+
+                        <h3>Session Authentication</h3>
+                        <p>Use Flask-Login sessions for web applications:</p>
+                        <div class="code-block">
+                            <pre><code># Login first
+POST /login
+{
+  "username": "your_username",
+  "password": "your_password"
+}
+
+# Use session cookie in subsequent requests
+GET /api/profile
+Cookie: session=your_session_cookie</code></pre>
+                        </div>
+
+                        <h3>API Key Authentication</h3>
+                        <p>Use API keys for programmatic access:</p>
+                        <div class="code-block">
+                            <pre><code>GET /api/profile
+Authorization: Bearer your_api_key</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Core Endpoints -->
+                    <section class="docs-section">
+                        <h2>Core Endpoints</h2>
+
+                        <div class="endpoint">
+                            <h3>Learning Style Prediction</h3>
+                            <div class="endpoint-method">POST</div>
+                            <div class="endpoint-url">/api/predict</div>
+                            <p>Predict user learning style based on quiz responses</p>
+                            
+                            <h4>Request Body</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "quiz_responses": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
+  "user_id": 123,
+  "demographics": {
+    "age": 25,
+    "education_level": "bachelor",
+    "learning_experience": "intermediate"
+  }
+}</code></pre>
+                            </div>
+
+                            <h4>Response</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "success": true,
+  "data": {
+    "learning_style": {
+      "visual": 65.0,
+      "auditory": 25.0,
+      "kinesthetic": 10.0
+    },
+    "confidence": 0.92,
+    "recommendations": [
+      "Focus on visual learning materials",
+      "Use diagrams and charts",
+      "Try mind mapping techniques"
+    ]
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="endpoint">
+                            <h3>Get User Profile</h3>
+                            <div class="endpoint-method">GET</div>
+                            <div class="endpoint-url">/api/profile</div>
+                            <p>Retrieve user profile and learning style information</p>
+
+                            <h4>Response</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 123,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    "learning_profile": {
+      "visual_percentage": 65.0,
+      "auditory_percentage": 25.0,
+      "kinesthetic_percentage": 10.0,
+      "confidence_score": 0.92,
+      "last_updated": "2024-01-15T10:30:00Z"
+    }
+  }
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="endpoint">
+                            <h3>Get Personalized Content</h3>
+                            <div class="endpoint-method">GET</div>
+                            <div class="endpoint-url">/api/content/personalized</div>
+                            <p>Retrieve content recommendations based on user's learning style</p>
+
+                            <h4>Query Parameters</h4>
+                            <ul>
+                                <li><code>limit</code> - Number of content items to return (default: 10)</li>
+                                <li><code>category</code> - Content category filter (optional)</li>
+                                <li><code>difficulty</code> - Difficulty level filter (optional)</li>
+                            </ul>
+
+                            <h4>Response</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "title": "Visual Learning Techniques",
+        "type": "video",
+        "url": "https://example.com/video1",
+        "difficulty": "beginner",
+        "estimated_time": "15 minutes",
+        "learning_style_match": 0.95
+      }
+    ],
+    "total": 1,
+    "page": 1,
+    "per_page": 10
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Biometric Endpoints -->
+                    <section class="docs-section">
+                        <h2>Biometric Analysis Endpoints</h2>
+
+                        <div class="endpoint">
+                            <h3>HRV Analysis</h3>
+                            <div class="endpoint-method">POST</div>
+                            <div class="endpoint-url">/api/biometric/hrv-analysis</div>
+                            <p>Analyze Heart Rate Variability for learning optimization</p>
+
+                            <h4>Request Body</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "rr_intervals": [800, 850, 900, 820, 880, 910, 800, 850],
+  "sampling_rate": 1000.0,
+  "user_id": 123
+}</code></pre>
+                            </div>
+
+                            <h4>Response</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "success": true,
+  "data": {
+    "hrv_metrics": {
+      "mean_rr": 850.0,
+      "rmssd": 45.2,
+      "sdnn": 52.1,
+      "stress_index": 0.3,
+      "learning_readiness": "high"
+    },
+    "recommendations": [
+      "Optimal time for learning",
+      "Consider taking breaks every 25 minutes"
+    ]
+  }
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="endpoint">
+                            <h3>GSR Analysis</h3>
+                            <div class="endpoint-method">POST</div>
+                            <div class="endpoint-url">/api/biometric/gsr-analysis</div>
+                            <p>Analyze Galvanic Skin Response for emotional state detection</p>
+
+                            <h4>Request Body</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "gsr_values": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+  "sampling_rate": 100.0,
+  "user_id": 123
+}</code></pre>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Collaborative Learning Endpoints -->
+                    <section class="docs-section">
+                        <h2>Collaborative Learning Endpoints</h2>
+
+                        <div class="endpoint">
+                            <h3>Peer Matching</h3>
+                            <div class="endpoint-method">POST</div>
+                            <div class="endpoint-url">/api/collaborative/peer-matching</div>
+                            <p>Find compatible learning partners based on learning style and interests</p>
+
+                            <h4>Request Body</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "user_id": 123,
+  "learning_style": "visual",
+  "interests": ["mathematics", "science", "programming"],
+  "preferred_group_size": 3
+}</code></pre>
+                            </div>
+
+                            <h4>Response</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "success": true,
+  "data": {
+    "matches": [
+      {
+        "user_id": 456,
+        "username": "jane_doe",
+        "compatibility_score": 0.87,
+        "shared_interests": ["mathematics", "programming"],
+        "learning_style": "visual"
+      }
+    ],
+    "group_recommendations": [
+      {
+        "group_id": 789,
+        "name": "Visual Math Learners",
+        "members": 2,
+        "compatibility_score": 0.82
+      }
+    ]
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Error Handling -->
+                    <section class="docs-section">
+                        <h2>Error Handling</h2>
+                        <p>All API endpoints return consistent error responses:</p>
+
+                        <div class="error-example">
+                            <h4>Error Response Format</h4>
+                            <div class="code-block">
+                                <pre><code>{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid quiz responses provided",
+    "details": {
+      "field": "quiz_responses",
+      "issue": "Must contain exactly 15 responses"
+    }
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <h3>Common Error Codes</h3>
+                        <div class="error-codes">
+                            <div class="error-code">
+                                <code>400</code>
+                                <span>Bad Request - Invalid request data</span>
+                            </div>
+                            <div class="error-code">
+                                <code>401</code>
+                                <span>Unauthorized - Authentication required</span>
+                            </div>
+                            <div class="error-code">
+                                <code>403</code>
+                                <span>Forbidden - Insufficient permissions</span>
+                            </div>
+                            <div class="error-code">
+                                <code>404</code>
+                                <span>Not Found - Resource not found</span>
+                            </div>
+                            <div class="error-code">
+                                <code>429</code>
+                                <span>Too Many Requests - Rate limit exceeded</span>
+                            </div>
+                            <div class="error-code">
+                                <code>500</code>
+                                <span>Internal Server Error - Server error</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Rate Limiting -->
+                    <section class="docs-section">
+                        <h2>Rate Limiting</h2>
+                        <p>API requests are rate limited to ensure fair usage:</p>
+
+                        <div class="rate-limits">
+                            <div class="rate-limit">
+                                <strong>Free Tier:</strong> 1000 requests/hour
+                            </div>
+                            <div class="rate-limit">
+                                <strong>Premium Tier:</strong> 10000 requests/hour
+                            </div>
+                            <div class="rate-limit">
+                                <strong>Enterprise:</strong> Unlimited requests
+                            </div>
+                        </div>
+
+                        <p>Rate limit information is included in response headers:</p>
+                        <div class="code-block">
+                            <pre><code>X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1642248000</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- SDKs and Libraries -->
+                    <section class="docs-section">
+                        <h2>SDKs and Libraries</h2>
+                        <p>Official SDKs are available for popular programming languages:</p>
+
+                        <div class="sdk-list">
+                            <div class="sdk-item">
+                                <h4>Python SDK</h4>
+                                <p>Official Python client library</p>
+                                <div class="code-block">
+                                    <pre><code>pip install learnstyle-ai-sdk</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="sdk-item">
+                                <h4>JavaScript SDK</h4>
+                                <p>Official JavaScript/Node.js client library</p>
+                                <div class="code-block">
+                                    <pre><code>npm install learnstyle-ai-sdk</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="sdk-item">
+                                <h4>cURL Examples</h4>
+                                <p>Command-line examples for testing</p>
+                                <div class="code-block">
+                                    <pre><code>curl -X POST https://learnstyle-ai.com/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{"quiz_responses": [1,2,3,4,5,1,2,3,4,5,1,2,3,4,5]}'</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Include base styles */
+.docs-container {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.docs-sidebar {
+    background: #2c3e50;
+    color: white;
+    min-height: 100vh;
+    padding: 0;
+    position: sticky;
+    top: 0;
+}
+
+.docs-nav {
+    padding: 2rem 1.5rem;
+}
+
+.docs-brand h4 {
+    color: #ecf0f1;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.docs-nav-menu .nav-link {
+    color: #bdc3c7;
+    padding: 0.75rem 0;
+    border-radius: 0.5rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.docs-nav-menu .nav-link:hover,
+.docs-nav-menu .nav-link.active {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    padding-left: 1rem;
+}
+
+.docs-nav-menu .nav-link i {
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+.docs-content {
+    padding: 2rem;
+}
+
+.docs-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.docs-header h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.docs-section {
+    margin: 3rem 0;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.docs-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+.docs-section h3 {
+    color: #34495e;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.api-info {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.info-item {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.info-item code {
+    background: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+}
+
+.code-block {
+    background: #2c3e50;
+    color: #ecf0f1;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.code-block pre {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.endpoint {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border-left: 4px solid #3498db;
+}
+
+.endpoint h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.endpoint-method {
+    background: #27ae60;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-right: 1rem;
+}
+
+.endpoint-url {
+    font-family: 'Courier New', monospace;
+    background: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    color: #2c3e50;
+}
+
+.error-example {
+    margin: 1rem 0;
+}
+
+.error-codes {
+    margin: 1rem 0;
+}
+
+.error-code {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+.error-code code {
+    background: #e74c3c;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-right: 1rem;
+    font-weight: bold;
+    min-width: 60px;
+    text-align: center;
+}
+
+.rate-limits {
+    margin: 1rem 0;
+}
+
+.rate-limit {
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.sdk-list {
+    margin: 1rem 0;
+}
+
+.sdk-item {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.sdk-item h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .docs-sidebar {
+        min-height: auto;
+        position: relative;
+    }
+    
+    .docs-content {
+        padding: 1rem;
+    }
+    
+    .docs-section {
+        padding: 1.5rem;
+    }
+    
+    .endpoint h3 {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .endpoint-method {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+{% endblock %}

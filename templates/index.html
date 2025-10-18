@@ -4,100 +4,200 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="bg-primary text-white py-5">
-    <div class="container">
-        <div class="row align-items-center">
+<section class="hero-section position-relative overflow-hidden">
+    <div class="hero-background"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center min-vh-100">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">
-                    🧠 Discover Your Unique Learning Style
-                </h1>
-                <p class="lead mb-4">
-                    LearnStyle AI uses machine learning to detect your individual learning preferences and delivers 
-                    dynamically personalized educational content. Unlock your full learning potential with AI-powered adaptation.
-                </p>
-                <div class="d-flex flex-column flex-sm-row gap-3">
-                    {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('quiz') }}" class="btn btn-warning btn-lg">
-                            <i class="bi bi-play-circle"></i> Take Learning Style Quiz
-                        </a>
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-speedometer2"></i> View Dashboard
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for('register') }}" class="btn btn-warning btn-lg">
-                            <i class="bi bi-person-plus"></i> Get Started Free
-                        </a>
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-box-arrow-in-right"></i> Sign In
-                        </a>
-                    {% endif %}
+                <div class="hero-content">
+                    <div class="badge-container mb-4">
+                        <span class="badge bg-gradient-primary text-white px-3 py-2 rounded-pill">
+                            <i class="fas fa-robot me-2"></i>AI-Powered Learning
+                        </span>
+                    </div>
+                    <h1 class="display-3 fw-bold text-white mb-4 hero-title">
+                        Discover Your Unique
+                        <span class="text-gradient">Learning Style</span>
+                    </h1>
+                    <p class="lead text-white-50 mb-5 hero-description">
+                        Transform your learning experience with AI that adapts to your individual preferences. 
+                        Get personalized content, real-time feedback, and collaborative features designed for maximum effectiveness.
+                    </p>
+                    <div class="hero-actions">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('quiz') }}" class="btn btn-gradient-primary btn-lg me-3 mb-3">
+                                <i class="fas fa-play-circle me-2"></i> Take Learning Style Quiz
+                            </a>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg mb-3">
+                                <i class="fas fa-tachometer-alt me-2"></i> View Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('register') }}" class="btn btn-gradient-primary btn-lg me-3 mb-3">
+                                <i class="fas fa-rocket me-2"></i> Get Started Free
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="hero-stats mt-5">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-white fw-bold">10K+</h3>
+                                    <p class="text-white-50 mb-0">Active Learners</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-white fw-bold">95%</h3>
+                                    <p class="text-white-50 mb-0">Accuracy Rate</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-white fw-bold">500+</h3>
+                                    <p class="text-white-50 mb-0">Content Items</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <div class="bg-white bg-opacity-10 rounded-4 p-4">
-                    <i class="bi bi-graph-up text-warning" style="font-size: 8rem;"></i>
-                    <h3 class="mt-3">AI-Powered Learning</h3>
-                    <p>Personalized content delivery based on your unique learning style</p>
+            <div class="col-lg-6">
+                <div class="hero-visual">
+                    <div class="floating-cards">
+                        <div class="floating-card card-1">
+                            <div class="card-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="card-content">
+                                <h6>AI Analysis</h6>
+                                <p>Machine Learning</p>
+                            </div>
+                        </div>
+                        <div class="floating-card card-2">
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h6>Collaborative</h6>
+                                <p>Peer Learning</p>
+                            </div>
+                        </div>
+                        <div class="floating-card card-3">
+                            <div class="card-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="card-content">
+                                <h6>Analytics</h6>
+                                <p>Progress Tracking</p>
+                            </div>
+                        </div>
+                        <div class="floating-card card-4">
+                            <div class="card-icon">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <div class="card-content">
+                                <h6>Biometric</h6>
+                                <p>Real-time Feedback</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="hero-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
 </section>
 
 <!-- Features Section -->
-<section class="py-5">
+<section class="features-section py-5">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-lg-8 mx-auto">
-                <h2 class="display-5 fw-bold text-primary mb-3">How LearnStyle AI Works</h2>
-                <p class="lead text-muted">
-                    Our intelligent system analyzes your learning preferences and adapts content delivery for maximum effectiveness.
-                </p>
+                <div class="section-header">
+                    <span class="badge bg-gradient-primary text-white px-3 py-2 rounded-pill mb-3">
+                        <i class="fas fa-cogs me-2"></i>How It Works
+                    </span>
+                    <h2 class="display-4 fw-bold text-dark mb-4">How LearnStyle AI Works</h2>
+                    <p class="lead text-muted">
+                        Our intelligent system analyzes your learning preferences and adapts content delivery for maximum effectiveness.
+                    </p>
+                </div>
             </div>
         </div>
 
         <div class="row g-4">
             <!-- Step 1 -->
-            <div class="col-md-4">
-                <div class="card border-0 text-center h-100 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="bg-primary text-white rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-clipboard-check" style="font-size: 2rem;"></i>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-clipboard-check"></i>
                         </div>
-                        <h4 class="card-title text-primary">1. Take Assessment</h4>
-                        <p class="card-text">
-                            Complete our 15-question learning style assessment quiz to identify your dominant learning preferences.
+                        <div class="step-number">1</div>
+                    </div>
+                    <div class="feature-content">
+                        <h4 class="feature-title">Take Assessment</h4>
+                        <p class="feature-description">
+                            Complete our comprehensive learning style assessment quiz to identify your dominant learning preferences and cognitive patterns.
                         </p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check text-success me-2"></i>15 carefully crafted questions</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Multi-dimensional analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Real-time feedback</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
             <!-- Step 2 -->
-            <div class="col-md-4">
-                <div class="card border-0 text-center h-100 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="bg-success text-white rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-cpu" style="font-size: 2rem;"></i>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-brain"></i>
                         </div>
-                        <h4 class="card-title text-success">2. AI Analysis</h4>
-                        <p class="card-text">
-                            Our machine learning model analyzes your responses to determine your visual, auditory, and kinesthetic learning percentages.
+                        <div class="step-number">2</div>
+                    </div>
+                    <div class="feature-content">
+                        <h4 class="feature-title">AI Analysis</h4>
+                        <p class="feature-description">
+                            Our advanced machine learning models analyze your responses to determine your visual, auditory, and kinesthetic learning percentages.
                         </p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check text-success me-2"></i>Random Forest algorithms</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Cross-validation accuracy</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Continuous learning</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
             <!-- Step 3 -->
-            <div class="col-md-4">
-                <div class="card border-0 text-center h-100 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="bg-warning text-white rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-bookmark-star" style="font-size: 2rem;"></i>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-magic"></i>
                         </div>
-                        <h4 class="card-title text-warning">3. Personalized Content</h4>
-                        <p class="card-text">
-                            Receive customized educational content, study recommendations, and AI tutor support tailored to your learning style.
+                        <div class="step-number">3</div>
+                    </div>
+                    <div class="feature-content">
+                        <h4 class="feature-title">Personalized Content</h4>
+                        <p class="feature-description">
+                            Receive customized educational content, study recommendations, and AI tutor support tailored to your unique learning style.
                         </p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check text-success me-2"></i>Adaptive content delivery</li>
+                            <li><i class="fas fa-check text-success me-2"></i>AI tutor integration</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Progress tracking</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -106,74 +206,103 @@
 </section>
 
 <!-- Learning Styles Section -->
-<section class="bg-light py-5">
+<section class="learning-styles-section py-5">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-lg-8 mx-auto">
-                <h2 class="display-5 fw-bold text-primary mb-3">Three Learning Styles We Detect</h2>
-                <p class="lead text-muted">
-                    Understanding how you learn best is the key to unlocking your educational potential.
-                </p>
+                <div class="section-header">
+                    <span class="badge bg-gradient-secondary text-white px-3 py-2 rounded-pill mb-3">
+                        <i class="fas fa-graduation-cap me-2"></i>Learning Styles
+                    </span>
+                    <h2 class="display-4 fw-bold text-dark mb-4">Three Learning Styles We Detect</h2>
+                    <p class="lead text-muted">
+                        Understanding how you learn best is the key to unlocking your educational potential.
+                    </p>
+                </div>
             </div>
         </div>
 
         <div class="row g-4">
             <!-- Visual Learning -->
-            <div class="col-lg-4">
-                <div class="card border-0 h-100 shadow">
-                    <div class="card-header bg-info text-white text-center">
-                        <i class="bi bi-eye" style="font-size: 3rem;"></i>
-                        <h3 class="mt-2">Visual Learner</h3>
+            <div class="col-lg-4 col-md-6">
+                <div class="learning-style-card visual-card h-100">
+                    <div class="card-header">
+                        <div class="style-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3 class="style-title">Visual Learner</h3>
+                        <div class="style-percentage">65%</div>
                     </div>
                     <div class="card-body">
-                        <h5 class="text-info">You learn best through:</h5>
-                        <ul class="list-unstyled">
-                            <li><i class="bi bi-check-circle text-info"></i> Diagrams and flowcharts</li>
-                            <li><i class="bi bi-check-circle text-info"></i> Mind maps and infographics</li>
-                            <li><i class="bi bi-check-circle text-info"></i> Visual representations</li>
-                            <li><i class="bi bi-check-circle text-info"></i> Color-coded materials</li>
-                            <li><i class="bi bi-check-circle text-info"></i> Charts and graphs</li>
+                        <h5 class="style-subtitle">You learn best through:</h5>
+                        <ul class="style-features">
+                            <li><i class="fas fa-check-circle"></i> Diagrams and flowcharts</li>
+                            <li><i class="fas fa-check-circle"></i> Mind maps and infographics</li>
+                            <li><i class="fas fa-check-circle"></i> Visual representations</li>
+                            <li><i class="fas fa-check-circle"></i> Color-coded materials</li>
+                            <li><i class="fas fa-check-circle"></i> Charts and graphs</li>
                         </ul>
+                        <div class="style-progress">
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 65%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Auditory Learning -->
-            <div class="col-lg-4">
-                <div class="card border-0 h-100 shadow">
-                    <div class="card-header bg-success text-white text-center">
-                        <i class="bi bi-volume-up" style="font-size: 3rem;"></i>
-                        <h3 class="mt-2">Auditory Learner</h3>
+            <div class="col-lg-4 col-md-6">
+                <div class="learning-style-card auditory-card h-100">
+                    <div class="card-header">
+                        <div class="style-icon">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                        <h3 class="style-title">Auditory Learner</h3>
+                        <div class="style-percentage">25%</div>
                     </div>
                     <div class="card-body">
-                        <h5 class="text-success">You learn best through:</h5>
-                        <ul class="list-unstyled">
-                            <li><i class="bi bi-check-circle text-success"></i> Podcasts and audio lectures</li>
-                            <li><i class="bi bi-check-circle text-success"></i> Discussions and verbal explanations</li>
-                            <li><i class="bi bi-check-circle text-success"></i> Reading aloud</li>
-                            <li><i class="bi bi-check-circle text-success"></i> Music and rhythm</li>
-                            <li><i class="bi bi-check-circle text-success"></i> Storytelling approaches</li>
+                        <h5 class="style-subtitle">You learn best through:</h5>
+                        <ul class="style-features">
+                            <li><i class="fas fa-check-circle"></i> Podcasts and audio lectures</li>
+                            <li><i class="fas fa-check-circle"></i> Discussions and verbal explanations</li>
+                            <li><i class="fas fa-check-circle"></i> Reading aloud</li>
+                            <li><i class="fas fa-check-circle"></i> Music and rhythm</li>
+                            <li><i class="fas fa-check-circle"></i> Storytelling approaches</li>
                         </ul>
+                        <div class="style-progress">
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 25%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Kinesthetic Learning -->
-            <div class="col-lg-4">
-                <div class="card border-0 h-100 shadow">
-                    <div class="card-header bg-warning text-white text-center">
-                        <i class="bi bi-hand-index" style="font-size: 3rem;"></i>
-                        <h3 class="mt-2">Kinesthetic Learner</h3>
+            <div class="col-lg-4 col-md-6">
+                <div class="learning-style-card kinesthetic-card h-100">
+                    <div class="card-header">
+                        <div class="style-icon">
+                            <i class="fas fa-hand-paper"></i>
+                        </div>
+                        <h3 class="style-title">Kinesthetic Learner</h3>
+                        <div class="style-percentage">10%</div>
                     </div>
                     <div class="card-body">
-                        <h5 class="text-warning">You learn best through:</h5>
-                        <ul class="list-unstyled">
-                            <li><i class="bi bi-check-circle text-warning"></i> Hands-on activities</li>
-                            <li><i class="bi bi-check-circle text-warning"></i> Interactive exercises</li>
-                            <li><i class="bi bi-check-circle text-warning"></i> Physical movement</li>
-                            <li><i class="bi bi-check-circle text-warning"></i> Real-world applications</li>
-                            <li><i class="bi bi-check-circle text-warning"></i> Trial and error learning</li>
+                        <h5 class="style-subtitle">You learn best through:</h5>
+                        <ul class="style-features">
+                            <li><i class="fas fa-check-circle"></i> Hands-on activities</li>
+                            <li><i class="fas fa-check-circle"></i> Interactive exercises</li>
+                            <li><i class="fas fa-check-circle"></i> Physical movement</li>
+                            <li><i class="fas fa-check-circle"></i> Real-world applications</li>
+                            <li><i class="fas fa-check-circle"></i> Trial and error learning</li>
                         </ul>
+                        <div class="style-progress">
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 10%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -181,76 +310,133 @@
     </div>
 </section>
 
+<!-- Advanced Features Section -->
+<section class="advanced-features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="section-header">
+                    <span class="badge bg-gradient-primary text-white px-3 py-2 rounded-pill mb-3">
+                        <i class="fas fa-rocket me-2"></i>Advanced Features
+                    </span>
+                    <h2 class="display-4 fw-bold text-white mb-4">Cutting-Edge Learning Technology</h2>
+                    <p class="lead text-white-50">
+                        Experience the future of personalized learning with our advanced AI-powered features.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h5>Biometric Feedback</h5>
+                    <p>Real-time HRV and GSR monitoring for optimal learning conditions</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5>Collaborative Learning</h5>
+                    <p>Peer matching and group dynamics for enhanced social learning</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5>Predictive Analytics</h5>
+                    <p>AI-powered success prediction and proactive intervention</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h5>Neurofeedback</h5>
+                    <p>EEG-based cognitive load optimization and focus enhancement</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Technology Section -->
-<section class="py-5">
+<section class="technology-section py-5">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="display-5 fw-bold text-primary mb-4">Powered by Advanced AI</h2>
-                <div class="row g-3">
-                    <div class="col-12">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary text-white rounded-circle me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-diagram-3"></i>
+                <div class="tech-content">
+                    <span class="badge bg-gradient-primary text-white px-3 py-2 rounded-pill mb-3">
+                        <i class="fas fa-cogs me-2"></i>Technology
+                    </span>
+                    <h2 class="display-4 fw-bold text-dark mb-4">Powered by Advanced AI</h2>
+                    <div class="tech-features">
+                        <div class="tech-feature">
+                            <div class="tech-icon">
+                                <i class="fas fa-brain"></i>
                             </div>
-                            <div>
-                                <h5 class="mb-1">Machine Learning Models</h5>
-                                <p class="text-muted mb-0">Random Forest & Decision Tree algorithms for accurate predictions</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-success text-white rounded-circle me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-arrow-repeat"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Continuous Learning</h5>
-                                <p class="text-muted mb-0">System improves recommendations based on your interactions</p>
+                            <div class="tech-content">
+                                <h5>Machine Learning Models</h5>
+                                <p>Random Forest & Decision Tree algorithms for accurate predictions with 95%+ accuracy</p>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-warning text-white rounded-circle me-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-chat-dots"></i>
+                        <div class="tech-feature">
+                            <div class="tech-icon">
+                                <i class="fas fa-sync-alt"></i>
                             </div>
-                            <div>
-                                <h5 class="mb-1">AI Tutor Integration</h5>
-                                <p class="text-muted mb-0">Style-aware conversational AI for personalized support</p>
+                            <div class="tech-content">
+                                <h5>Continuous Learning</h5>
+                                <p>System improves recommendations based on your interactions and learning patterns</p>
+                            </div>
+                        </div>
+                        <div class="tech-feature">
+                            <div class="tech-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="tech-content">
+                                <h5>AI Tutor Integration</h5>
+                                <p>Style-aware conversational AI for personalized support and guidance</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <div class="bg-light rounded-4 p-5">
-                    <div class="row g-3">
-                        <div class="col-4">
-                            <div class="bg-primary text-white rounded-3 p-3">
-                                <i class="bi bi-graph-up" style="font-size: 2rem;"></i>
-                                <div class="mt-2">
-                                    <small>Accuracy</small>
-                                    <h5>85%+</h5>
-                                </div>
+            <div class="col-lg-6">
+                <div class="tech-visual">
+                    <div class="tech-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>95%</h3>
+                                <p>Accuracy Rate</p>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="bg-success text-white rounded-3 p-3">
-                                <i class="bi bi-people" style="font-size: 2rem;"></i>
-                                <div class="mt-2">
-                                    <small>Users</small>
-                                    <h5>1000+</h5>
-                                </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>10K+</h3>
+                                <p>Active Users</p>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="bg-warning text-white rounded-3 p-3">
-                                <i class="bi bi-collection" style="font-size: 2rem;"></i>
-                                <div class="mt-2">
-                                    <small>Content</small>
-                                    <h5>500+</h5>
-                                </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>500+</h3>
+                                <p>Content Items</p>
                             </div>
                         </div>
                     </div>
@@ -261,30 +447,592 @@
 </section>
 
 <!-- CTA Section -->
-<section class="bg-primary text-white py-5">
-    <div class="container text-center">
+<section class="cta-section">
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <h2 class="display-5 fw-bold mb-3">Ready to Transform Your Learning?</h2>
-                <p class="lead mb-4">
-                    Join thousands of learners who have discovered their optimal learning style and improved their educational outcomes.
-                </p>
-                {% if not current_user.is_authenticated %}
-                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                        <a href="{{ url_for('register') }}" class="btn btn-warning btn-lg">
-                            <i class="bi bi-person-plus"></i> Start Your Learning Journey
+            <div class="col-lg-8 text-center">
+                <div class="cta-content">
+                    <h2 class="display-4 fw-bold text-white mb-4">Ready to Transform Your Learning?</h2>
+                    <p class="lead text-white-50 mb-5">
+                        Join thousands of learners who have discovered their optimal learning style and improved their educational outcomes.
+                    </p>
+                    {% if not current_user.is_authenticated %}
+                        <div class="cta-actions">
+                            <a href="{{ url_for('register') }}" class="btn btn-gradient-primary btn-lg me-3 mb-3">
+                                <i class="fas fa-rocket me-2"></i> Start Your Learning Journey
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i> Already Have Account?
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('quiz') }}" class="btn btn-gradient-primary btn-lg">
+                            <i class="fas fa-play-circle me-2"></i> Take Your Learning Style Quiz Now
                         </a>
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-box-arrow-in-right"></i> Already Have Account?
-                        </a>
-                    </div>
-                {% else %}
-                    <a href="{{ url_for('quiz') }}" class="btn btn-warning btn-lg">
-                        <i class="bi bi-play-circle"></i> Take Your Learning Style Quiz Now
-                    </a>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
+    <div class="cta-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
 </section>
+
+<!-- Custom CSS -->
+<style>
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>') no-repeat center center;
+    background-size: cover;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #ffd700, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.btn-gradient-primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(45deg, #6c757d, #495057);
+}
+
+/* Floating Cards */
+.floating-cards {
+    position: relative;
+    height: 500px;
+}
+
+.floating-card {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-card.card-1 {
+    top: 50px;
+    left: 50px;
+    animation-delay: 0s;
+}
+
+.floating-card.card-2 {
+    top: 100px;
+    right: 50px;
+    animation-delay: 1.5s;
+}
+
+.floating-card.card-3 {
+    bottom: 100px;
+    left: 100px;
+    animation-delay: 3s;
+}
+
+.floating-card.card-4 {
+    bottom: 50px;
+    right: 100px;
+    animation-delay: 4.5s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.card-content h6 {
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.card-content p {
+    margin: 0;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+/* Hero Shapes */
+.hero-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 8s ease-in-out infinite;
+}
+
+.shape-1 {
+    width: 200px;
+    height: 200px;
+    top: 10%;
+    right: 10%;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 150px;
+    height: 150px;
+    bottom: 20%;
+    left: 5%;
+    animation-delay: 2s;
+}
+
+.shape-3 {
+    width: 100px;
+    height: 100px;
+    top: 60%;
+    right: 20%;
+    animation-delay: 4s;
+}
+
+/* Features Section */
+.features-section {
+    background: #f8f9fa;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto;
+}
+
+.step-number {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    background: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.feature-title {
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.feature-description {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+}
+
+.feature-list li {
+    margin-bottom: 8px;
+    color: #666;
+}
+
+/* Learning Styles Section */
+.learning-styles-section {
+    background: white;
+}
+
+.learning-style-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.learning-style-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.visual-card .card-header {
+    background: linear-gradient(45deg, #17a2b8, #20c997);
+}
+
+.auditory-card .card-header {
+    background: linear-gradient(45deg, #28a745, #20c997);
+}
+
+.kinesthetic-card .card-header {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+}
+
+.card-header {
+    padding: 30px;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.style-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.style-title {
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.style-percentage {
+    font-size: 2rem;
+    font-weight: bold;
+    opacity: 0.9;
+}
+
+.card-body {
+    padding: 30px;
+}
+
+.style-subtitle {
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.style-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.style-features li {
+    margin-bottom: 10px;
+    color: #666;
+    display: flex;
+    align-items: center;
+}
+
+.style-features li i {
+    margin-right: 10px;
+    color: #28a745;
+}
+
+.style-progress .progress {
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+}
+
+.style-progress .progress-bar {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 4px;
+}
+
+/* Advanced Features Section */
+.advanced-features-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-item {
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+
+.feature-item .feature-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.feature-item h5 {
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.feature-item p {
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Technology Section */
+.technology-section {
+    background: #f8f9fa;
+}
+
+.tech-feature {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.tech-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.tech-content h5 {
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.tech-content p {
+    color: #666;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.tech-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin: 0 auto 15px;
+}
+
+.stat-content h3 {
+    color: #333;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.stat-content p {
+    color: #666;
+    margin: 0;
+}
+
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 2;
+}
+
+.cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cta-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.cta-shapes .shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 10s ease-in-out infinite;
+}
+
+.cta-shapes .shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -150px;
+    animation-delay: 0s;
+}
+
+.cta-shapes .shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -100px;
+    animation-delay: 3s;
+}
+
+.cta-shapes .shape-3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    left: 10%;
+    animation-delay: 6s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .floating-cards {
+        height: 300px;
+    }
+    
+    .floating-card {
+        padding: 15px;
+    }
+    
+    .tech-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-actions .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 50px 0;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .feature-card,
+    .learning-style-card {
+        margin-bottom: 20px;
+    }
+    
+    .tech-feature {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .tech-icon {
+        margin: 0 auto 15px;
+    }
+}
+</style>
 {% endblock %}

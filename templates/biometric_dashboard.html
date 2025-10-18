@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnStyle AI - Biometric Feedback Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-optimal { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-danger { background-color: #dc3545; }
+        .status-info { background-color: #17a2b8; }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .biometric-readout {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .recommendation-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-card p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="mb-0"><i class="fas fa-heartbeat me-3"></i>Biometric Feedback Dashboard</h1>
+                                <p class="text-muted mb-0">Real-time physiological monitoring and learning optimization</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success fs-6">Monitoring Active</span>
+                                <p class="text-muted mb-0">Last updated: <span id="lastUpdated"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Metrics -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-value" id="hrvValue">--</div>
+                        <div class="metric-label">HRV (RMSSD)</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-value" id="gsrValue">--</div>
+                        <div class="metric-label">GSR (μS)</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-value" id="stressLevel">--</div>
+                        <div class="metric-label">Stress Level</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <div class="metric-value" id="engagementScore">--</div>
+                        <div class="metric-label">Engagement</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Tabs -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-card p-3">
+                        <ul class="nav nav-pills justify-content-center" id="biometricTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Overview
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="hrv-tab" data-bs-toggle="pill" data-bs-target="#hrv" type="button">
+                                    <i class="fas fa-heartbeat me-2"></i>HRV Analysis
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="gsr-tab" data-bs-toggle="pill" data-bs-target="#gsr" type="button">
+                                    <i class="fas fa-hand-paper me-2"></i>GSR Monitoring
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="stress-tab" data-bs-toggle="pill" data-bs-target="#stress" type="button">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Stress Detection
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="optimization-tab" data-bs-toggle="pill" data-bs-target="#optimization" type="button">
+                                    <i class="fas fa-cogs me-2"></i>Learning Optimization
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="biometricTabsContent">
+                <!-- Overview Tab -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-line me-2"></i>Real-time Biometric Trends</h5>
+                                <div class="chart-container">
+                                    <canvas id="biometricTrendsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-thermometer-half me-2"></i>Current State</h5>
+                                <div class="biometric-readout">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Learning Readiness:</span>
+                                        <span id="learningReadiness">--</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Stress Level:</span>
+                                        <span id="currentStress">--</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Engagement:</span>
+                                        <span id="currentEngagement">--</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Fatigue:</span>
+                                        <span id="currentFatigue">--</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Arousal:</span>
+                                        <span id="currentArousal">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-lightbulb me-2"></i>Active Recommendations</h5>
+                                <div id="activeRecommendations">
+                                    <!-- Recommendations will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HRV Analysis Tab -->
+                <div class="tab-pane fade" id="hrv" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-heartbeat me-2"></i>HRV Time Domain Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="hrvTimeDomainChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-wave-square me-2"></i>HRV Frequency Domain</h5>
+                                <div class="chart-container">
+                                    <canvas id="hrvFrequencyChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-chart-pie me-2"></i>RMSSD</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#28a745" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="rmssdValue">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-chart-bar me-2"></i>SDNN</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#17a2b8" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="sdnnValue">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-percentage me-2"></i>pNN50</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#ffc107" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="pnn50Value">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GSR Monitoring Tab -->
+                <div class="tab-pane fade" id="gsr" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-hand-paper me-2"></i>GSR Signal Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="gsrSignalChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-smile me-2"></i>Emotional State</h5>
+                                <div id="emotionalStateDisplay">
+                                    <!-- Emotional state will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-line me-2"></i>Arousal Level</h5>
+                                <div class="chart-container">
+                                    <canvas id="arousalChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-area me-2"></i>Engagement Score</h5>
+                                <div class="chart-container">
+                                    <canvas id="engagementChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stress Detection Tab -->
+                <div class="tab-pane fade" id="stress" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-exclamation-triangle me-2"></i>Stress Level Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="stressLevelChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-pie me-2"></i>Stress Type Distribution</h5>
+                                <div class="chart-container">
+                                    <canvas id="stressTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-first-aid me-2"></i>Stress Interventions</h5>
+                                <div id="stressInterventions">
+                                    <!-- Stress interventions will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Optimization Tab -->
+                <div class="tab-pane fade" id="optimization" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-cogs me-2"></i>Learning Optimization Strategy</h5>
+                                <div id="optimizationStrategy">
+                                    <!-- Optimization strategy will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-target me-2"></i>Optimization Metrics</h5>
+                                <div id="optimizationMetrics">
+                                    <!-- Optimization metrics will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-lightbulb me-2"></i>Biometric Recommendations</h5>
+                                <div id="biometricRecommendations">
+                                    <!-- Biometric recommendations will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLastUpdated();
+            initializeCharts();
+            loadBiometricData();
+            setInterval(updateBiometricData, 5000); // Update every 5 seconds
+        });
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+        }
+
+        function loadBiometricData() {
+            // Simulate real-time biometric data
+            updateHRVData();
+            updateGSRData();
+            updateStressData();
+            updateEngagementData();
+        }
+
+        function updateHRVData() {
+            // Simulate HRV data
+            const rmssd = Math.random() * 50 + 20;
+            const sdnn = Math.random() * 30 + 30;
+            const pnn50 = Math.random() * 20 + 5;
+            
+            document.getElementById('hrvValue').textContent = rmssd.toFixed(1);
+            document.getElementById('rmssdValue').textContent = rmssd.toFixed(1);
+            document.getElementById('sdnnValue').textContent = sdnn.toFixed(1);
+            document.getElementById('pnn50Value').textContent = pnn50.toFixed(1);
+        }
+
+        function updateGSRData() {
+            // Simulate GSR data
+            const gsr = Math.random() * 10 + 2;
+            document.getElementById('gsrValue').textContent = gsr.toFixed(1);
+        }
+
+        function updateStressData() {
+            // Simulate stress level
+            const stress = Math.random() * 100;
+            document.getElementById('stressLevel').textContent = stress.toFixed(0) + '%';
+            document.getElementById('currentStress').textContent = stress.toFixed(0) + '%';
+        }
+
+        function updateEngagementData() {
+            // Simulate engagement score
+            const engagement = Math.random() * 100;
+            document.getElementById('engagementScore').textContent = engagement.toFixed(0) + '%';
+            document.getElementById('currentEngagement').textContent = engagement.toFixed(0) + '%';
+        }
+
+        function updateBiometricData() {
+            loadBiometricData();
+            updateLastUpdated();
+        }
+
+        function initializeCharts() {
+            // Biometric Trends Chart
+            const trendsCtx = document.getElementById('biometricTrendsChart').getContext('2d');
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i),
+                    datasets: [{
+                        label: 'HRV (RMSSD)',
+                        data: Array.from({length: 20}, () => Math.random() * 50 + 20),
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'GSR (μS)',
+                        data: Array.from({length: 20}, () => Math.random() * 10 + 2),
+                        borderColor: '#17a2b8',
+                        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Stress Level',
+                        data: Array.from({length: 20}, () => Math.random() * 100),
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+
+            // HRV Time Domain Chart
+            const hrvTimeCtx = document.getElementById('hrvTimeDomainChart').getContext('2d');
+            new Chart(hrvTimeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['RMSSD', 'SDNN', 'pNN50', 'Mean RR'],
+                    datasets: [{
+                        label: 'HRV Time Domain Metrics',
+                        data: [35, 45, 12, 800],
+                        backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#6c757d']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // HRV Frequency Chart
+            const hrvFreqCtx = document.getElementById('hrvFrequencyChart').getContext('2d');
+            new Chart(hrvFreqCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['VLF', 'LF', 'HF'],
+                    datasets: [{
+                        data: [30, 40, 30],
+                        backgroundColor: ['#6c757d', '#17a2b8', '#28a745']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // GSR Signal Chart
+            const gsrCtx = document.getElementById('gsrSignalChart').getContext('2d');
+            new Chart(gsrCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 50}, (_, i) => i),
+                    datasets: [{
+                        label: 'GSR Signal',
+                        data: Array.from({length: 50}, () => Math.random() * 5 + 3),
+                        borderColor: '#17a2b8',
+                        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Arousal Chart
+            const arousalCtx = document.getElementById('arousalChart').getContext('2d');
+            new Chart(arousalCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 15}, (_, i) => i),
+                    datasets: [{
+                        label: 'Arousal Level',
+                        data: Array.from({length: 15}, () => Math.random() * 100),
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Engagement Chart
+            const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+            new Chart(engagementCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 15}, (_, i) => i),
+                    datasets: [{
+                        label: 'Engagement Score',
+                        data: Array.from({length: 15}, () => Math.random() * 100),
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Stress Level Chart
+            const stressCtx = document.getElementById('stressLevelChart').getContext('2d');
+            new Chart(stressCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Very Low', 'Low', 'Moderate', 'High', 'Very High'],
+                    datasets: [{
+                        label: 'Stress Level Distribution',
+                        data: [10, 25, 35, 20, 10],
+                        backgroundColor: ['#28a745', '#ffc107', '#fd7e14', '#dc3545', '#6f42c1']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Stress Type Chart
+            const stressTypeCtx = document.getElementById('stressTypeChart').getContext('2d');
+            new Chart(stressTypeCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Acute', 'Chronic', 'Eustress', 'Distress'],
+                    datasets: [{
+                        data: [25, 15, 30, 30],
+                        backgroundColor: ['#dc3545', '#6f42c1', '#28a745', '#fd7e14']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Initialize progress rings
+        function updateProgressRing(elementId, percentage) {
+            const circle = document.querySelector(`#${elementId} .progress-ring-circle`);
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            const offset = circumference - (percentage / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // Update progress rings on load
+        setTimeout(() => {
+            updateProgressRing('rmssdValue', 70);
+            updateProgressRing('sdnnValue', 60);
+            updateProgressRing('pnn50Value', 40);
+        }, 1000);
+    </script>
+</body>
+</html>

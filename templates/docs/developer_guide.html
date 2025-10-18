@@ -1,0 +1,993 @@
+{% extends "base.html" %}
+
+{% block title %}Developer Guide - LearnStyle AI Documentation{% endblock %}
+
+{% block content %}
+<div class="docs-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 col-md-4 docs-sidebar">
+                <div class="docs-nav">
+                    <div class="docs-brand">
+                        <h4><i class="fas fa-book"></i> LearnStyle AI Docs</h4>
+                    </div>
+                    <nav class="docs-nav-menu">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('docs_index') }}">
+                                    <i class="fas fa-home"></i> Overview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('getting_started') }}">
+                                    <i class="fas fa-rocket"></i> Getting Started
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('user_guide') }}">
+                                    <i class="fas fa-user"></i> User Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ url_for('developer_guide') }}">
+                                    <i class="fas fa-code"></i> Developer Guide
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('api_reference') }}">
+                                    <i class="fas fa-cogs"></i> API Reference
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8 docs-content">
+                <div class="docs-main">
+                    <!-- Page Header -->
+                    <div class="docs-header">
+                        <h1>Developer Guide</h1>
+                        <p class="lead">Complete guide for developers integrating with LearnStyle AI</p>
+                    </div>
+
+                    <!-- Table of Contents -->
+                    <div class="docs-toc">
+                        <h3>Table of Contents</h3>
+                        <ul>
+                            <li><a href="#overview">Overview</a></li>
+                            <li><a href="#setup">Setup & Installation</a></li>
+                            <li><a href="#architecture">Architecture</a></li>
+                            <li><a href="#models">ML Models</a></li>
+                            <li><a href="#api">API Integration</a></li>
+                            <li><a href="#database">Database Schema</a></li>
+                            <li><a href="#testing">Testing</a></li>
+                            <li><a href="#deployment">Deployment</a></li>
+                            <li><a href="#contributing">Contributing</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Overview Section -->
+                    <section id="overview" class="docs-section">
+                        <h2>Overview</h2>
+                        <p>LearnStyle AI is a comprehensive learning platform built with Flask, featuring advanced machine learning capabilities for personalized education.</p>
+
+                        <h3>Technology Stack</h3>
+                        <div class="tech-stack">
+                            <div class="tech-category">
+                                <h4>Backend</h4>
+                                <ul>
+                                    <li>Python 3.8+</li>
+                                    <li>Flask 2.3.3</li>
+                                    <li>SQLAlchemy 2.0.21</li>
+                                    <li>Flask-SQLAlchemy 3.0.5</li>
+                                    <li>Flask-Login 0.6.3</li>
+                                </ul>
+                            </div>
+                            <div class="tech-category">
+                                <h4>Machine Learning</h4>
+                                <ul>
+                                    <li>scikit-learn 1.5.2</li>
+                                    <li>pandas 2.0.3</li>
+                                    <li>numpy 1.24.3</li>
+                                    <li>scipy 1.11.1</li>
+                                    <li>networkx 3.4.2</li>
+                                </ul>
+                            </div>
+                            <div class="tech-category">
+                                <h4>Frontend</h4>
+                                <ul>
+                                    <li>Bootstrap 5.3.0</li>
+                                    <li>Chart.js</li>
+                                    <li>Font Awesome 6.0.0</li>
+                                    <li>jQuery</li>
+                                </ul>
+                            </div>
+                            <div class="tech-category">
+                                <h4>Database</h4>
+                                <ul>
+                                    <li>SQLite (Development)</li>
+                                    <li>PostgreSQL (Production)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Setup Section -->
+                    <section id="setup" class="docs-section">
+                        <h2>Setup & Installation</h2>
+                        
+                        <h3>Prerequisites</h3>
+                        <ul>
+                            <li>Python 3.8 or higher</li>
+                            <li>pip (Python package installer)</li>
+                            <li>Git</li>
+                            <li>Virtual environment (recommended)</li>
+                        </ul>
+
+                        <h3>Installation Steps</h3>
+                        <div class="code-block">
+                            <h4>1. Clone the Repository</h4>
+                            <pre><code>git clone https://github.com/your-org/learnstyle-ai.git
+cd learnstyle-ai</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>2. Create Virtual Environment</h4>
+                            <pre><code>python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>3. Install Dependencies</h4>
+                            <pre><code>pip install -r requirements.txt</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>4. Environment Configuration</h4>
+                            <pre><code># Create .env file
+cp .env.example .env
+
+# Edit .env with your configuration
+SECRET_KEY=your-secret-key
+DATABASE_URL=sqlite:///learnstyle.db
+OPENAI_API_KEY=your-openai-key</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>5. Initialize Database</h4>
+                            <pre><code>python -c "from app import app, db; app.app_context().push(); db.create_all()"</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>6. Run the Application</h4>
+                            <pre><code>python app.py</code></pre>
+                        </div>
+
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Success!</strong> The application should now be running at <code>http://localhost:5000</code>
+                        </div>
+                    </section>
+
+                    <!-- Architecture Section -->
+                    <section id="architecture" class="docs-section">
+                        <h2>Architecture</h2>
+                        <p>LearnStyle AI follows a modular architecture designed for scalability and maintainability.</p>
+
+                        <h3>Project Structure</h3>
+                        <div class="file-tree">
+                            <pre><code>learnstyle-ai/
+├── app.py                          # Main Flask application
+├── requirements.txt                # Python dependencies
+├── .env.example                   # Environment variables template
+├── README.md                      # Project documentation
+├── tests/                         # Test suite
+│   ├── test_basic.py
+│   └── test_ml_models.py
+├── ml_models/                     # Machine learning modules
+│   ├── __init__.py
+│   ├── predictor.py              # Main ML predictor
+│   ├── data_generator.py         # Synthetic data generation
+│   ├── biometric_feedback/       # Biometric analysis
+│   ├── collaborative_learning/   # Social learning features
+│   ├── emotion_attention/        # Emotion AI
+│   ├── eye_tracking/             # Eye-tracking analysis
+│   ├── neurofeedback/            # EEG analysis
+│   └── predictive_analytics/     # Predictive models
+├── app/                          # Application modules
+│   ├── __init__.py
+│   ├── models/                   # Database models
+│   ├── routes/                   # Route handlers
+│   ├── content_generator.py      # Content generation
+│   └── gamification.py          # Gamification features
+├── templates/                    # HTML templates
+│   ├── base.html
+│   ├── index.html
+│   ├── dashboard.html
+│   ├── docs/                    # Documentation templates
+│   └── ...
+├── static/                       # Static assets
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── instance/                     # Database files
+    └── learnstyle.db</code></pre>
+                        </div>
+
+                        <h3>Key Components</h3>
+                        <div class="architecture-diagram">
+                            <div class="component">
+                                <h4>Frontend Layer</h4>
+                                <p>Bootstrap-based responsive UI with interactive charts and real-time updates</p>
+                            </div>
+                            <div class="component">
+                                <h4>Flask Application</h4>
+                                <p>RESTful API endpoints, authentication, and business logic</p>
+                            </div>
+                            <div class="component">
+                                <h4>ML Engine</h4>
+                                <p>Machine learning models for learning style prediction and content personalization</p>
+                            </div>
+                            <div class="component">
+                                <h4>Database Layer</h4>
+                                <p>SQLAlchemy ORM with SQLite/PostgreSQL for data persistence</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ML Models Section -->
+                    <section id="models" class="docs-section">
+                        <h2>Machine Learning Models</h2>
+                        <p>LearnStyle AI implements multiple ML models for different aspects of personalized learning.</p>
+
+                        <h3>Core Models</h3>
+                        <div class="model-card">
+                            <h4>Learning Style Predictor</h4>
+                            <p><strong>Algorithm:</strong> Random Forest Classifier</p>
+                            <p><strong>Purpose:</strong> Predicts user learning style based on quiz responses</p>
+                            <p><strong>Features:</strong> 15 quiz questions, demographic data</p>
+                            <p><strong>Output:</strong> Visual%, Auditory%, Kinesthetic% percentages</p>
+                        </div>
+
+                        <div class="model-card">
+                            <h4>Biometric Feedback Analyzer</h4>
+                            <p><strong>Algorithm:</strong> HRV Analysis + GSR Monitoring</p>
+                            <p><strong>Purpose:</strong> Monitors physiological responses for learning optimization</p>
+                            <p><strong>Features:</strong> Heart rate variability, galvanic skin response</p>
+                            <p><strong>Output:</strong> Stress levels, engagement metrics, learning readiness</p>
+                        </div>
+
+                        <div class="model-card">
+                            <h4>Collaborative Learning Engine</h4>
+                            <p><strong>Algorithm:</strong> Network Analysis + Clustering</p>
+                            <p><strong>Purpose:</strong> Matches learners and optimizes group dynamics</p>
+                            <p><strong>Features:</strong> Learning styles, interests, performance data</p>
+                            <p><strong>Output:</strong> Peer recommendations, group formations</p>
+                        </div>
+
+                        <h3>Model Training</h3>
+                        <div class="code-block">
+                            <h4>Training Script</h4>
+                            <pre><code># Train all models
+python scripts/train_models.py
+
+# Train specific model
+python scripts/train_models.py --model learning_style
+
+# Evaluate model performance
+python scripts/train_models.py --evaluate</code></pre>
+                        </div>
+
+                        <h3>Model Persistence</h3>
+                        <p>Models are saved using joblib for efficient serialization:</p>
+                        <div class="code-block">
+                            <pre><code>import joblib
+
+# Save model
+joblib.dump(model, 'models/learning_style_model.pkl')
+
+# Load model
+model = joblib.load('models/learning_style_model.pkl')</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- API Section -->
+                    <section id="api" class="docs-section">
+                        <h2>API Integration</h2>
+                        <p>LearnStyle AI provides a comprehensive REST API for integration with external applications.</p>
+
+                        <h3>Authentication</h3>
+                        <p>All API endpoints require authentication using Flask-Login sessions or API keys.</p>
+                        <div class="code-block">
+                            <pre><code># Session-based authentication
+curl -X GET http://localhost:5000/api/profile \
+  -H "Cookie: session=your-session-cookie"
+
+# API key authentication (if implemented)
+curl -X GET http://localhost:5000/api/profile \
+  -H "Authorization: Bearer your-api-key"</code></pre>
+                        </div>
+
+                        <h3>Key Endpoints</h3>
+                        <div class="api-endpoint">
+                            <h4>Learning Style Prediction</h4>
+                            <pre><code>POST /api/predict
+Content-Type: application/json
+
+{
+  "quiz_responses": [1, 2, 3, 4, 5, ...],
+  "user_id": 123
+}</code></pre>
+                        </div>
+
+                        <div class="api-endpoint">
+                            <h4>Biometric Analysis</h4>
+                            <pre><code>POST /api/biometric/hrv-analysis
+Content-Type: application/json
+
+{
+  "rr_intervals": [800, 850, 900, ...],
+  "sampling_rate": 1000.0
+}</code></pre>
+                        </div>
+
+                        <div class="api-endpoint">
+                            <h4>Collaborative Learning</h4>
+                            <pre><code>POST /api/collaborative/peer-matching
+Content-Type: application/json
+
+{
+  "user_id": 123,
+  "learning_style": "visual",
+  "interests": ["math", "science"]
+}</code></pre>
+                        </div>
+
+                        <h3>Response Format</h3>
+                        <p>All API responses follow a consistent JSON format:</p>
+                        <div class="code-block">
+                            <pre><code>{
+  "success": true,
+  "data": {
+    "learning_style": {
+      "visual": 65.0,
+      "auditory": 25.0,
+      "kinesthetic": 10.0
+    },
+    "confidence": 0.92
+  },
+  "message": "Prediction completed successfully",
+  "timestamp": "2024-01-15T10:30:00Z"
+}</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Database Section -->
+                    <section id="database" class="docs-section">
+                        <h2>Database Configuration</h2>
+                        <p>LearnStyle AI supports multiple database backends with MySQL as the recommended production database.</p>
+
+                        <h3>Supported Databases</h3>
+                        <div class="database-options">
+                            <div class="db-option">
+                                <h4>MySQL (Recommended)</h4>
+                                <p>Primary database for production deployments</p>
+                                <ul>
+                                    <li>High performance and scalability</li>
+                                    <li>ACID compliance</li>
+                                    <li>Advanced features and optimizations</li>
+                                    <li>Connection pooling support</li>
+                                </ul>
+                            </div>
+                            <div class="db-option">
+                                <h4>SQLite (Development)</h4>
+                                <p>Default database for development and testing</p>
+                                <ul>
+                                    <li>Zero configuration</li>
+                                    <li>File-based storage</li>
+                                    <li>Perfect for development</li>
+                                    <li>Easy to backup and restore</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3>MySQL Setup</h3>
+                        <div class="setup-steps">
+                            <h4>1. Install MySQL Dependencies</h4>
+                            <pre><code>pip install PyMySQL cryptography</code></pre>
+
+                            <h4>2. Configure Environment Variables</h4>
+                            <pre><code># .env file
+MYSQL_USER=root
+MYSQL_PASSWORD=your_password
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_DATABASE=learnstyle_ai</code></pre>
+
+                            <h4>3. Create Database and Tables</h4>
+                            <pre><code>python setup_database.py</code></pre>
+                        </div>
+
+                        <h3>Database Schema</h3>
+                        <p>LearnStyle AI uses SQLAlchemy ORM with a well-structured database schema.</p>
+
+                        <div class="table-schema">
+                            <h4>Users Table</h4>
+                            <pre><code>class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), default='user')  # 'user', 'admin', 'moderator'
+    is_active = db.Column(db.Boolean, default=True)
+    last_login = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)</code></pre>
+                        </div>
+
+                        <div class="table-schema">
+                            <h4>Learning Profiles Table</h4>
+                            <pre><code>class LearningProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    visual_score = db.Column(db.Float, default=0.0)
+    auditory_score = db.Column(db.Float, default=0.0)
+    kinesthetic_score = db.Column(db.Float, default=0.0)
+    dominant_style = db.Column(db.String(20))
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)</code></pre>
+                        </div>
+
+                        <h3>Database Configuration</h3>
+                        <div class="code-block">
+                            <h4>MySQL Configuration</h4>
+                            <pre><code># app.py
+MYSQL_URI = f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = MYSQL_URI
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+    'pool_timeout': 20,
+    'max_overflow': 0
+}</code></pre>
+                        </div>
+
+                        <h3>Database Migrations</h3>
+                        <div class="code-block">
+                            <h4>Create Tables</h4>
+                            <pre><code># Create all tables
+python -c "from app import app, db; app.app_context().push(); db.create_all()"</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>Database Setup Script</h4>
+                            <pre><code># Run the setup script
+python setup_database.py
+
+# This will:
+# 1. Create the database
+# 2. Create all tables
+# 3. Create default admin user</code></pre>
+                        </div>
+
+                        <h3>Production Considerations</h3>
+                        <ul>
+                            <li><strong>Connection Pooling:</strong> Configured for optimal performance</li>
+                            <li><strong>SSL Support:</strong> Enable SSL for secure connections</li>
+                            <li><strong>Backup Strategy:</strong> Regular automated backups</li>
+                            <li><strong>Monitoring:</strong> Database performance monitoring</li>
+                            <li><strong>Security:</strong> Use dedicated database users with minimal permissions</li>
+                        </ul>
+                    </section>
+
+                    <!-- Testing Section -->
+                    <section id="testing" class="docs-section">
+                        <h2>Testing</h2>
+                        <p>LearnStyle AI includes comprehensive testing to ensure reliability and performance.</p>
+
+                        <h3>Test Structure</h3>
+                        <div class="file-tree">
+                            <pre><code>tests/
+├── test_basic.py              # Basic functionality tests
+├── test_ml_models.py          # ML model tests
+├── test_api.py                # API endpoint tests
+├── test_database.py           # Database tests
+└── conftest.py               # Test configuration</code></pre>
+                        </div>
+
+                        <h3>Running Tests</h3>
+                        <div class="code-block">
+                            <h4>Run All Tests</h4>
+                            <pre><code>pytest</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>Run Specific Test File</h4>
+                            <pre><code>pytest tests/test_ml_models.py</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>Run with Coverage</h4>
+                            <pre><code>pytest --cov=app --cov=ml_models</code></pre>
+                        </div>
+
+                        <h3>Test Examples</h3>
+                        <div class="code-block">
+                            <h4>Unit Test Example</h4>
+                            <pre><code>def test_learning_style_prediction():
+    """Test learning style prediction accuracy"""
+    predictor = LearningStylePredictor()
+    test_data = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
+    result = predictor.predict(test_data)
+    
+    assert result['visual'] > 0
+    assert result['auditory'] > 0
+    assert result['kinesthetic'] > 0
+    assert abs(sum(result.values()) - 100) < 0.1</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Deployment Section -->
+                    <section id="deployment" class="docs-section">
+                        <h2>Deployment</h2>
+                        <p>Deploy LearnStyle AI to production with these recommended configurations.</p>
+
+                        <h3>Production Requirements</h3>
+                        <ul>
+                            <li>Python 3.8+</li>
+                            <li>PostgreSQL database</li>
+                            <li>Redis (for caching)</li>
+                            <li>Nginx (reverse proxy)</li>
+                            <li>Gunicorn (WSGI server)</li>
+                        </ul>
+
+                        <h3>Environment Configuration</h3>
+                        <div class="code-block">
+                            <h4>Production .env</h4>
+                            <pre><code>FLASK_ENV=production
+SECRET_KEY=your-production-secret-key
+DATABASE_URL=postgresql://user:pass@localhost/learnstyle
+REDIS_URL=redis://localhost:6379/0
+OPENAI_API_KEY=your-openai-key
+SENTRY_DSN=your-sentry-dsn</code></pre>
+                        </div>
+
+                        <h3>Docker Deployment</h3>
+                        <div class="code-block">
+                            <h4>Dockerfile</h4>
+                            <pre><code>FROM python:3.9-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+EXPOSE 5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]</code></pre>
+                        </div>
+
+                        <h3>Heroku Deployment</h3>
+                        <div class="code-block">
+                            <h4>Procfile</h4>
+                            <pre><code>web: gunicorn app:app</code></pre>
+                        </div>
+
+                        <div class="code-block">
+                            <h4>Deploy to Heroku</h4>
+                            <pre><code># Install Heroku CLI
+# Login to Heroku
+heroku login
+
+# Create Heroku app
+heroku create learnstyle-ai
+
+# Set environment variables
+heroku config:set SECRET_KEY=your-secret-key
+heroku config:set DATABASE_URL=your-postgres-url
+
+# Deploy
+git push heroku main</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Contributing Section -->
+                    <section id="contributing" class="docs-section">
+                        <h2>Contributing</h2>
+                        <p>We welcome contributions to LearnStyle AI! Here's how you can help.</p>
+
+                        <h3>Development Setup</h3>
+                        <ol>
+                            <li>Fork the repository</li>
+                            <li>Create a feature branch: <code>git checkout -b feature/amazing-feature</code></li>
+                            <li>Make your changes</li>
+                            <li>Run tests: <code>pytest</code></li>
+                            <li>Commit changes: <code>git commit -m 'Add amazing feature'</code></li>
+                            <li>Push to branch: <code>git push origin feature/amazing-feature</code></li>
+                            <li>Open a Pull Request</li>
+                        </ol>
+
+                        <h3>Code Style</h3>
+                        <p>We use Black for code formatting and flake8 for linting:</p>
+                        <div class="code-block">
+                            <pre><code># Format code
+black .
+
+# Check linting
+flake8 .</code></pre>
+                        </div>
+
+                        <h3>Areas for Contribution</h3>
+                        <ul>
+                            <li>New ML models and algorithms</li>
+                            <li>UI/UX improvements</li>
+                            <li>API enhancements</li>
+                            <li>Documentation updates</li>
+                            <li>Test coverage improvements</li>
+                            <li>Performance optimizations</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Include base styles from previous templates */
+.docs-container {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.docs-sidebar {
+    background: #2c3e50;
+    color: white;
+    min-height: 100vh;
+    padding: 0;
+    position: sticky;
+    top: 0;
+}
+
+.docs-nav {
+    padding: 2rem 1.5rem;
+}
+
+.docs-brand h4 {
+    color: #ecf0f1;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.docs-nav-menu .nav-link {
+    color: #bdc3c7;
+    padding: 0.75rem 0;
+    border-radius: 0.5rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.docs-nav-menu .nav-link:hover,
+.docs-nav-menu .nav-link.active {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    padding-left: 1rem;
+}
+
+.docs-nav-menu .nav-link i {
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+.docs-content {
+    padding: 2rem;
+}
+
+.docs-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.docs-header h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.docs-toc {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.docs-toc h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.docs-toc ul {
+    list-style: none;
+    padding: 0;
+}
+
+.docs-toc li {
+    margin-bottom: 0.5rem;
+}
+
+.docs-toc a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.docs-toc a:hover {
+    color: #2980b9;
+}
+
+.docs-section {
+    margin: 3rem 0;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.docs-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+.docs-section h3 {
+    color: #34495e;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.tech-stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.tech-category {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.tech-category h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.tech-category ul {
+    list-style: none;
+    padding: 0;
+}
+
+.tech-category li {
+    padding: 0.25rem 0;
+    color: #666;
+}
+
+.code-block {
+    background: #2c3e50;
+    color: #ecf0f1;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.code-block h4 {
+    color: #3498db;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.code-block pre {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.file-tree {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.file-tree pre {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #2c3e50;
+}
+
+.architecture-diagram {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.component {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    border: 2px solid #e9ecef;
+}
+
+.component h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.model-card {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-left: 4px solid #3498db;
+}
+
+.model-card h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.api-endpoint {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-left: 4px solid #e74c3c;
+}
+
+.api-endpoint h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.table-schema {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-left: 4px solid #27ae60;
+}
+
+.table-schema h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+.alert-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.alert i {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .docs-sidebar {
+        min-height: auto;
+        position: relative;
+    }
+    
+    .docs-content {
+        padding: 1rem;
+    }
+    
+    .docs-section {
+        padding: 1.5rem;
+    }
+    
+    .tech-stack {
+        grid-template-columns: 1fr;
+    }
+    
+    .architecture-diagram {
+        grid-template-columns: 1fr;
+    }
+    
+    .database-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Database configuration styles */
+.database-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.db-option {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3498db;
+}
+
+.db-option h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.db-option p {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.db-option ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.db-option li {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.setup-steps {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.setup-steps h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.setup-steps pre {
+    background: #2c3e50;
+    color: #ecf0f1;
+    border-radius: 5px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}

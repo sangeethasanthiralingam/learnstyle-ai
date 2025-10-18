@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnStyle AI - Advanced Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .nav-pills .nav-link {
+            border-radius: 25px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .nav-pills .nav-link.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-active { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-error { background-color: #dc3545; }
+        .status-info { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-card p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="mb-0"><i class="fas fa-brain me-3"></i>LearnStyle AI Advanced Dashboard</h1>
+                                <p class="text-muted mb-0">Comprehensive AI-Powered Learning Analytics & Management</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success fs-6">System Online</span>
+                                <p class="text-muted mb-0">Last updated: <span id="lastUpdated"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-card p-3">
+                        <ul class="nav nav-pills justify-content-center" id="dashboardTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Overview
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="learning-tab" data-bs-toggle="pill" data-bs-target="#learning" type="button">
+                                    <i class="fas fa-graduation-cap me-2"></i>Learning Analytics
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="emotion-tab" data-bs-toggle="pill" data-bs-target="#emotion" type="button">
+                                    <i class="fas fa-smile me-2"></i>Emotion AI
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="collaborative-tab" data-bs-toggle="pill" data-bs-target="#collaborative" type="button">
+                                    <i class="fas fa-users me-2"></i>Collaborative Learning
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="research-tab" data-bs-toggle="pill" data-bs-target="#research" type="button">
+                                    <i class="fas fa-microscope me-2"></i>Research Platform
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="career-tab" data-bs-toggle="pill" data-bs-target="#career" type="button">
+                                    <i class="fas fa-briefcase me-2"></i>Career Prediction
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="neurofeedback-tab" data-bs-toggle="pill" data-bs-target="#neurofeedback" type="button">
+                                    <i class="fas fa-brain me-2"></i>Neurofeedback
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="dashboardTabsContent">
+                <!-- Overview Tab -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    <div class="row">
+                        <!-- System Metrics -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="metric-value" id="totalUsers">0</div>
+                                <div class="metric-label">Active Users</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="metric-value" id="learningSessions">0</div>
+                                <div class="metric-label">Learning Sessions</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="metric-value" id="aiPredictions">0</div>
+                                <div class="metric-label">AI Predictions</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="metric-card">
+                                <div class="metric-value" id="systemHealth">100%</div>
+                                <div class="metric-label">System Health</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature Status Grid -->
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <i class="fas fa-robot feature-icon"></i>
+                                <h5>AI Content Generation</h5>
+                                <p class="text-muted">Generate personalized learning content</p>
+                                <span class="status-indicator status-active"></span>
+                                <span class="text-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <i class="fas fa-chart-line feature-icon"></i>
+                                <h5>Predictive Analytics</h5>
+                                <p class="text-muted">Predict learning outcomes and risks</p>
+                                <span class="status-indicator status-active"></span>
+                                <span class="text-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <i class="fas fa-gamepad feature-icon"></i>
+                                <h5>Gamification</h5>
+                                <p class="text-muted">Engage learners with rewards and achievements</p>
+                                <span class="status-indicator status-active"></span>
+                                <span class="text-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <i class="fas fa-eye feature-icon"></i>
+                                <h5>Eye Tracking</h5>
+                                <p class="text-muted">Optimize content based on gaze patterns</p>
+                                <span class="status-indicator status-active"></span>
+                                <span class="text-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <i class="fas fa-users feature-icon"></i>
+                                <h5>Collaborative Learning</h5>
+                                <p class="text-muted">Real-time group learning and peer matching</p>
+                                <span class="status-indicator status-active"></span>
+                                <span class="text-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <i class="fas fa-microscope feature-icon"></i>
+                                <h5>Research Platform</h5>
+                                <p class="text-muted">A/B testing and learning effectiveness analysis</p>
+                                <span class="status-indicator status-active"></span>
+                                <span class="text-success">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Analytics Tab -->
+                <div class="tab-pane fade" id="learning" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-line me-2"></i>Learning Progress Trends</h5>
+                                <div class="chart-container">
+                                    <canvas id="learningProgressChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-trophy me-2"></i>Learning Achievements</h5>
+                                <div id="achievementsList">
+                                    <!-- Achievements will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-brain me-2"></i>Learning Style Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="learningStyleChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-target me-2"></i>Skill Development</h5>
+                                <div id="skillDevelopmentList">
+                                    <!-- Skill development will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emotion AI Tab -->
+                <div class="tab-pane fade" id="emotion" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-smile me-2"></i>Emotion Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="emotionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-eye me-2"></i>Attention & Engagement</h5>
+                                <div class="chart-container">
+                                    <canvas id="attentionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-cogs me-2"></i>Engagement Optimization</h5>
+                                <div id="engagementOptimization">
+                                    <!-- Engagement optimization will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaborative Learning Tab -->
+                <div class="tab-pane fade" id="collaborative" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-users me-2"></i>Group Dynamics Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="groupDynamicsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-handshake me-2"></i>Peer Matching</h5>
+                                <div id="peerMatchingList">
+                                    <!-- Peer matching will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-network me-2"></i>Social Learning Network</h5>
+                                <div id="socialNetwork">
+                                    <!-- Social network visualization will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research Platform Tab -->
+                <div class="tab-pane fade" id="research" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-flask me-2"></i>A/B Testing Experiments</h5>
+                                <div id="abTestingList">
+                                    <!-- A/B testing experiments will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-chart-bar me-2"></i>Statistical Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="statisticalChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-file-alt me-2"></i>Research Reports</h5>
+                                <div id="researchReports">
+                                    <!-- Research reports will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Career Prediction Tab -->
+                <div class="tab-pane fade" id="career" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-route me-2"></i>Career Path Predictions</h5>
+                                <div id="careerPathsList">
+                                    <!-- Career paths will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-tools me-2"></i>Skill Gap Analysis</h5>
+                                <div id="skillGapsList">
+                                    <!-- Skill gaps will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-building me-2"></i>Industry Analysis</h5>
+                                <div id="industryAnalysis">
+                                    <!-- Industry analysis will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-lightbulb me-2"></i>Career Recommendations</h5>
+                                <div id="careerRecommendations">
+                                    <!-- Career recommendations will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Neurofeedback Tab -->
+                <div class="tab-pane fade" id="neurofeedback" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-brain me-2"></i>EEG Brainwave Analysis</h5>
+                                <div class="chart-container">
+                                    <canvas id="eegChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="dashboard-card p-4">
+                                <h5><i class="fas fa-concentration me-2"></i>Focus & Attention Metrics</h5>
+                                <div class="chart-container">
+                                    <canvas id="focusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-battery-half me-2"></i>Fatigue Level</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#ffc107" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="fatigueLevel">65%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-weight me-2"></i>Cognitive Load</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#17a2b8" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="cognitiveLoad">42%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="dashboard-card p-4 text-center">
+                                <h5><i class="fas fa-bullseye me-2"></i>Focus Score</h5>
+                                <div class="progress-ring">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-ring-circle" stroke="#28a745" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                                    </svg>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <span id="focusScore">78%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLastUpdated();
+            loadDashboardData();
+            initializeCharts();
+            setInterval(updateDashboardData, 30000); // Update every 30 seconds
+        });
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+        }
+
+        function loadDashboardData() {
+            // Load system metrics
+            fetch('/api/dashboard/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalUsers').textContent = data.total_users || 0;
+                    document.getElementById('learningSessions').textContent = data.learning_sessions || 0;
+                    document.getElementById('aiPredictions').textContent = data.ai_predictions || 0;
+                })
+                .catch(error => console.error('Error loading dashboard data:', error));
+        }
+
+        function initializeCharts() {
+            // Learning Progress Chart
+            const learningCtx = document.getElementById('learningProgressChart').getContext('2d');
+            new Chart(learningCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                    datasets: [{
+                        label: 'Learning Progress',
+                        data: [65, 72, 78, 85, 88, 92],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Learning Style Chart
+            const styleCtx = document.getElementById('learningStyleChart').getContext('2d');
+            new Chart(styleCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Visual', 'Auditory', 'Kinesthetic', 'Analytical'],
+                    datasets: [{
+                        data: [35, 25, 20, 20],
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Emotion Chart
+            const emotionCtx = document.getElementById('emotionChart').getContext('2d');
+            new Chart(emotionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Happy', 'Neutral', 'Focused', 'Confused', 'Engaged'],
+                    datasets: [{
+                        label: 'Emotion Distribution',
+                        data: [45, 25, 15, 10, 5],
+                        backgroundColor: ['#28a745', '#6c757d', '#17a2b8', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Attention Chart
+            const attentionCtx = document.getElementById('attentionChart').getContext('2d');
+            new Chart(attentionCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Focus', 'Engagement', 'Retention', 'Comprehension', 'Motivation'],
+                    datasets: [{
+                        label: 'Attention Metrics',
+                        data: [85, 78, 82, 75, 88],
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: '#667eea',
+                        pointBackgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Group Dynamics Chart
+            const groupCtx = document.getElementById('groupDynamicsChart').getContext('2d');
+            new Chart(groupCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Group Performance',
+                        data: [
+                            {x: 70, y: 85, label: 'Group A'},
+                            {x: 85, y: 90, label: 'Group B'},
+                            {x: 60, y: 75, label: 'Group C'},
+                            {x: 90, y: 95, label: 'Group D'}
+                        ],
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Collaboration Score'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Learning Outcome'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Statistical Chart
+            const statCtx = document.getElementById('statisticalChart').getContext('2d');
+            new Chart(statCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Significance', 'Effect Size', 'Power', 'Confidence'],
+                    datasets: [{
+                        label: 'Statistical Metrics',
+                        data: [0.85, 0.72, 0.90, 0.95],
+                        backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // EEG Chart
+            const eegCtx = document.getElementById('eegChart').getContext('2d');
+            new Chart(eegCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 50}, (_, i) => i),
+                    datasets: [{
+                        label: 'Alpha Waves',
+                        data: Array.from({length: 50}, () => Math.random() * 10 + 5),
+                        borderColor: '#667eea',
+                        tension: 0.4
+                    }, {
+                        label: 'Beta Waves',
+                        data: Array.from({length: 50}, () => Math.random() * 8 + 3),
+                        borderColor: '#764ba2',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+
+            // Focus Chart
+            const focusCtx = document.getElementById('focusChart').getContext('2d');
+            new Chart(focusCtx, {
+                type: 'line',
+                data: {
+                    labels: ['0', '5', '10', '15', '20', '25', '30'],
+                    datasets: [{
+                        label: 'Focus Level',
+                        data: [60, 75, 85, 90, 88, 82, 78],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDashboardData() {
+            loadDashboardData();
+            updateLastUpdated();
+        }
+
+        // Initialize progress rings
+        function updateProgressRing(elementId, percentage) {
+            const circle = document.querySelector(`#${elementId} .progress-ring-circle`);
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            const offset = circumference - (percentage / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // Update progress rings on load
+        setTimeout(() => {
+            updateProgressRing('fatigueLevel', 65);
+            updateProgressRing('cognitiveLoad', 42);
+            updateProgressRing('focusScore', 78);
+        }, 1000);
+    </script>
+</body>
+</html>

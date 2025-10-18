@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye-Tracking Dashboard - LearnStyle AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .metric-card {
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .attention-heatmap {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .heatmap-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .attention-region {
+            position: absolute;
+            border: 2px solid #007bff;
+            border-radius: 50%;
+            background: rgba(0, 123, 255, 0.2);
+            pointer-events: none;
+        }
+        .reading-pattern-indicator {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto;
+        }
+        .pattern-linear { background-color: #28a745; }
+        .pattern-scanning { background-color: #17a2b8; }
+        .pattern-detailed { background-color: #ffc107; color: #212529; }
+        .pattern-skimming { background-color: #fd7e14; }
+        .pattern-random { background-color: #6c757d; }
+        .optimization-card {
+            border-left: 4px solid #007bff;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .optimization-high { border-left-color: #dc3545; }
+        .optimization-medium { border-left-color: #ffc107; }
+        .optimization-low { border-left-color: #28a745; }
+        .gaze-simulation {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .gaze-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #007bff;
+            border-radius: 50%;
+            animation: gazePulse 2s infinite;
+        }
+        @keyframes gazePulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    
+    {% block content %}
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="fas fa-eye"></i> Eye-Tracking Dashboard
+                    <small class="text-muted">Visual Attention Analysis & Content Optimization</small>
+                </h1>
+            </div>
+        </div>
+
+        <!-- Real-time Metrics Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Attention Level</h5>
+                        <div id="attention-indicator" class="reading-pattern-indicator pattern-random">
+                            <span id="attention-value">--</span>
+                        </div>
+                        <p class="mt-2 mb-0" id="attention-classification">Analyzing...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Reading Pattern</h5>
+                        <div id="reading-pattern-indicator" class="reading-pattern-indicator pattern-random">
+                            <span id="reading-pattern-value">--</span>
+                        </div>
+                        <p class="mt-2 mb-0" id="reading-pattern-text">Analyzing...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Reading Speed</h5>
+                        <h3 id="reading-speed" class="text-primary">--</h3>
+                        <p class="mb-0">Words per minute</p>
+                        <small class="text-muted" id="reading-efficiency">Efficiency: --</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Engagement Score</h5>
+                        <div class="progress mb-2">
+                            <div id="engagement-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p class="mb-0" id="engagement-level">Medium</p>
+                        <small class="text-muted" id="fixation-count">Fixations: --</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attention Heatmap -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-fire"></i> Real-time Attention Heatmap
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="attention-heatmap" id="attention-heatmap">
+                            <div class="heatmap-overlay" id="heatmap-overlay"></div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <small class="text-muted">Pattern: <span id="heatmap-pattern">--</span></small>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">Hierarchy: <span id="hierarchy-effectiveness">--</span></small>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">Flow Score: <span id="visual-flow-score">--</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Reading Speed Trend</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="readingSpeedChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Engagement Over Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="engagementChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layout Optimizations -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-magic"></i> Layout Optimization Recommendations
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="optimization-recommendations">
+                            <p class="text-muted">Analyzing layout optimization opportunities...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gaze Simulation -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-crosshairs"></i> Gaze Point Simulation
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="gaze-simulation" id="gaze-simulation">
+                            <!-- Gaze points will be dynamically added here -->
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <small class="text-muted">Fixations: <span id="sim-fixation-count">0</span></small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Saccades: <span id="sim-saccade-count">0</span></small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Scanpath Length: <span id="sim-scanpath-length">0</span></small>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Efficiency: <span id="sim-efficiency">0%</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Eye-Tracking Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button id="start-tracking" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-play"></i> Start Tracking
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button id="pause-tracking" class="btn btn-warning btn-lg w-100" disabled>
+                                    <i class="fas fa-pause"></i> Pause Tracking
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button id="stop-tracking" class="btn btn-danger btn-lg w-100" disabled>
+                                    <i class="fas fa-stop"></i> Stop Tracking
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button id="optimize-layout" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-magic"></i> Optimize Layout
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="auto-optimize" checked>
+                                    <label class="form-check-label" for="auto-optimize">
+                                        Auto-optimize layout based on eye-tracking data
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let trackingActive = false;
+        let gazeData = [];
+        let readingSpeedChart = null;
+        let engagementChart = null;
+        let readingSpeedData = [];
+        let engagementData = [];
+        let timeLabels = [];
+
+        // Initialize charts
+        function initializeCharts() {
+            // Reading Speed Chart
+            const readingCtx = document.getElementById('readingSpeedChart').getContext('2d');
+            readingSpeedChart = new Chart(readingCtx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: 'Reading Speed (WPM)',
+                        data: readingSpeedData,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 400
+                        }
+                    }
+                }
+            });
+
+            // Engagement Chart
+            const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+            engagementChart = new Chart(engagementCtx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: 'Engagement Score',
+                        data: engagementData,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Simulate gaze data (in real implementation, this would come from eye-tracking hardware)
+        function generateSimulatedGazeData() {
+            const data = [];
+            const now = Date.now();
+            const duration = 5000; // 5 seconds of data
+            const pointCount = 50;
+            
+            for (let i = 0; i < pointCount; i++) {
+                const progress = i / pointCount;
+                const timestamp = now + (progress * duration);
+                
+                // Simulate reading pattern (left to right, top to bottom)
+                const x = 100 + (progress * 600) + (Math.random() - 0.5) * 50;
+                const y = 100 + Math.sin(progress * Math.PI * 4) * 100 + (Math.random() - 0.5) * 30;
+                
+                data.push({
+                    x: Math.max(0, Math.min(800, x)),
+                    y: Math.max(0, Math.min(600, y)),
+                    timestamp: timestamp,
+                    duration: 100 + Math.random() * 200,
+                    pupil_diameter: 3 + Math.random() * 2,
+                    confidence: 0.8 + Math.random() * 0.2
+                });
+            }
+            
+            return data;
+        }
+
+        // Process eye-tracking data
+        async function processEyeTrackingData() {
+            if (!trackingActive) return;
+
+            try {
+                // Generate simulated gaze data
+                const gazeData = generateSimulatedGazeData();
+                
+                // Send to API
+                const response = await fetch('/api/eye-tracking/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        gaze_points: gazeData,
+                        content_bounds: { width: 800, height: 600 },
+                        content_layout: {
+                            text_regions: [
+                                { x: 50, y: 50, width: 700, height: 400 }
+                            ]
+                        },
+                        text_content: {
+                            word_count: 200,
+                            area: 280000
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDashboard(data);
+                    updateGazeSimulation(gazeData);
+                }
+            } catch (error) {
+                console.error('Error processing eye-tracking data:', error);
+            }
+        }
+
+        // Update dashboard with new data
+        function updateDashboard(data) {
+            // Update gaze metrics
+            const gazeMetrics = data.gaze_metrics;
+            updateAttentionLevel(gazeMetrics.attention_level, gazeMetrics.engagement_score);
+            updateEngagementScore(gazeMetrics.engagement_score, gazeMetrics.fixation_count);
+            
+            // Update reading flow
+            const readingFlow = data.reading_flow;
+            updateReadingPattern(readingFlow.pattern_type, readingFlow.reading_speed);
+            updateReadingSpeed(readingFlow.reading_speed, readingFlow.reading_efficiency);
+            
+            // Update attention map
+            const attentionMap = data.attention_map;
+            updateAttentionMap(attentionMap);
+            
+            // Update charts
+            updateCharts(readingFlow.reading_speed, gazeMetrics.engagement_score);
+        }
+
+        // Update attention level indicator
+        function updateAttentionLevel(level, score) {
+            const indicator = document.getElementById('attention-indicator');
+            const value = document.getElementById('attention-value');
+            const classification = document.getElementById('attention-classification');
+            
+            value.textContent = Math.round(score * 100) + '%';
+            classification.textContent = level.replace('_', ' ').toUpperCase();
+            
+            // Update color based on level
+            indicator.className = 'reading-pattern-indicator';
+            if (level === 'very_high') {
+                indicator.classList.add('pattern-linear');
+            } else if (level === 'high') {
+                indicator.classList.add('pattern-scanning');
+            } else if (level === 'medium') {
+                indicator.classList.add('pattern-detailed');
+            } else if (level === 'low') {
+                indicator.classList.add('pattern-skimming');
+            } else {
+                indicator.classList.add('pattern-random');
+            }
+        }
+
+        // Update reading pattern indicator
+        function updateReadingPattern(pattern, speed) {
+            const indicator = document.getElementById('reading-pattern-indicator');
+            const value = document.getElementById('reading-pattern-value');
+            const text = document.getElementById('reading-pattern-text');
+            
+            value.textContent = pattern.charAt(0).toUpperCase();
+            text.textContent = pattern.replace('_', ' ').toUpperCase();
+            
+            // Update color based on pattern
+            indicator.className = 'reading-pattern-indicator';
+            indicator.classList.add(`pattern-${pattern}`);
+        }
+
+        // Update reading speed
+        function updateReadingSpeed(speed, efficiency) {
+            document.getElementById('reading-speed').textContent = Math.round(speed);
+            document.getElementById('reading-efficiency').textContent = 
+                `Efficiency: ${efficiency.replace('_', ' ').toUpperCase()}`;
+        }
+
+        // Update engagement score
+        function updateEngagementScore(score, fixationCount) {
+            const bar = document.getElementById('engagement-bar');
+            const level = document.getElementById('engagement-level');
+            const count = document.getElementById('fixation-count');
+            
+            bar.style.width = (score * 100) + '%';
+            bar.className = 'progress-bar';
+            
+            if (score >= 0.8) {
+                level.textContent = 'High';
+                bar.classList.add('bg-success');
+            } else if (score >= 0.6) {
+                level.textContent = 'Medium';
+                bar.classList.add('bg-warning');
+            } else {
+                level.textContent = 'Low';
+                bar.classList.add('bg-danger');
+            }
+            
+            count.textContent = `Fixations: ${fixationCount}`;
+        }
+
+        // Update attention map
+        function updateAttentionMap(attentionMap) {
+            document.getElementById('heatmap-pattern').textContent = 
+                attentionMap.pattern_type.replace('_', ' ').toUpperCase();
+            document.getElementById('hierarchy-effectiveness').textContent = 
+                attentionMap.hierarchy_effectiveness.replace('_', ' ').toUpperCase();
+            document.getElementById('visual-flow-score').textContent = 
+                Math.round(attentionMap.visual_flow_score * 100) + '%';
+        }
+
+        // Update gaze simulation
+        function updateGazeSimulation(gazeData) {
+            const simulation = document.getElementById('gaze-simulation');
+            simulation.innerHTML = '';
+            
+            gazeData.forEach((point, index) => {
+                const gazePoint = document.createElement('div');
+                gazePoint.className = 'gaze-point';
+                gazePoint.style.left = (point.x / 800 * 100) + '%';
+                gazePoint.style.top = (point.y / 600 * 100) + '%';
+                gazePoint.style.animationDelay = (index * 0.1) + 's';
+                simulation.appendChild(gazePoint);
+            });
+            
+            // Update simulation metrics
+            document.getElementById('sim-fixation-count').textContent = gazeData.length;
+            document.getElementById('sim-saccade-count').textContent = Math.floor(gazeData.length * 0.3);
+            
+            // Calculate scanpath length
+            let scanpathLength = 0;
+            for (let i = 1; i < gazeData.length; i++) {
+                const prev = gazeData[i-1];
+                const curr = gazeData[i];
+                const distance = Math.sqrt(
+                    Math.pow(curr.x - prev.x, 2) + Math.pow(curr.y - prev.y, 2)
+                );
+                scanpathLength += distance;
+            }
+            document.getElementById('sim-scanpath-length').textContent = Math.round(scanpathLength);
+            
+            // Calculate efficiency (simplified)
+            const efficiency = Math.min(100, Math.max(0, 100 - (scanpathLength / 100)));
+            document.getElementById('sim-efficiency').textContent = Math.round(efficiency) + '%';
+        }
+
+        // Update charts with new data
+        function updateCharts(readingSpeed, engagementScore) {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString();
+            
+            timeLabels.push(timeLabel);
+            readingSpeedData.push(readingSpeed);
+            engagementData.push(engagementScore);
+            
+            // Keep only last 20 data points
+            if (timeLabels.length > 20) {
+                timeLabels.shift();
+                readingSpeedData.shift();
+                engagementData.shift();
+            }
+            
+            readingSpeedChart.update();
+            engagementChart.update();
+        }
+
+        // Optimize layout
+        async function optimizeLayout() {
+            try {
+                const response = await fetch('/api/eye-tracking/optimize-layout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        gaze_analysis: {
+                            engagement_score: 0.7,
+                            fixation_count: 25,
+                            reading_flow: {
+                                regression_count: 3
+                            }
+                        },
+                        current_layout: {
+                            font_size: 16,
+                            line_spacing: 1.5,
+                            margin_size: 20,
+                            color_contrast: 0.7
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayOptimizationRecommendations(data);
+                }
+            } catch (error) {
+                console.error('Error optimizing layout:', error);
+            }
+        }
+
+        // Display optimization recommendations
+        function displayOptimizationRecommendations(data) {
+            const container = document.getElementById('optimization-recommendations');
+            
+            if (data.optimizations.length === 0) {
+                container.innerHTML = '<p class="text-success">No optimizations needed! Your layout is already well-optimized.</p>';
+                return;
+            }
+            
+            let html = '<div class="row">';
+            
+            data.optimizations.forEach(opt => {
+                const priorityClass = `optimization-${opt.priority}`;
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card optimization-card ${priorityClass}">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    ${opt.type.replace('_', ' ').toUpperCase()}
+                                    <span class="badge bg-${opt.priority === 'high' ? 'danger' : opt.priority === 'medium' ? 'warning' : 'success'}">
+                                        ${opt.priority.toUpperCase()}
+                                    </span>
+                                </h6>
+                                <p class="card-text">${opt.description}</p>
+                                <small class="text-muted">
+                                    Confidence: ${Math.round(opt.confidence * 100)}% | 
+                                    Expected Improvement: ${Math.round(opt.expected_improvement * 100)}%
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (data.recommendations.length > 0) {
+                html += '<div class="mt-3"><h6>General Recommendations:</h6><ul>';
+                data.recommendations.forEach(rec => {
+                    html += `<li>${rec}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Event listeners
+        document.getElementById('start-tracking').addEventListener('click', function() {
+            trackingActive = true;
+            this.disabled = true;
+            document.getElementById('pause-tracking').disabled = false;
+            document.getElementById('stop-tracking').disabled = false;
+            
+            // Start processing
+            setInterval(processEyeTrackingData, 3000); // Process every 3 seconds
+        });
+
+        document.getElementById('pause-tracking').addEventListener('click', function() {
+            trackingActive = false;
+            this.disabled = true;
+            document.getElementById('start-tracking').disabled = false;
+        });
+
+        document.getElementById('stop-tracking').addEventListener('click', function() {
+            trackingActive = false;
+            this.disabled = true;
+            document.getElementById('pause-tracking').disabled = true;
+            document.getElementById('start-tracking').disabled = false;
+        });
+
+        document.getElementById('optimize-layout').addEventListener('click', optimizeLayout);
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>
