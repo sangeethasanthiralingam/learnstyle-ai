@@ -90,9 +90,15 @@ def calculate_user_progress(user_id):
 # Initialize Flask app
 app = Flask(
     __name__,
-    template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
-    static_folder=os.path.join(os.path.dirname(__file__), 'static')
+    template_folder=os.path.join(os.path.dirname(__file__) if '__file__' in globals() else '.', 'templates'),
+    static_folder=os.path.join(os.path.dirname(__file__) if '__file__' in globals() else '.', 'static')
 )
+
+# CORS configuration for browser extension
+# If you need CORS support, install flask-cors: pip install flask-cors
+# Then uncomment the following lines:
+# from flask_cors import CORS
+# CORS(app)
 
 # Config
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -107,21 +113,33 @@ MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'learnstyle_ai')
 
 # URL encode password to handle special characters
 import urllib.parse
-if MYSQL_PASSWORD:
-    encoded_password = urllib.parse.quote_plus(MYSQL_PASSWORD)
-    MYSQL_URI = f'mysql+pymysql://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
-else:
-    MYSQL_URI = f'mysql+pymysql://{MYSQL_USER}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
+try:
+    if MYSQL_PASSWORD:
+        encoded_password = urllib.parse.quote_plus(str(MYSQL_PASSWORD))
+        MYSQL_URI = f'mysql+pymysql://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
+    else:
+        MYSQL_URI = f'mysql+pymysql://{MYSQL_USER}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}'
+    
+    # Debug: Print the constructed URI (without password for security)
+    logger.info(f"MySQL URI constructed: mysql+pymysql://{MYSQL_USER}:***@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}")
+except Exception as e:
+    logger.error(f"Error constructing MySQL URI: {e}")
+    # Fallback to SQLite
+    MYSQL_URI = 'sqlite:///learnstyle.db'
 
 # Use MySQL if available, fallback to SQLite for development
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', MYSQL_URI)
+database_url = os.environ.get('DATABASE_URL', MYSQL_URI)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,
-    'pool_recycle': 300,
-    'pool_timeout': 20,
-    'max_overflow': 0
-}
+
+# Only set MySQL-specific engine options if using MySQL
+if 'mysql' in database_url:
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+        'pool_timeout': 20,
+        'max_overflow': 0
+    }
 
 # Initialize extensions
 db.init_app(app)
@@ -131,6 +149,11 @@ login_manager.login_view = 'login'
 
 # Register enhanced API blueprint
 app.register_blueprint(enhanced_api)
+
+# Register API and auth blueprints
+from app.routes import api_bp, auth_bp
+app.register_blueprint(api_bp)
+app.register_blueprint(auth_bp)
 
 # Initialize ML predictor
 ml_predictor = LearningStylePredictor()
@@ -386,8 +409,6 @@ def cookie_policy():
     """Cookie Policy page"""
     return render_template('cookie_policy.html')
 
-
-
 @app.route('/api/permissions', methods=['GET'])
 @login_required
 def get_permissions():
@@ -519,7 +540,7 @@ def ask_question():
         # Create content request for explanation
         content_request = ContentRequest(
             topic=question,
-            content_type=ContentType.EXPLANATION,
+            content_type=ContentType.TEXT,
             style=ContentStyle(learning_style),
             difficulty_level='intermediate',
             length='medium'
@@ -3893,9 +3914,47 @@ def get_user_profile():
 
 
 # -----------------------------
+# Database Connection Test
+# -----------------------------
+def test_database_connection():
+    """Test database connection and provide helpful error messages"""
+    try:
+        with app.app_context():
+            # Try to connect to the database
+            db.engine.connect()
+            logger.info("Database connection successful")
+            return True
+    except Exception as e:
+        logger.error(f"Database connection failed: {e}")
+        
+        # Provide helpful suggestions based on the error
+        if "Can't connect to MySQL server" in str(e):
+            logger.error("MySQL connection failed. Suggestions:")
+            logger.error("1. Make sure MySQL server is running")
+            logger.error("2. Check your MySQL credentials in environment variables")
+            logger.error("3. Verify MySQL host and port settings")
+            logger.error("4. Consider using SQLite for development by setting DATABASE_URL=sqlite:///learnstyle.db")
+        elif "Access denied" in str(e):
+            logger.error("MySQL access denied. Check your username and password.")
+        elif "Unknown database" in str(e):
+            logger.error("MySQL database doesn't exist. Create the database first.")
+        
+        return False
+
+# -----------------------------
 # Run App
 # -----------------------------
 if __name__ == '__main__':
+    # Test database connection before starting the app
+    if not test_database_connection():
+        logger.warning("Database connection test failed, but continuing with app startup...")
+    
     with app.app_context():
-        db.create_all()  # Create tables if they don't exist
+        try:
+            db.create_all()  # Create tables if they don't exist
+            logger.info("Database tables created/verified successfully")
+        except Exception as e:
+            logger.error(f"Failed to create database tables: {e}")
+            logger.error("The app will continue but some features may not work properly")
+    
     app.run(debug=True, host='0.0.0.0', port=5000)

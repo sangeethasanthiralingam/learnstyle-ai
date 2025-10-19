@@ -20,7 +20,15 @@ def create_app():
 
     # Config
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///learnstyle.db')
+    
+    # Use MySQL if DATABASE_URL is set, otherwise fallback to SQLite
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    else:
+        # Fallback to SQLite for development
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///learnstyle.db'
+    
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions
@@ -28,8 +36,8 @@ def create_app():
     login_manager.init_app(app)
 
     # Import and register blueprints
-    from app.routes import auth_bp, main_bp
+    from app.routes import auth_bp, api_bp
     app.register_blueprint(auth_bp)
-    app.register_blueprint(main_bp)
+    app.register_blueprint(api_bp)
 
     return app

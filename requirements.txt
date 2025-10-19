@@ -29,4 +29,5 @@ Pillow==10.0.0
 
 # Development (Optional)
 pytest==7.4.0
-pytest-flask==1.2.0
+pytest-flask
+flask-cors==1.2.0

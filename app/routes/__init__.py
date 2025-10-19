@@ -7,6 +7,7 @@ from flask import Blueprint, request, jsonify, session, render_template, redirec
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
+import time
 from sqlalchemy import func, or_
 import sys
 import os
@@ -24,6 +25,57 @@ ml_predictor = LearningStylePredictor()
 # Create blueprints
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 auth_bp = Blueprint('auth', __name__)
+
+# Helper functions for browser extension authentication
+def validate_extension_token(token):
+    """Validate extension token and return user_id"""
+    try:
+        # Simple token validation - in production, use JWT or similar
+        if token and token.startswith('ext_'):
+            # Extract user_id from token (simple implementation)
+            user_id = int(token.split('_')[1]) if len(token.split('_')) > 1 else None
+            if user_id and User.query.get(user_id):
+                return user_id
+    except:
+        pass
+    return None
+
+def get_or_create_guest_user():
+    """Get or create a guest user for anonymous tracking"""
+    try:
+        # Look for existing guest user
+        guest_user = User.query.filter_by(username='guest_user').first()
+        if guest_user:
+            return guest_user.id
+        
+        # Create new guest user
+        guest_user = User(
+            username='guest_user',
+            email='guest@learnstyle.ai'
+        )
+        guest_user.set_password('guest123')
+        db.session.add(guest_user)
+        db.session.commit()
+        
+        # Create learning profile for guest
+        profile = LearningProfile(user_id=guest_user.id)
+        db.session.add(profile)
+        db.session.commit()
+        
+        print(f"Created guest user with ID: {guest_user.id}")
+        return guest_user.id
+    except Exception as e:
+        print(f"Error creating guest user: {e}")
+        # Rollback the session and try to get existing user
+        db.session.rollback()
+        try:
+            guest_user = User.query.filter_by(username='guest_user').first()
+            if guest_user:
+                return guest_user.id
+        except:
+            pass
+        # Return a fallback user ID
+        return 1
 
 # Authentication Routes
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -717,7 +769,6 @@ def save_permissions():
         return jsonify({'error': str(e)}), 500
 
 @api_bp.route('/learning-sites', methods=['POST'])
-@login_required
 def track_learning_site():
     """Track user's learning site activity"""
     try:
@@ -730,31 +781,27 @@ def track_learning_site():
         time_spent = data.get('time_spent', 0)
         content_type = data.get('content_type', 'general')
         notes = data.get('notes', '')
+        user_token = data.get('user_token')  # Token from browser extension
         
         if not site_url:
             return jsonify({'error': 'URL is required'}), 400
         
-        # Check if user has permission for this type of tracking
-        from app.models import UserPermissions
-        permissions = UserPermissions.query.filter_by(user_id=current_user.id).first()
+        # Try to get user from session first (if logged in via web)
+        user_id = None
+        if current_user.is_authenticated:
+            user_id = current_user.id
+        elif user_token:
+            # Try to validate token from browser extension
+            # For now, we'll create a simple token system
+            user_id = validate_extension_token(user_token)
         
-        if permissions:
-            if 'coursera' in site_url.lower() or 'khan' in site_url.lower() or 'edx' in site_url.lower():
-                if not permissions.edu_sites_tracking:
-                    return jsonify({'error': 'Educational sites tracking not permitted'}), 403
-            elif 'github' in site_url.lower() or 'stackoverflow' in site_url.lower():
-                if not permissions.coding_tracking:
-                    return jsonify({'error': 'Coding sites tracking not permitted'}), 403
-            elif 'youtube' in site_url.lower() or 'vimeo' in site_url.lower():
-                if not permissions.video_tracking:
-                    return jsonify({'error': 'Video sites tracking not permitted'}), 403
-            elif 'scholar' in site_url.lower() or 'researchgate' in site_url.lower():
-                if not permissions.research_tracking:
-                    return jsonify({'error': 'Research sites tracking not permitted'}), 403
+        # If no valid user found, create a guest user
+        if not user_id:
+            user_id = get_or_create_guest_user()
         
         # Create learning site activity record
         activity = LearningSiteActivity(
-            user_id=current_user.id,
+            user_id=user_id,
             site_url=site_url,
             site_name=site_name,
             activity_type=activity_type,
@@ -773,6 +820,27 @@ def track_learning_site():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@api_bp.route('/extension-token', methods=['POST'])
+@login_required
+def generate_extension_token():
+    """Generate a token for browser extension authentication"""
+    try:
+        # Generate a simple token (in production, use JWT)
+        token = f"ext_{current_user.id}_{int(time.time())}"
+        
+        # Store token in session or database for validation
+        session['extension_token'] = token
+        
+        return jsonify({
+            'token': token,
+            'user_id': current_user.id,
+            'username': current_user.username,
+            'expires_in': 3600  # 1 hour
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @api_bp.route('/learning-sites', methods=['GET'])
 @login_required
 def get_learning_sites():
@@ -782,8 +850,26 @@ def get_learning_sites():
         
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 20, type=int)
+        user_token = request.args.get('user_token')
         
-        activities = LearningSiteActivity.query.filter_by(user_id=current_user.id).order_by(
+        # Determine user_id
+        user_id = None
+        if current_user.is_authenticated:
+            user_id = current_user.id
+            print(f"🔍 API: Authenticated user ID: {user_id}")
+        elif user_token:
+            user_id = validate_extension_token(user_token)
+            print(f"🔍 API: Token-based user ID: {user_id}")
+        
+        # If no valid user, get guest user activities
+        if not user_id:
+            user_id = get_or_create_guest_user()
+            print(f"🔍 API: Using guest user ID: {user_id}")
+        
+        if not user_id:
+            return jsonify({'error': 'No valid user found'}), 400
+        
+        activities = LearningSiteActivity.query.filter_by(user_id=user_id).order_by(
             LearningSiteActivity.timestamp.desc()
         ).paginate(
             page=page, 
@@ -815,6 +901,48 @@ def get_learning_sites():
                 'has_prev': activities.has_prev
             }
         }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@api_bp.route('/learning-sites/<int:activity_id>/content', methods=['GET'])
+@login_required
+def get_learning_site_content(activity_id):
+    """Get detailed content information for a specific learning site activity"""
+    try:
+        from app.models import LearningSiteActivity
+        
+        # Get the activity
+        activity = LearningSiteActivity.query.filter_by(
+            id=activity_id, 
+            user_id=current_user.id
+        ).first()
+        
+        if not activity:
+            return jsonify({'error': 'Activity not found'}), 404
+        
+        # Get additional content details (this could be enhanced with more detailed tracking)
+        content_details = {
+            'id': activity.id,
+            'site_name': activity.site_name,
+            'site_url': activity.site_url,
+            'duration_minutes': activity.duration_minutes,
+            'timestamp': activity.timestamp.isoformat(),
+            'engagement_score': activity.engagement_score,
+            'activity_type': activity.activity_type,
+            'content_type': getattr(activity, 'content_type', 'Learning Material'),
+            'subject': getattr(activity, 'subject', 'General'),
+            'difficulty_level': getattr(activity, 'difficulty_level', 'Intermediate'),
+            'progress_percentage': getattr(activity, 'progress_percentage', 0),
+            'topics_covered': getattr(activity, 'topics_covered', 'Various'),
+            'content_title': getattr(activity, 'content_title', None),
+            'description': getattr(activity, 'description', None),
+            'total_time': activity.duration_minutes,
+            'completion_rate': getattr(activity, 'completion_rate', 0)
+        }
+        
+        return jsonify(content_details)
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

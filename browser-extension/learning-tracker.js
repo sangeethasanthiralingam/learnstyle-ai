@@ -124,26 +124,24 @@ class LearnStyleTracker {
 
     async sendTrackingData(activityType, timeSpent = 0) {
         try {
-            // Get authentication token from storage
-            const authData = await this.getAuthData();
-            if (!authData || !authData.token) {
-                console.log('LearnStyle AI: No authentication token found');
-                return;
-            }
-
+            // Get user token from storage
+            const userToken = await this.getUserToken();
+            
             const data = {
                 url: this.currentUrl,
                 name: this.getSiteName(),
                 activity_type: activityType,
                 time_spent: Math.floor(timeSpent / 1000), // Convert to seconds
-                content_type: this.getContentType()
+                content_type: this.getContentType(),
+                user_token: userToken
             };
+
+            console.log('LearnStyle AI: Sending tracking data:', data);
 
             const response = await fetch(this.apiEndpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authData.token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
             });
@@ -152,10 +150,27 @@ class LearnStyleTracker {
                 const result = await response.json();
                 console.log('LearnStyle AI: Activity tracked successfully', result);
             } else {
-                console.error('LearnStyle AI: Failed to track activity', response.status);
+                console.error('LearnStyle AI: Failed to track activity', response.status, await response.text());
             }
         } catch (error) {
             console.error('LearnStyle AI: Error tracking activity', error);
+        }
+    }
+
+    async getUserToken() {
+        try {
+            // Try to get token from extension storage
+            if (typeof chrome !== 'undefined' && chrome.storage) {
+                return new Promise((resolve) => {
+                    chrome.storage.local.get(['userToken'], (result) => {
+                        resolve(result.userToken || null);
+                    });
+                });
+            }
+            return null;
+        } catch (error) {
+            console.error('LearnStyle AI: Error getting user token', error);
+            return null;
         }
     }
 
