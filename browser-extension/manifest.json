@@ -1,0 +1,74 @@
+{
+  "manifest_version": 3,
+  "name": "LearnStyle AI - Learning Tracker",
+  "version": "1.0.0",
+  "description": "Track your learning activities across educational platforms for personalized insights",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "webNavigation",
+    "scripting"
+  ],
+  
+  "host_permissions": [
+    "https://coursera.org/*",
+    "https://khanacademy.org/*",
+    "https://edx.org/*",
+    "https://udemy.com/*",
+    "https://github.com/*",
+    "https://stackoverflow.com/*",
+    "https://youtube.com/*",
+    "https://scholar.google.com/*",
+    "https://researchgate.net/*",
+    "https://localhost:5000/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "https://coursera.org/*",
+        "https://khanacademy.org/*",
+        "https://edx.org/*",
+        "https://udemy.com/*",
+        "https://github.com/*",
+        "https://stackoverflow.com/*",
+        "https://youtube.com/*",
+        "https://scholar.google.com/*",
+        "https://researchgate.net/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LearnStyle AI",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["learning-tracker.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

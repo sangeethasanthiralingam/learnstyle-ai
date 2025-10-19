@@ -3,7 +3,7 @@ System Health Monitoring for LearnStyle AI
 Comprehensive real-time health monitoring and alerting system
 """
 
-import psutil
+import psutil  # type: ignore[import-untyped]
 import time
 import requests
 from datetime import datetime, timedelta
@@ -414,7 +414,7 @@ class SystemHealthMonitor:
                 
                 # Test 4: Memory usage (API performance indicator)
                 try:
-                    import psutil
+                    import psutil  # type: ignore[import-untyped]
                     process = psutil.Process()
                     memory_usage = process.memory_info().rss / 1024 / 1024  # MB
                     
@@ -711,7 +711,7 @@ class SystemHealthMonitor:
                 
                 # Test 4: Memory and CPU responsiveness
                 try:
-                    import psutil
+                    import psutil  # type: ignore[import-untyped]
                     process = psutil.Process()
                     
                     # Test memory responsiveness

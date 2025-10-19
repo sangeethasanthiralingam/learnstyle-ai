@@ -1,0 +1,990 @@
+{% extends "base.html" %}
+
+{% block title %}Content Management - LearnStyle AI Admin{% endblock %}
+
+{% block head %}
+<style>
+.content-management-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.content-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-left: 4px solid #007bff;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.content-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.content-filters {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.filter-group select,
+.filter-group input {
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.content-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-pending {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-archived {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+}
+
+.content-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: #495057;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.rich-text-editor {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    min-height: 300px;
+}
+
+.tag-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    min-height: 40px;
+}
+
+.tag {
+    background: #e9ecef;
+    color: #495057;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tag-remove {
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.tag-remove:hover {
+    color: #dc3545;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.page-link {
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.25rem;
+    border: 1px solid #dee2e6;
+    color: #007bff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.page-link:hover {
+    background: #e9ecef;
+}
+
+.page-link.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-right: 2.5rem;
+}
+
+.search-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+@media (max-width: 768px) {
+    .content-management-container {
+        padding: 1rem;
+    }
+    
+    .content-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .filter-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-management-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="fas fa-file-alt"></i> Content Management
+        </h1>
+        <div class="text-muted">
+            Manage learning content and materials
+        </div>
+    </div>
+
+    <!-- Content Statistics -->
+    <div class="content-stats">
+        <div class="stat-card">
+            <div class="stat-number" id="total-content">0</div>
+            <div class="stat-label">Total Content</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="published-content">0</div>
+            <div class="stat-label">Published</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="draft-content">0</div>
+            <div class="stat-label">Draft</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="pending-content">0</div>
+            <div class="stat-label">Pending Review</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="total-views">0</div>
+            <div class="stat-label">Total Views</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="avg-rating">0.0</div>
+            <div class="stat-label">Average Rating</div>
+        </div>
+    </div>
+
+    <!-- Content Actions -->
+    <div class="content-actions">
+        <button class="btn-action btn-primary" onclick="openCreateModal()">
+            <i class="fas fa-plus"></i> Create New Content
+        </button>
+        <button class="btn-action btn-secondary" onclick="importContent()">
+            <i class="fas fa-upload"></i> Import Content
+        </button>
+        <button class="btn-action btn-info" onclick="exportContent()">
+            <i class="fas fa-download"></i> Export Content
+        </button>
+        <button class="btn-action btn-warning" onclick="bulkActions()">
+            <i class="fas fa-tasks"></i> Bulk Actions
+        </button>
+    </div>
+
+    <!-- Content Filters -->
+    <div class="content-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="search-content">Search Content</label>
+                <div class="search-box">
+                    <input type="text" id="search-content" placeholder="Search by title, content, or tags...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label for="filter-type">Content Type</label>
+                <select id="filter-type">
+                    <option value="">All Types</option>
+                    <option value="article">Article</option>
+                    <option value="video">Video</option>
+                    <option value="quiz">Quiz</option>
+                    <option value="interactive">Interactive</option>
+                    <option value="assignment">Assignment</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-status">Status</label>
+                <select id="filter-status">
+                    <option value="">All Status</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                    <option value="pending">Pending Review</option>
+                    <option value="archived">Archived</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-style">Learning Style</label>
+                <select id="filter-style">
+                    <option value="">All Styles</option>
+                    <option value="visual">Visual</option>
+                    <option value="auditory">Auditory</option>
+                    <option value="kinesthetic">Kinesthetic</option>
+                    <option value="reading">Reading/Writing</option>
+                    <option value="multimodal">Multimodal</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <button class="btn-action btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Table -->
+    <div class="content-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                    </th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Learning Style</th>
+                    <th>Difficulty</th>
+                    <th>Status</th>
+                    <th>Views</th>
+                    <th>Rating</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="content-table-body">
+                <!-- Content rows will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination">
+        <!-- Pagination will be loaded here -->
+    </div>
+</div>
+
+<!-- Content Creation/Edit Modal -->
+<div id="content-modal" class="content-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">Create New Content</h3>
+            <button type="button" onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="content-form">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="content-title">Title *</label>
+                            <input type="text" id="content-title" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content-body">Content *</label>
+                            <div id="content-body" class="rich-text-editor"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="content-type">Content Type *</label>
+                            <select id="content-type" name="content_type" required>
+                                <option value="article">Article</option>
+                                <option value="video">Video</option>
+                                <option value="quiz">Quiz</option>
+                                <option value="interactive">Interactive</option>
+                                <option value="assignment">Assignment</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="learning-style">Target Learning Style</label>
+                            <select id="learning-style" name="learning_style">
+                                <option value="">All Styles</option>
+                                <option value="visual">Visual</option>
+                                <option value="auditory">Auditory</option>
+                                <option value="kinesthetic">Kinesthetic</option>
+                                <option value="reading">Reading/Writing</option>
+                                <option value="multimodal">Multimodal</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="difficulty-level">Difficulty Level</label>
+                            <select id="difficulty-level" name="difficulty_level">
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content-status">Status</label>
+                            <select id="content-status" name="status">
+                                <option value="draft">Draft</option>
+                                <option value="pending">Pending Review</option>
+                                <option value="published">Published</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content-tags">Tags</label>
+                            <div id="content-tags" class="tag-input">
+                                <input type="text" id="tag-input" placeholder="Add tags..." onkeypress="handleTagInput(event)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-action btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="button" class="btn-action btn-primary" onclick="saveContent()">Save Content</button>
+            <button type="button" class="btn-action btn-success" onclick="publishContent()">Publish</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Content Management JavaScript
+let currentContent = [];
+let currentPage = 1;
+let totalPages = 1;
+let selectedContent = [];
+
+// Initialize content management
+document.addEventListener('DOMContentLoaded', function() {
+    loadContentStats();
+    loadContentList();
+    initializeRichTextEditor();
+    setupEventListeners();
+});
+
+// Load content statistics
+async function loadContentStats() {
+    try {
+        const response = await fetch('/api/admin/content-stats');
+        if (response.ok) {
+            const stats = await response.json();
+            updateContentStats(stats);
+        }
+    } catch (error) {
+        console.error('Error loading content stats:', error);
+    }
+}
+
+// Update content statistics display
+function updateContentStats(stats) {
+    document.getElementById('total-content').textContent = stats.total_content || 0;
+    document.getElementById('published-content').textContent = stats.published_content || 0;
+    document.getElementById('draft-content').textContent = stats.draft_content || 0;
+    document.getElementById('pending-content').textContent = stats.pending_content || 0;
+    document.getElementById('total-views').textContent = stats.total_views || 0;
+    document.getElementById('avg-rating').textContent = (stats.avg_rating || 0).toFixed(1);
+}
+
+// Load content list
+async function loadContentList(page = 1) {
+    try {
+        const filters = getFilters();
+        const response = await fetch(`/api/admin/content?page=${page}&${new URLSearchParams(filters)}`);
+        if (response.ok) {
+            const data = await response.json();
+            currentContent = data.content;
+            currentPage = data.pagination.page;
+            totalPages = data.pagination.pages;
+            updateContentTable();
+            updatePagination();
+        }
+    } catch (error) {
+        console.error('Error loading content list:', error);
+    }
+}
+
+// Get current filters
+function getFilters() {
+    return {
+        search: document.getElementById('search-content').value,
+        type: document.getElementById('filter-type').value,
+        status: document.getElementById('filter-status').value,
+        learning_style: document.getElementById('filter-style').value
+    };
+}
+
+// Update content table
+function updateContentTable() {
+    const tbody = document.getElementById('content-table-body');
+    tbody.innerHTML = '';
+    
+    currentContent.forEach(content => {
+        const row = createContentRow(content);
+        tbody.appendChild(row);
+    });
+}
+
+// Create content table row
+function createContentRow(content) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>
+            <input type="checkbox" class="content-checkbox" value="${content.id}" onchange="toggleContentSelection(${content.id})">
+        </td>
+        <td>
+            <div class="fw-bold">${content.title}</div>
+            <div class="text-muted small">${content.tags || 'No tags'}</div>
+        </td>
+        <td>
+            <span class="badge bg-primary">${content.content_type}</span>
+        </td>
+        <td>${content.learning_style || 'All'}</td>
+        <td>
+            <span class="badge bg-${getDifficultyColor(content.difficulty_level)}">${content.difficulty_level}</span>
+        </td>
+        <td>
+            <span class="status-badge status-${content.status}">${content.status}</span>
+        </td>
+        <td>${content.views || 0}</td>
+        <td>${(content.rating || 0).toFixed(1)} ⭐</td>
+        <td>${formatDate(content.created_at)}</td>
+        <td>
+            <div class="action-buttons">
+                <button class="btn-action btn-sm btn-primary" onclick="editContent(${content.id})" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-action btn-sm btn-info" onclick="viewContent(${content.id})" title="View">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-action btn-sm btn-warning" onclick="duplicateContent(${content.id})" title="Duplicate">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button class="btn-action btn-sm btn-danger" onclick="deleteContent(${content.id})" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </td>
+    `;
+    return row;
+}
+
+// Get difficulty color
+function getDifficultyColor(difficulty) {
+    switch (difficulty) {
+        case 'beginner': return 'success';
+        case 'intermediate': return 'warning';
+        case 'advanced': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+// Format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+}
+
+// Update pagination
+function updatePagination() {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+    
+    // Previous button
+    if (currentPage > 1) {
+        const prevBtn = document.createElement('a');
+        prevBtn.href = '#';
+        prevBtn.className = 'page-link';
+        prevBtn.textContent = 'Previous';
+        prevBtn.onclick = (e) => {
+            e.preventDefault();
+            loadContentList(currentPage - 1);
+        };
+        pagination.appendChild(prevBtn);
+    }
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('a');
+        pageBtn.href = '#';
+        pageBtn.className = `page-link ${i === currentPage ? 'active' : ''}`;
+        pageBtn.textContent = i;
+        pageBtn.onclick = (e) => {
+            e.preventDefault();
+            loadContentList(i);
+        };
+        pagination.appendChild(pageBtn);
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+        const nextBtn = document.createElement('a');
+        nextBtn.href = '#';
+        nextBtn.className = 'page-link';
+        nextBtn.textContent = 'Next';
+        nextBtn.onclick = (e) => {
+            e.preventDefault();
+            loadContentList(currentPage + 1);
+        };
+        pagination.appendChild(nextBtn);
+    }
+}
+
+// Open create modal
+function openCreateModal() {
+    document.getElementById('modal-title').textContent = 'Create New Content';
+    document.getElementById('content-form').reset();
+    document.getElementById('content-modal').style.display = 'block';
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('content-modal').style.display = 'none';
+}
+
+// Save content
+async function saveContent() {
+    try {
+        const formData = new FormData(document.getElementById('content-form'));
+        const contentData = Object.fromEntries(formData.entries());
+        
+        const response = await fetch('/api/admin/content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contentData)
+        });
+        
+        if (response.ok) {
+            showNotification('Content saved successfully!', 'success');
+            closeModal();
+            loadContentList();
+            loadContentStats();
+        } else {
+            throw new Error('Failed to save content');
+        }
+    } catch (error) {
+        console.error('Error saving content:', error);
+        showNotification('Failed to save content', 'error');
+    }
+}
+
+// Publish content
+async function publishContent() {
+    try {
+        const formData = new FormData(document.getElementById('content-form'));
+        const contentData = Object.fromEntries(formData.entries());
+        contentData.status = 'published';
+        
+        const response = await fetch('/api/admin/content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contentData)
+        });
+        
+        if (response.ok) {
+            showNotification('Content published successfully!', 'success');
+            closeModal();
+            loadContentList();
+            loadContentStats();
+        } else {
+            throw new Error('Failed to publish content');
+        }
+    } catch (error) {
+        console.error('Error publishing content:', error);
+        showNotification('Failed to publish content', 'error');
+    }
+}
+
+// Edit content
+function editContent(id) {
+    const content = currentContent.find(c => c.id === id);
+    if (content) {
+        document.getElementById('modal-title').textContent = 'Edit Content';
+        document.getElementById('content-title').value = content.title;
+        document.getElementById('content-type').value = content.content_type;
+        document.getElementById('learning-style').value = content.learning_style || '';
+        document.getElementById('difficulty-level').value = content.difficulty_level;
+        document.getElementById('content-status').value = content.status;
+        
+        // Set content body in rich text editor
+        // This would need to be implemented based on your rich text editor
+        
+        document.getElementById('content-modal').style.display = 'block';
+    }
+}
+
+// Delete content
+async function deleteContent(id) {
+    if (confirm('Are you sure you want to delete this content?')) {
+        try {
+            const response = await fetch(`/api/admin/content/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                showNotification('Content deleted successfully!', 'success');
+                loadContentList();
+                loadContentStats();
+            } else {
+                throw new Error('Failed to delete content');
+            }
+        } catch (error) {
+            console.error('Error deleting content:', error);
+            showNotification('Failed to delete content', 'error');
+        }
+    }
+}
+
+// Apply filters
+function applyFilters() {
+    loadContentList(1);
+}
+
+// Toggle select all
+function toggleSelectAll() {
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.content-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+        if (selectAll.checked) {
+            selectedContent.push(parseInt(checkbox.value));
+        } else {
+            selectedContent = [];
+        }
+    });
+}
+
+// Toggle content selection
+function toggleContentSelection(id) {
+    const index = selectedContent.indexOf(id);
+    if (index > -1) {
+        selectedContent.splice(index, 1);
+    } else {
+        selectedContent.push(id);
+    }
+}
+
+// Initialize rich text editor
+function initializeRichTextEditor() {
+    // This would initialize your rich text editor
+    // Implementation depends on the editor you choose (TinyMCE, CKEditor, etc.)
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Search functionality
+    document.getElementById('search-content').addEventListener('input', debounce(applyFilters, 500));
+    
+    // Filter changes
+    document.getElementById('filter-type').addEventListener('change', applyFilters);
+    document.getElementById('filter-status').addEventListener('change', applyFilters);
+    document.getElementById('filter-style').addEventListener('change', applyFilters);
+}
+
+// Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Show notification
+function showNotification(message, type) {
+    // Implementation for showing notifications
+    alert(message);
+}
+
+// Handle tag input
+function handleTagInput(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const tagInput = event.target;
+        const tagValue = tagInput.value.trim();
+        
+        if (tagValue) {
+            addTag(tagValue);
+            tagInput.value = '';
+        }
+    }
+}
+
+// Add tag
+function addTag(tagValue) {
+    const tagContainer = document.getElementById('content-tags');
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `
+        ${tagValue}
+        <span class="tag-remove" onclick="removeTag(this)">&times;</span>
+    `;
+    tagContainer.insertBefore(tag, tagContainer.firstChild);
+}
+
+// Remove tag
+function removeTag(element) {
+    element.parentElement.remove();
+}
+
+// Import content
+function importContent() {
+    // Implementation for content import
+    alert('Import functionality coming soon!');
+}
+
+// Export content
+function exportContent() {
+    // Implementation for content export
+    alert('Export functionality coming soon!');
+}
+
+// Bulk actions
+function bulkActions() {
+    if (selectedContent.length === 0) {
+        alert('Please select content to perform bulk actions');
+        return;
+    }
+    
+    const action = prompt('Bulk action (publish, unpublish, delete, archive):');
+    if (action) {
+        // Implementation for bulk actions
+        alert(`Bulk ${action} for ${selectedContent.length} items`);
+    }
+}
+</script>
+{% endblock %}

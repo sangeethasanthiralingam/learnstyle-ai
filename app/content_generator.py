@@ -65,29 +65,44 @@ class ContentGenerator:
     
     def generate_content(self, request: ContentRequest) -> GeneratedContent:
         """Generate content based on request parameters"""
-        
-        # Generate base content
-        base_content = self._generate_base_content(request)
-        
-        # Apply style-specific adaptations
-        adapted_content = self._apply_style_adaptations(base_content, request.learning_style)
-        
-        # Create content metadata
-        metadata = self._create_content_metadata(request, adapted_content)
-        
-        # Generate content ID
-        content_id = f"gen_{int(datetime.now().timestamp())}"
-        
-        return GeneratedContent(
-            content_id=content_id,
-            title=adapted_content['title'],
-            content=adapted_content['content'],
-            content_type=request.content_type,
-            style_tags=[request.learning_style.value],
-            difficulty_level=request.difficulty_level,
-            metadata=metadata,
-            created_at=datetime.now()
-        )
+        try:
+            # Generate base content
+            base_content = self._generate_base_content(request)
+            
+            if not base_content or 'content' not in base_content:
+                raise ValueError("Failed to generate base content")
+            
+            # Apply style-specific adaptations
+            adapted_content = self._apply_style_adaptations(base_content, request.learning_style)
+            
+            # Create content metadata
+            metadata = self._create_content_metadata(request, adapted_content)
+            
+            # Generate content ID
+            content_id = f"gen_{int(datetime.now().timestamp())}"
+            
+            return GeneratedContent(
+                content_id=content_id,
+                title=adapted_content.get('title', f'Content about {request.topic}'),
+                content=adapted_content.get('content', ''),
+                content_type=request.content_type,
+                style_tags=[request.learning_style.value],
+                difficulty_level=request.difficulty_level,
+                metadata=metadata,
+                created_at=datetime.now()
+            )
+        except Exception as e:
+            # Fallback content generation
+            return GeneratedContent(
+                content_id=f"gen_{int(datetime.now().timestamp())}",
+                title=f"Content about {request.topic}",
+                content=f"This is educational content about {request.topic}. Content generation is being improved.",
+                content_type=request.content_type,
+                style_tags=[request.learning_style.value],
+                difficulty_level=request.difficulty_level,
+                metadata={'error': str(e), 'fallback': True},
+                created_at=datetime.now()
+            )
     
     def _generate_base_content(self, request: ContentRequest) -> Dict:
         """Generate base content using AI or templates"""
@@ -100,11 +115,45 @@ class ContentGenerator:
             return self._generate_quiz_content(request)
         elif request.content_type == ContentType.SUMMARY:
             return self._generate_summary_content(request)
-        else:
+        elif request.content_type == ContentType.INTERACTIVE:
             return self._generate_interactive_content(request)
+        else:
+            return self._generate_text_content(request)
     
     def _generate_text_content(self, request: ContentRequest) -> Dict:
         """Generate text-based content"""
+        
+        if self.openai_api_key:
+            return self._generate_with_openai(request)
+        else:
+            return self._generate_with_templates(request)
+    
+    def _generate_interactive_content(self, request: ContentRequest) -> Dict:
+        """Generate interactive content"""
+        
+        if self.openai_api_key:
+            return self._generate_with_openai(request)
+        else:
+            return self._generate_with_templates(request)
+    
+    def _generate_visual_content(self, request: ContentRequest) -> Dict:
+        """Generate visual content"""
+        
+        if self.openai_api_key:
+            return self._generate_with_openai(request)
+        else:
+            return self._generate_with_templates(request)
+    
+    def _generate_quiz_content(self, request: ContentRequest) -> Dict:
+        """Generate quiz content"""
+        
+        if self.openai_api_key:
+            return self._generate_with_openai(request)
+        else:
+            return self._generate_with_templates(request)
+    
+    def _generate_summary_content(self, request: ContentRequest) -> Dict:
+        """Generate summary content"""
         
         if self.openai_api_key:
             return self._generate_with_openai(request)
@@ -169,8 +218,12 @@ class ContentGenerator:
             content = self._create_quiz_template(topic, difficulty, template)
         elif request.content_type == ContentType.SUMMARY:
             content = self._create_summary_template(topic, difficulty, template)
-        else:
+        elif request.content_type == ContentType.INTERACTIVE:
             content = self._create_interactive_template(topic, difficulty, template)
+        elif request.content_type == ContentType.VISUAL:
+            content = self._create_visual_template(topic, difficulty, template)
+        else:
+            content = self._create_text_template(topic, difficulty, template)
         
         return {
             'title': f"Learn about {topic}",
@@ -503,6 +556,53 @@ Understanding {topic} requires integrating multiple perspectives and applying cr
 - What questions do you still have?
 """
     
+    def _create_visual_template(self, topic: str, difficulty: str, template: Dict) -> str:
+        """Create visual content using templates"""
+        
+        return f"""
+# Visual Guide to {topic}
+
+## 📊 Key Concepts Diagram
+```
+[Visual representation of {topic} concepts]
+- Main concept at center
+- Related concepts branching out
+- Connections and relationships shown
+```
+
+## 🎯 Visual Learning Objectives
+- **Understand**: Visual representation of {topic}
+- **Identify**: Key visual elements and patterns
+- **Apply**: Create your own visual models
+
+## 📈 Step-by-Step Visual Process
+1. **Introduction**: Visual overview of {topic}
+2. **Development**: Detailed visual breakdown
+3. **Application**: Visual examples and case studies
+4. **Synthesis**: Visual summary and connections
+
+## 🖼️ Visual Elements
+- **Charts**: Data visualization for {topic}
+- **Diagrams**: Process flows and relationships
+- **Infographics**: Key information in visual format
+- **Maps**: Conceptual mapping of {topic}
+
+## 🎨 Interactive Visual Activities
+- **Create**: Design your own visual representation
+- **Analyze**: Study provided visual materials
+- **Compare**: Visual comparison of different approaches
+- **Synthesize**: Combine multiple visual elements
+
+## 📝 Visual Notes Template
+```
+[Space for visual note-taking]
+- Key concepts
+- Important diagrams
+- Personal insights
+- Questions and connections
+```
+"""
+    
     def _create_content_metadata(self, request: ContentRequest, content: Dict) -> Dict:
         """Create metadata for generated content"""
         
@@ -525,6 +625,11 @@ Understanding {topic} requires integrating multiple perspectives and applying cr
                 'beginner': 'simple_explanation',
                 'intermediate': 'detailed_analysis',
                 'advanced': 'expert_insights'
+            },
+            'visual': {
+                'beginner': 'basic_diagrams',
+                'intermediate': 'detailed_visualizations',
+                'advanced': 'complex_visual_models'
             },
             'quiz': {
                 'beginner': 'basic_questions',

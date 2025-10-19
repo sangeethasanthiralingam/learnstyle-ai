@@ -6,7 +6,8 @@ RESTful API endpoints for all application functionality
 from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
+from sqlalchemy import func, or_
 import sys
 import os
 
@@ -592,7 +593,7 @@ def track_engagement():
 def get_engagement_analytics():
     """Get user engagement analytics"""
     try:
-        from ml_models.multimodal_fusion_engine import MultimodalFusionEngine
+        from ml_models.multimodal_fusion_engine import MultimodalFusionEngine, LearningContext
         
         fusion_engine = MultimodalFusionEngine()
         
@@ -625,6 +626,634 @@ def get_engagement_analytics():
                 []  # Empty content library for now
             )[:5]  # Top 5 recommendations
         }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/permissions', methods=['GET'])
+@login_required
+def get_permissions():
+    """Get user's permission settings"""
+    try:
+        from app.models import UserPermissions
+        
+        permissions = UserPermissions.query.filter_by(user_id=current_user.id).first()
+        
+        if not permissions:
+            # Create default permissions
+            permissions = UserPermissions(
+                user_id=current_user.id,
+                camera_access=False,
+                microphone_access=False,
+                location_access=False,
+                biometric_data=False,
+                edu_sites_tracking=False,
+                research_tracking=False,
+                coding_tracking=False,
+                video_tracking=False
+            )
+            db.session.add(permissions)
+            db.session.commit()
+        
+        return jsonify({
+            'permissions': {
+                'camera': permissions.camera_access,
+                'microphone': permissions.microphone_access,
+                'location': permissions.location_access,
+                'biometric': permissions.biometric_data,
+                'eduSites': permissions.edu_sites_tracking,
+                'research': permissions.research_tracking,
+                'coding': permissions.coding_tracking,
+                'video': permissions.video_tracking
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/permissions', methods=['POST'])
+@login_required
+def save_permissions():
+    """Save user's permission settings"""
+    try:
+        from app.models import UserPermissions
+        
+        data = request.get_json()
+        
+        permissions = UserPermissions.query.filter_by(user_id=current_user.id).first()
+        
+        if not permissions:
+            permissions = UserPermissions(user_id=current_user.id)
+            db.session.add(permissions)
+        
+        # Update permissions
+        permissions.camera_access = data.get('camera', False)
+        permissions.microphone_access = data.get('microphone', False)
+        permissions.location_access = data.get('location', False)
+        permissions.biometric_data = data.get('biometric', False)
+        permissions.edu_sites_tracking = data.get('eduSites', False)
+        permissions.research_tracking = data.get('research', False)
+        permissions.coding_tracking = data.get('coding', False)
+        permissions.video_tracking = data.get('video', False)
+        permissions.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Permissions saved successfully',
+            'permissions': {
+                'camera': permissions.camera_access,
+                'microphone': permissions.microphone_access,
+                'location': permissions.location_access,
+                'biometric': permissions.biometric_data,
+                'eduSites': permissions.edu_sites_tracking,
+                'research': permissions.research_tracking,
+                'coding': permissions.coding_tracking,
+                'video': permissions.video_tracking
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/learning-sites', methods=['POST'])
+@login_required
+def track_learning_site():
+    """Track user's learning site activity"""
+    try:
+        from app.models import LearningSiteActivity
+        
+        data = request.get_json()
+        site_url = data.get('url')
+        site_name = data.get('name')
+        activity_type = data.get('activity_type', 'visit')
+        time_spent = data.get('time_spent', 0)
+        content_type = data.get('content_type', 'general')
+        notes = data.get('notes', '')
+        
+        if not site_url:
+            return jsonify({'error': 'URL is required'}), 400
+        
+        # Check if user has permission for this type of tracking
+        from app.models import UserPermissions
+        permissions = UserPermissions.query.filter_by(user_id=current_user.id).first()
+        
+        if permissions:
+            if 'coursera' in site_url.lower() or 'khan' in site_url.lower() or 'edx' in site_url.lower():
+                if not permissions.edu_sites_tracking:
+                    return jsonify({'error': 'Educational sites tracking not permitted'}), 403
+            elif 'github' in site_url.lower() or 'stackoverflow' in site_url.lower():
+                if not permissions.coding_tracking:
+                    return jsonify({'error': 'Coding sites tracking not permitted'}), 403
+            elif 'youtube' in site_url.lower() or 'vimeo' in site_url.lower():
+                if not permissions.video_tracking:
+                    return jsonify({'error': 'Video sites tracking not permitted'}), 403
+            elif 'scholar' in site_url.lower() or 'researchgate' in site_url.lower():
+                if not permissions.research_tracking:
+                    return jsonify({'error': 'Research sites tracking not permitted'}), 403
+        
+        # Create learning site activity record
+        activity = LearningSiteActivity(
+            user_id=current_user.id,
+            site_url=site_url,
+            site_name=site_name,
+            activity_type=activity_type,
+            time_spent=time_spent,
+            content_type=content_type,
+            notes=notes
+        )
+        db.session.add(activity)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Learning site activity tracked successfully',
+            'activity_id': activity.id
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/learning-sites', methods=['GET'])
+@login_required
+def get_learning_sites():
+    """Get user's learning site activities"""
+    try:
+        from app.models import LearningSiteActivity
+        
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+        
+        activities = LearningSiteActivity.query.filter_by(user_id=current_user.id).order_by(
+            LearningSiteActivity.timestamp.desc()
+        ).paginate(
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
+        
+        activities_data = []
+        for activity in activities.items:
+            activities_data.append({
+                'id': activity.id,
+                'site_url': activity.site_url,
+                'site_name': activity.site_name,
+                'activity_type': activity.activity_type,
+                'time_spent': activity.time_spent,
+                'content_type': activity.content_type,
+                'notes': activity.notes,
+                'timestamp': activity.timestamp.isoformat()
+            })
+        
+        return jsonify({
+            'activities': activities_data,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': activities.total,
+                'pages': activities.pages,
+                'has_next': activities.has_next,
+                'has_prev': activities.has_prev
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/emotion-detection', methods=['POST'])
+@login_required
+def detect_emotions():
+    """Detect emotions from camera/microphone data"""
+    try:
+        from app.models import UserPermissions, EmotionData
+        from ml_models.emotion_ai.emotion_fusion_engine import EmotionFusionEngine
+        
+        # Check camera permission
+        permissions = UserPermissions.query.filter_by(user_id=current_user.id).first()
+        if not permissions or not permissions.camera_access:
+            return jsonify({'error': 'Camera access not permitted'}), 403
+        
+        data = request.get_json()
+        image_data = data.get('image_data')  # Base64 encoded image
+        audio_data = data.get('audio_data')  # Audio data
+        timestamp = data.get('timestamp', datetime.utcnow().isoformat())
+        
+        if not image_data and not audio_data:
+            return jsonify({'error': 'Image or audio data required'}), 400
+        
+        # Initialize emotion fusion engine
+        emotion_engine = EmotionFusionEngine()
+        
+        # Process emotion data
+        emotion_result = emotion_engine.fuse_emotion_data(
+            facial_data=image_data,
+            voice_data=audio_data,
+            context='learning'
+        )
+        
+        # Save emotion data
+        emotion_record = EmotionData(
+            user_id=current_user.id,
+            emotion_type=emotion_result.dominant_emotion.value,
+            confidence_score=emotion_result.confidence,
+            facial_emotion=emotion_result.facial_emotion.value if emotion_result.facial_emotion else None,
+            voice_emotion=emotion_result.voice_emotion.value if emotion_result.voice_emotion else None,
+            engagement_level=emotion_result.engagement_level,
+            timestamp=datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        )
+        db.session.add(emotion_record)
+        db.session.commit()
+        
+        return jsonify({
+            'emotion_detection': {
+                'dominant_emotion': emotion_result.dominant_emotion.value,
+                'confidence': emotion_result.confidence,
+                'facial_emotion': emotion_result.facial_emotion.value if emotion_result.facial_emotion else None,
+                'voice_emotion': emotion_result.voice_emotion.value if emotion_result.voice_emotion else None,
+                'engagement_level': emotion_result.engagement_level,
+                'recommendations': emotion_result.recommendations
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content-stats', methods=['GET'])
+@login_required
+def get_content_stats():
+    """Get content statistics for admin dashboard"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        
+        # Get content statistics
+        total_content = Content.query.count()
+        published_content = Content.query.filter_by(status='published').count()
+        draft_content = Content.query.filter_by(status='draft').count()
+        pending_content = Content.query.filter_by(status='pending').count()
+        
+        # Get total views and average rating
+        total_views_result = db.session.query(db.func.sum(Content.views)).scalar() or 0
+        avg_rating_result = db.session.query(db.func.avg(Content.rating)).scalar() or 0
+        
+        return jsonify({
+            'total_content': total_content,
+            'published_content': published_content,
+            'draft_content': draft_content,
+            'pending_content': pending_content,
+            'total_views': total_views_result,
+            'avg_rating': round(avg_rating_result, 1) if avg_rating_result else 0
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content', methods=['GET'])
+@login_required
+def get_admin_content():
+    """Get content list for admin management"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+        search = request.args.get('search', '')
+        content_type = request.args.get('type', '')
+        status = request.args.get('status', '')
+        learning_style = request.args.get('learning_style', '')
+        
+        # Build query
+        query = Content.query
+        
+        if search:
+            query = query.filter(
+                or_(
+                    Content.title.contains(search),
+                    Content.content.contains(search),
+                    Content.tags.contains(search)
+                )
+            )
+        
+        if content_type:
+            query = query.filter_by(content_type=content_type)
+        
+        if status:
+            query = query.filter_by(status=status)
+        
+        if learning_style:
+            query = query.filter_by(learning_style=learning_style)
+        
+        # Paginate results
+        content_paginated = query.order_by(Content.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
+        content_data = []
+        for content in content_paginated.items:
+            content_data.append({
+                'id': content.id,
+                'title': content.title,
+                'content_type': content.content_type,
+                'learning_style': content.learning_style,
+                'difficulty_level': content.difficulty_level,
+                'status': content.status,
+                'views': content.views,
+                'rating': content.rating,
+                'tags': content.tags,
+                'created_at': content.created_at.isoformat(),
+                'updated_at': content.updated_at.isoformat()
+            })
+        
+        return jsonify({
+            'content': content_data,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': content_paginated.total,
+                'pages': content_paginated.pages,
+                'has_next': content_paginated.has_next,
+                'has_prev': content_paginated.has_prev
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content', methods=['POST'])
+@login_required
+def create_admin_content():
+    """Create new content"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        
+        data = request.get_json()
+        
+        # Create new content
+        content = Content(
+            title=data.get('title'),
+            content_type=data.get('content_type'),
+            content=data.get('content', ''),
+            learning_style=data.get('learning_style'),
+            difficulty_level=data.get('difficulty_level', 'beginner'),
+            tags=data.get('tags', ''),
+            author_id=current_user.id,
+            status=data.get('status', 'draft'),
+            views=0,
+            rating=0.0
+        )
+        
+        db.session.add(content)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Content created successfully',
+            'content_id': content.id
+        }), 201
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content/<int:content_id>', methods=['GET'])
+@login_required
+def get_admin_content_detail(content_id):
+    """Get specific content details"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        
+        content = Content.query.get_or_404(content_id)
+        
+        return jsonify({
+            'id': content.id,
+            'title': content.title,
+            'content_type': content.content_type,
+            'content': content.content,
+            'learning_style': content.learning_style,
+            'difficulty_level': content.difficulty_level,
+            'tags': content.tags,
+            'status': content.status,
+            'views': content.views,
+            'rating': content.rating,
+            'author_id': content.author_id,
+            'created_at': content.created_at.isoformat(),
+            'updated_at': content.updated_at.isoformat()
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content/<int:content_id>', methods=['PUT'])
+@login_required
+def update_admin_content(content_id):
+    """Update content"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        
+        content = Content.query.get_or_404(content_id)
+        data = request.get_json()
+        
+        # Update content fields
+        content.title = data.get('title', content.title)
+        content.content_type = data.get('content_type', content.content_type)
+        content.content = data.get('content', content.content)
+        content.learning_style = data.get('learning_style', content.learning_style)
+        content.difficulty_level = data.get('difficulty_level', content.difficulty_level)
+        content.tags = data.get('tags', content.tags)
+        content.status = data.get('status', content.status)
+        content.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Content updated successfully'
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content/<int:content_id>', methods=['DELETE'])
+@login_required
+def delete_admin_content(content_id):
+    """Delete content and remove from ContentLibrary"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        from app.utils.content_sync import ContentSyncManager
+        
+        content = Content.query.get_or_404(content_id)
+        
+        # Remove from ContentLibrary first
+        sync_result = ContentSyncManager.remove_from_content_library(content_id)
+        
+        # Delete from Content table
+        db.session.delete(content)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Content deleted successfully',
+            'sync_result': sync_result
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content/<int:content_id>/publish', methods=['POST'])
+@login_required
+def publish_admin_content(content_id):
+    """Publish content and sync to ContentLibrary"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        from app.utils.content_sync import ContentSyncManager
+        
+        content = Content.query.get_or_404(content_id)
+        content.status = 'published'
+        content.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        # Sync to ContentLibrary
+        sync_result = ContentSyncManager.sync_single_content(content_id)
+        
+        return jsonify({
+            'message': 'Content published successfully',
+            'sync_result': sync_result
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content/<int:content_id>/unpublish', methods=['POST'])
+@login_required
+def unpublish_admin_content(content_id):
+    """Unpublish content and remove from ContentLibrary"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.models import Content
+        from app.utils.content_sync import ContentSyncManager
+        
+        content = Content.query.get_or_404(content_id)
+        content.status = 'draft'
+        content.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        # Remove from ContentLibrary
+        sync_result = ContentSyncManager.remove_from_content_library(content_id)
+        
+        return jsonify({
+            'message': 'Content unpublished successfully',
+            'sync_result': sync_result
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content-sync/status', methods=['GET'])
+@login_required
+def get_content_sync_status():
+    """Get content synchronization status"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.utils.content_sync import ContentSyncManager
+        status = ContentSyncManager.get_sync_status()
+        return jsonify(status), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content-sync/sync-all', methods=['POST'])
+@login_required
+def sync_all_content():
+    """Sync all published content to ContentLibrary"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.utils.content_sync import ContentSyncManager
+        result = ContentSyncManager.sync_published_content()
+        
+        if result['success']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content-sync/force-sync', methods=['POST'])
+@login_required
+def force_sync_all_content():
+    """Force sync all published content, updating existing entries"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.utils.content_sync import ContentSyncManager
+        result = ContentSyncManager.force_sync_all()
+        
+        if result['success']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content-sync/sync/<int:content_id>', methods=['POST'])
+@login_required
+def sync_single_content(content_id):
+    """Sync a single content item to ContentLibrary"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.utils.content_sync import ContentSyncManager
+        result = ContentSyncManager.sync_single_content(content_id)
+        
+        if result['success']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/admin/content-sync/remove/<int:content_id>', methods=['POST'])
+@login_required
+def remove_content_from_library(content_id):
+    """Remove content from ContentLibrary"""
+    try:
+        if not current_user.is_admin():
+            return jsonify({'error': 'Admin privileges required'}), 403
+        
+        from app.utils.content_sync import ContentSyncManager
+        result = ContentSyncManager.remove_from_content_library(content_id)
+        
+        if result['success']:
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

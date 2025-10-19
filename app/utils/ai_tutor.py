@@ -299,8 +299,14 @@ class OpenAITutorIntegration:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        # import openai  # Would be imported in production
-        # openai.api_key = api_key
+        try:
+            import openai
+            openai.api_key = api_key
+            self.openai = openai
+            self.available = True
+        except ImportError:
+            print("OpenAI package not installed. Install with: pip install openai")
+            self.available = False
     
     def generate_response(self, user_message: str, learning_style: str, context: str = "") -> str:
         """Generate response using OpenAI API with style-specific prompts"""
@@ -312,17 +318,23 @@ class OpenAITutorIntegration:
         
         system_prompt = style_prompts.get(learning_style, "Respond as a helpful educational tutor. ")
         
-        # In production, this would make an actual API call to OpenAI
-        # response = openai.ChatCompletion.create(
-        #     model="gpt-3.5-turbo",
-        #     messages=[
-        #         {"role": "system", "content": system_prompt + context},
-        #         {"role": "user", "content": user_message}
-        #     ]
-        # )
-        # return response.choices[0].message.content
+        if not self.available:
+            return f"AI Tutor ({learning_style}): I understand you're asking about '{user_message}'. Let me help you with that using {learning_style} learning techniques. [OpenAI not available]"
         
-        return f"[Production OpenAI Response for {learning_style} learner]: {user_message}"
+        try:
+            response = self.openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt + " " + context},
+                    {"role": "user", "content": user_message}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"OpenAI API error: {e}")
+            return f"AI Tutor ({learning_style}): I understand you're asking about '{user_message}'. Let me help you with that using {learning_style} learning techniques. [API Error: {str(e)}]"
 
 if __name__ == "__main__":
     # Example usage

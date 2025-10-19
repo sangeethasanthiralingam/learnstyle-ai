@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 350px;
+            min-height: 400px;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-value {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-active {
+            background: #28a745;
+        }
+        
+        .status-inactive {
+            background: #6c757d;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .stats h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .footer {
+            padding: 15px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .footer a:hover {
+            opacity: 1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 LearnStyle AI</h1>
+        <p>Personalized Learning Tracker</p>
+    </div>
+    
+    <div class="content">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="status-card">
+                <div class="status-item">
+                    <span class="status-label">Current Site</span>
+                    <span id="current-site" class="status-value">Unknown</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Tracking Status</span>
+                    <span id="tracking-status" class="status-value status-inactive">Inactive</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Time on Page</span>
+                    <span id="time-on-page" class="status-value">0:00</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="toggle-tracking" class="btn btn-primary">Start Tracking</button>
+                <button id="open-dashboard" class="btn btn-secondary">Dashboard</button>
+            </div>
+            
+            <div class="stats">
+                <h3>Today's Learning</h3>
+                <div class="stat-item">
+                    <span>Sites Visited</span>
+                    <span id="sites-visited">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Total Time</span>
+                    <span id="total-time">0:00</span>
+                </div>
+                <div class="stat-item">
+                    <span>Learning Score</span>
+                    <span id="learning-score">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <a href="#" id="open-permissions">Privacy Settings</a> • 
+        <a href="#" id="open-help">Help</a>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

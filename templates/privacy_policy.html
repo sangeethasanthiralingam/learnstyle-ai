@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.policy-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.policy-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.policy-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.policy-content {
+    position: relative;
+    z-index: 1;
+}
+
+.policy-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.policy-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.policy-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.policy-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.policy-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.policy-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.policy-section h2 {
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.policy-section h3 {
+    color: #495057;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+
+.policy-section p {
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.policy-section ul {
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.policy-section li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.policy-section li::marker {
+    color: #667eea;
+    font-weight: bold;
+}
+
+.highlight-box {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.highlight-box h4 {
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.back-to-dashboard {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    z-index: 1000;
+}
+
+.back-to-dashboard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .policy-container {
+        padding: 1rem;
+    }
+    
+    .policy-title {
+        font-size: 2rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .policy-card {
+        padding: 1.5rem;
+    }
+    
+    .back-to-dashboard {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-container">
+    <div class="policy-header">
+        <div class="policy-content">
+            <h1 class="policy-title">
+                <i class="bi bi-shield-lock"></i>
+                Privacy Policy
+            </h1>
+            <p class="policy-subtitle">Last updated: January 15, 2025</p>
+        </div>
+    </div>
+    
+    <div class="policy-card">
+        <div class="privacy-content">
+            <section class="policy-section">
+                <h2><i class="bi bi-info-circle"></i> 1. Information We Collect</h2>
+                            <h3>1.1 Personal Information</h3>
+                            <p>We collect information you provide directly to us, such as when you:</p>
+                            <ul>
+                                <li>Create an account (username, email address)</li>
+                                <li>Complete learning style assessments</li>
+                                <li>Participate in learning activities</li>
+                                <li>Contact us for support</li>
+                            </ul>
+
+                            <h3>1.2 Learning Data</h3>
+                            <p>We collect data about your learning patterns, including:</p>
+                            <ul>
+                                <li>Quiz responses and learning style preferences</li>
+                                <li>Content interaction patterns</li>
+                                <li>Progress tracking and performance metrics</li>
+                                <li>Time spent on different learning materials</li>
+                            </ul>
+
+                            <h3>1.3 Biometric Data (Optional)</h3>
+                            <p>With your explicit consent, we may collect:</p>
+                            <ul>
+                                <li>Eye-tracking data for attention analysis</li>
+                                <li>Facial emotion recognition data</li>
+                                <li>Voice emotion analysis data</li>
+                                <li>Heart rate variability (HRV) data</li>
+                                <li>Galvanic skin response (GSR) data</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>2. How We Use Your Information</h2>
+                            <p>We use the collected information to:</p>
+                            <ul>
+                                <li>Provide personalized learning experiences</li>
+                                <li>Adapt content to your learning style</li>
+                                <li>Track your progress and achievements</li>
+                                <li>Improve our AI algorithms and recommendations</li>
+                                <li>Provide customer support</li>
+                                <li>Conduct research and analytics (anonymized)</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>3. Information Sharing</h2>
+                            <p>We do not sell, trade, or otherwise transfer your personal information to third parties except:</p>
+                            <ul>
+                                <li>With your explicit consent</li>
+                                <li>To comply with legal obligations</li>
+                                <li>To protect our rights and safety</li>
+                                <li>With trusted service providers who assist in our operations (under strict confidentiality agreements)</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>4. Data Security</h2>
+                            <p>We implement appropriate security measures to protect your personal information:</p>
+                            <ul>
+                                <li>Encryption of data in transit and at rest</li>
+                                <li>Regular security audits and assessments</li>
+                                <li>Access controls and authentication</li>
+                                <li>Secure data storage and backup procedures</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>5. Your Rights</h2>
+                            <p>You have the right to:</p>
+                            <ul>
+                                <li>Access your personal data</li>
+                                <li>Correct inaccurate information</li>
+                                <li>Delete your account and data</li>
+                                <li>Export your data</li>
+                                <li>Withdraw consent for biometric data collection</li>
+                                <li>Opt-out of certain data processing activities</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>6. Cookies and Tracking</h2>
+                            <p>We use cookies and similar technologies to:</p>
+                            <ul>
+                                <li>Remember your preferences</li>
+                                <li>Analyze usage patterns</li>
+                                <li>Improve user experience</li>
+                                <li>Provide personalized content</li>
+                            </ul>
+                            <p>You can control cookie settings through your browser preferences.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>7. Data Retention</h2>
+                            <p>We retain your personal information for as long as necessary to:</p>
+                            <ul>
+                                <li>Provide our services</li>
+                                <li>Comply with legal obligations</li>
+                                <li>Resolve disputes</li>
+                                <li>Enforce our agreements</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>8. Children's Privacy</h2>
+                            <p>Our service is not intended for children under 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete such information.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>9. International Data Transfers</h2>
+                            <p>Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your data in accordance with applicable privacy laws.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>10. Changes to This Policy</h2>
+                            <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>11. Contact Us</h2>
+                            <p>If you have any questions about this Privacy Policy, please contact us:</p>
+                            <ul>
+                                <li>Email: privacy@learnstyle-ai.com</li>
+                                <li>Address: LearnStyle AI Privacy Team, 123 Learning Street, Education City, EC 12345</li>
+                            </ul>
+            </section>
+        </div>
+    </div>
+    
+    <a href="{{ url_for('dashboard') }}" class="back-to-dashboard">
+        <i class="bi bi-arrow-left"></i>
+        Back to Dashboard
+    </a>
+</div>
+{% endblock %}

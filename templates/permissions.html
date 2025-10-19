@@ -1,0 +1,664 @@
+{% extends "base.html" %}
+
+{% block title %}Permissions & Privacy - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.permissions-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.permission-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    border-left: 5px solid #007bff;
+}
+
+.permission-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.permission-body {
+    padding: 2rem;
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.permission-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.permission-info {
+    flex: 1;
+}
+
+.permission-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.permission-description {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.permission-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.status-granted {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-denied {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.permission-toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.permission-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #007bff;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.learning-sites {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.site-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.site-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.site-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.site-details h6 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.site-details small {
+    color: #6c757d;
+}
+
+.privacy-notice {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.privacy-notice h5 {
+    color: #1976d2;
+    margin-bottom: 1rem;
+}
+
+.privacy-notice ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.privacy-notice li {
+    margin-bottom: 0.5rem;
+    color: #424242;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="permissions-container">
+    <!-- Header -->
+    <div class="permission-card">
+        <div class="permission-header">
+            <h1 class="mb-3">
+                <i class="fas fa-shield-alt"></i> Privacy & Permissions
+            </h1>
+            <p class="mb-0">Control your learning experience and data collection preferences</p>
+        </div>
+    </div>
+
+    <!-- Camera Permission -->
+    <div class="permission-card">
+        <div class="permission-body">
+            <div class="permission-item">
+                <div class="permission-info">
+                    <div class="permission-title">
+                        <i class="fas fa-video text-primary"></i> Camera Access
+                    </div>
+                    <div class="permission-description">
+                        Used for emotion detection, attention tracking, and visual learning analysis. 
+                        Helps personalize your learning experience based on facial expressions and engagement.
+                    </div>
+                </div>
+                <div class="permission-status">
+                    <span id="camera-status" class="status-badge status-pending">Pending</span>
+                    <label class="permission-toggle">
+                        <input type="checkbox" id="camera-toggle" onchange="requestCameraPermission()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Microphone Permission -->
+    <div class="permission-card">
+        <div class="permission-body">
+            <div class="permission-item">
+                <div class="permission-info">
+                    <div class="permission-title">
+                        <i class="fas fa-microphone text-success"></i> Microphone Access
+                    </div>
+                    <div class="permission-description">
+                        Used for voice emotion analysis, speech recognition, and auditory learning optimization. 
+                        Helps understand your emotional state and learning preferences.
+                    </div>
+                </div>
+                <div class="permission-status">
+                    <span id="microphone-status" class="status-badge status-pending">Pending</span>
+                    <label class="permission-toggle">
+                        <input type="checkbox" id="microphone-toggle" onchange="requestMicrophonePermission()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Permission -->
+    <div class="permission-card">
+        <div class="permission-body">
+            <div class="permission-item">
+                <div class="permission-info">
+                    <div class="permission-title">
+                        <i class="fas fa-map-marker-alt text-warning"></i> Location Access
+                    </div>
+                    <div class="permission-description">
+                        Used for contextual learning recommendations and study environment analysis. 
+                        Helps suggest optimal learning times and locations.
+                    </div>
+                </div>
+                <div class="permission-status">
+                    <span id="location-status" class="status-badge status-pending">Pending</span>
+                    <label class="permission-toggle">
+                        <input type="checkbox" id="location-toggle" onchange="requestLocationPermission()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biometric Data -->
+    <div class="permission-card">
+        <div class="permission-body">
+            <div class="permission-item">
+                <div class="permission-info">
+                    <div class="permission-title">
+                        <i class="fas fa-heartbeat text-danger"></i> Biometric Data Collection
+                    </div>
+                    <div class="permission-description">
+                        Used for stress monitoring, cognitive load assessment, and learning optimization. 
+                        Includes heart rate variability, skin conductance, and physiological responses.
+                    </div>
+                </div>
+                <div class="permission-status">
+                    <span id="biometric-status" class="status-badge status-pending">Pending</span>
+                    <label class="permission-toggle">
+                        <input type="checkbox" id="biometric-toggle" onchange="requestBiometricPermission()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Sites Tracking -->
+    <div class="permission-card">
+        <div class="permission-body">
+            <h4 class="mb-3">
+                <i class="fas fa-globe text-info"></i> Learning Sites & Activities
+            </h4>
+            <div class="learning-sites">
+                <div class="site-item">
+                    <div class="site-info">
+                        <div class="site-icon" style="background: #007bff;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="site-details">
+                            <h6>Educational Platforms</h6>
+                            <small>Coursera, Khan Academy, edX, Udemy</small>
+                        </div>
+                    </div>
+                    <div class="permission-status">
+                        <span id="edu-sites-status" class="status-badge status-pending">Pending</span>
+                        <label class="permission-toggle">
+                            <input type="checkbox" id="edu-sites-toggle" onchange="requestEduSitesPermission()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="site-item">
+                    <div class="site-info">
+                        <div class="site-icon" style="background: #28a745;">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="site-details">
+                            <h6>Reading & Research</h6>
+                            <small>Google Scholar, ResearchGate, Academic Papers</small>
+                        </div>
+                    </div>
+                    <div class="permission-status">
+                        <span id="research-status" class="status-badge status-pending">Pending</span>
+                        <label class="permission-toggle">
+                            <input type="checkbox" id="research-toggle" onchange="requestResearchPermission()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="site-item">
+                    <div class="site-info">
+                        <div class="site-icon" style="background: #ffc107;">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="site-details">
+                            <h6>Coding Platforms</h6>
+                            <small>GitHub, Stack Overflow, LeetCode, HackerRank</small>
+                        </div>
+                    </div>
+                    <div class="permission-status">
+                        <span id="coding-status" class="status-badge status-pending">Pending</span>
+                        <label class="permission-toggle">
+                            <input type="checkbox" id="coding-toggle" onchange="requestCodingPermission()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="site-item">
+                    <div class="site-info">
+                        <div class="site-icon" style="background: #dc3545;">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="site-details">
+                            <h6>Video Learning</h6>
+                            <small>YouTube, Vimeo, Educational Channels</small>
+                        </div>
+                    </div>
+                    <div class="permission-status">
+                        <span id="video-status" class="status-badge status-pending">Pending</span>
+                        <label class="permission-toggle">
+                            <input type="checkbox" id="video-toggle" onchange="requestVideoPermission()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Notice -->
+    <div class="privacy-notice">
+        <h5><i class="fas fa-info-circle"></i> Privacy & Data Protection</h5>
+        <ul>
+            <li><strong>Data Security:</strong> All collected data is encrypted and stored securely</li>
+            <li><strong>Purpose Limitation:</strong> Data is only used to improve your learning experience</li>
+            <li><strong>User Control:</strong> You can revoke permissions at any time</li>
+            <li><strong>Transparency:</strong> Clear information about what data is collected and why</li>
+            <li><strong>Compliance:</strong> Follows GDPR, CCPA, and other privacy regulations</li>
+            <li><strong>Anonymization:</strong> Personal identifiers are removed from analytics</li>
+        </ul>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center mt-4">
+        <button class="btn btn-primary btn-lg me-3" onclick="savePermissions()">
+            <i class="fas fa-save"></i> Save Preferences
+        </button>
+        <button class="btn btn-outline-secondary btn-lg" onclick="resetPermissions()">
+            <i class="fas fa-undo"></i> Reset to Defaults
+        </button>
+    </div>
+</div>
+
+<script>
+// Permission tracking
+let permissions = {
+    camera: false,
+    microphone: false,
+    location: false,
+    biometric: false,
+    eduSites: false,
+    research: false,
+    coding: false,
+    video: false
+};
+
+// Request camera permission
+async function requestCameraPermission() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        updatePermissionStatus('camera', true);
+        stream.getTracks().forEach(track => track.stop()); // Stop the stream
+        showNotification('Camera permission granted!', 'success');
+    } catch (error) {
+        updatePermissionStatus('camera', false);
+        showNotification('Camera permission denied', 'error');
+        document.getElementById('camera-toggle').checked = false;
+    }
+}
+
+// Request microphone permission
+async function requestMicrophonePermission() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        updatePermissionStatus('microphone', true);
+        stream.getTracks().forEach(track => track.stop()); // Stop the stream
+        showNotification('Microphone permission granted!', 'success');
+    } catch (error) {
+        updatePermissionStatus('microphone', false);
+        showNotification('Microphone permission denied', 'error');
+        document.getElementById('microphone-toggle').checked = false;
+    }
+}
+
+// Request location permission
+async function requestLocationPermission() {
+    try {
+        const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        updatePermissionStatus('location', true);
+        showNotification('Location permission granted!', 'success');
+    } catch (error) {
+        updatePermissionStatus('location', false);
+        showNotification('Location permission denied', 'error');
+        document.getElementById('location-toggle').checked = false;
+    }
+}
+
+// Request biometric permission
+async function requestBiometricPermission() {
+    try {
+        // Simulate biometric permission request
+        const confirmed = confirm('Allow LearnStyle AI to collect biometric data for learning optimization?');
+        if (confirmed) {
+            updatePermissionStatus('biometric', true);
+            showNotification('Biometric data collection enabled!', 'success');
+        } else {
+            updatePermissionStatus('biometric', false);
+            document.getElementById('biometric-toggle').checked = false;
+        }
+    } catch (error) {
+        updatePermissionStatus('biometric', false);
+        showNotification('Biometric permission denied', 'error');
+        document.getElementById('biometric-toggle').checked = false;
+    }
+}
+
+// Request educational sites permission
+async function requestEduSitesPermission() {
+    try {
+        const confirmed = confirm('Allow LearnStyle AI to track your learning activities on educational platforms?');
+        if (confirmed) {
+            updatePermissionStatus('eduSites', true);
+            showNotification('Educational sites tracking enabled!', 'success');
+        } else {
+            updatePermissionStatus('eduSites', false);
+            document.getElementById('edu-sites-toggle').checked = false;
+        }
+    } catch (error) {
+        updatePermissionStatus('eduSites', false);
+        showNotification('Educational sites tracking denied', 'error');
+        document.getElementById('edu-sites-toggle').checked = false;
+    }
+}
+
+// Request research permission
+async function requestResearchPermission() {
+    try {
+        const confirmed = confirm('Allow LearnStyle AI to track your research and reading activities?');
+        if (confirmed) {
+            updatePermissionStatus('research', true);
+            showNotification('Research tracking enabled!', 'success');
+        } else {
+            updatePermissionStatus('research', false);
+            document.getElementById('research-toggle').checked = false;
+        }
+    } catch (error) {
+        updatePermissionStatus('research', false);
+        showNotification('Research tracking denied', 'error');
+        document.getElementById('research-toggle').checked = false;
+    }
+}
+
+// Request coding permission
+async function requestCodingPermission() {
+    try {
+        const confirmed = confirm('Allow LearnStyle AI to track your coding activities and progress?');
+        if (confirmed) {
+            updatePermissionStatus('coding', true);
+            showNotification('Coding activities tracking enabled!', 'success');
+        } else {
+            updatePermissionStatus('coding', false);
+            document.getElementById('coding-toggle').checked = false;
+        }
+    } catch (error) {
+        updatePermissionStatus('coding', false);
+        showNotification('Coding tracking denied', 'error');
+        document.getElementById('coding-toggle').checked = false;
+    }
+}
+
+// Request video permission
+async function requestVideoPermission() {
+    try {
+        const confirmed = confirm('Allow LearnStyle AI to track your video learning activities?');
+        if (confirmed) {
+            updatePermissionStatus('video', true);
+            showNotification('Video learning tracking enabled!', 'success');
+        } else {
+            updatePermissionStatus('video', false);
+            document.getElementById('video-toggle').checked = false;
+        }
+    } catch (error) {
+        updatePermissionStatus('video', false);
+        showNotification('Video tracking denied', 'error');
+        document.getElementById('video-toggle').checked = false;
+    }
+}
+
+// Update permission status
+function updatePermissionStatus(permission, granted) {
+    permissions[permission] = granted;
+    const statusElement = document.getElementById(`${permission}-status`);
+    const toggleElement = document.getElementById(`${permission}-toggle`);
+    
+    if (granted) {
+        statusElement.textContent = 'Granted';
+        statusElement.className = 'status-badge status-granted';
+        toggleElement.checked = true;
+    } else {
+        statusElement.textContent = 'Denied';
+        statusElement.className = 'status-badge status-denied';
+        toggleElement.checked = false;
+    }
+}
+
+// Save permissions
+async function savePermissions() {
+    try {
+        const response = await fetch('/api/permissions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(permissions)
+        });
+        
+        if (response.ok) {
+            showNotification('Permissions saved successfully!', 'success');
+            // Redirect to dashboard after saving
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 2000);
+        } else {
+            showNotification('Failed to save permissions', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving permissions:', error);
+        showNotification('Error saving permissions', 'error');
+    }
+}
+
+// Reset permissions
+function resetPermissions() {
+    if (confirm('Reset all permissions to default settings?')) {
+        Object.keys(permissions).forEach(permission => {
+            updatePermissionStatus(permission, false);
+        });
+        showNotification('Permissions reset to defaults', 'info');
+    }
+}
+
+// Show notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Load existing permissions on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadExistingPermissions();
+});
+
+async function loadExistingPermissions() {
+    try {
+        const response = await fetch('/api/permissions');
+        if (response.ok) {
+            const data = await response.json();
+            Object.keys(data.permissions).forEach(permission => {
+                updatePermissionStatus(permission, data.permissions[permission]);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading permissions:', error);
+    }
+}
+</script>
+{% endblock %}

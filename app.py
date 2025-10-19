@@ -4,12 +4,14 @@ An Intelligent Adaptive Learning System with Personalized Content Delivery
 """
 
 import os
+import logging
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
 from app.models import db, User, LearningProfile, QuizResponse, ContentLibrary, UserProgress, ChatHistory, QuestionHistory
+from app.enhanced_api import enhanced_api
 from sqlalchemy import func
 from ml_models.learning_style_predictor import LearningStylePredictor
 from ml_models.multimodal_fusion_engine import MultimodalFusionEngine, EngagementMetrics, LearningContext
@@ -26,6 +28,17 @@ from app.content_generator import ContentGenerator, ContentRequest, ContentType,
 
 # Load environment variables
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def calculate_user_progress(user_id):
     """Calculate user progress statistics"""
@@ -66,7 +79,7 @@ def calculate_user_progress(user_id):
             'average_score': f"{int(average_score)}%"
         }
     except Exception as e:
-        print(f"Error calculating user progress: {e}")
+        logger.error(f"Error calculating user progress: {e}")
         return {
             'content_completed': 0,
             'hours_learned': 0.0,
@@ -116,13 +129,16 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Register enhanced API blueprint
+app.register_blueprint(enhanced_api)
+
 # Initialize ML predictor
 ml_predictor = LearningStylePredictor()
 try:
     ml_predictor.load_models()
-    print("ML models loaded successfully")
+    logger.info("ML models loaded successfully")
 except:
-    print("No saved models found, will train new ones on first use")
+    logger.info("No saved models found, will train new ones on first use")
 
 # Initialize advanced AI systems
 fusion_engine = MultimodalFusionEngine()
@@ -269,10 +285,8 @@ def dashboard():
     if current_user.is_admin():
         return render_template('dashboard.html', user_profile=profile, progress_stats=progress_stats)
     
-    # Check if regular users have completed learning style assessment
-    if not profile or not profile.dominant_style:
-        return redirect(url_for('onboarding'))
-    
+    # For regular users, show dashboard even if they haven't completed the quiz
+    # The dashboard will show appropriate content based on their profile status
     return render_template('dashboard.html', user_profile=profile, progress_stats=progress_stats)
 
 
@@ -346,8 +360,143 @@ def onboarding():
     # Check if user has completed onboarding
     profile = LearningProfile.query.filter_by(user_id=current_user.id).first()
     if profile and profile.dominant_style:
+        # User has already completed the quiz, redirect to dashboard
+        flash('You have already completed the learning style assessment!', 'info')
         return redirect(url_for('dashboard'))
     return render_template('onboarding.html')
+
+@app.route('/permissions')
+@login_required
+def permissions():
+    """User permissions and privacy settings"""
+    return render_template('permissions.html')
+
+@app.route('/privacy-policy')
+def privacy_policy():
+    """Privacy Policy page"""
+    return render_template('privacy_policy.html')
+
+@app.route('/terms-of-service')
+def terms_of_service():
+    """Terms of Service page"""
+    return render_template('terms_of_service.html')
+
+@app.route('/cookie-policy')
+def cookie_policy():
+    """Cookie Policy page"""
+    return render_template('cookie_policy.html')
+
+
+
+@app.route('/api/permissions', methods=['GET'])
+@login_required
+def get_permissions():
+    """Get user permissions"""
+    try:
+        # Default permissions
+        user_permissions = {
+            'camera': False,
+            'microphone': False,
+            'location': False,
+            'biometric': False,
+            'eduSites': False,
+            'research': False,
+            'coding': False,
+            'video': False
+        }
+        
+        # Try to get from database first
+        try:
+            from app.models import UserPermissions
+            user_perms = UserPermissions.query.filter_by(user_id=current_user.id).first()
+            if user_perms:
+                user_permissions = {
+                    'camera': user_perms.camera_access,
+                    'microphone': user_perms.microphone_access,
+                    'location': user_perms.location_access,
+                    'biometric': user_perms.biometric_data,
+                    'eduSites': user_perms.edu_sites_tracking,
+                    'research': user_perms.research_tracking,
+                    'coding': user_perms.coding_tracking,
+                    'video': user_perms.video_tracking
+                }
+                logger.info(f"Retrieved permissions from database for user {current_user.id}")
+        except Exception as db_error:
+            logger.warning(f"Database query failed, checking session: {str(db_error)}")
+            # Fallback to session data
+            if 'user_permissions' in session:
+                user_permissions.update(session['user_permissions'])
+                logger.info(f"Retrieved permissions from session for user {current_user.id}")
+        
+        return jsonify({
+            'success': True,
+            'permissions': user_permissions
+        })
+    except Exception as e:
+        logger.error(f"Error getting permissions: {str(e)}")
+        return jsonify({'error': 'Failed to get permissions'}), 500
+
+@app.route('/api/permissions', methods=['POST'])
+@login_required
+def save_permissions():
+    """Save user permissions"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Validate permissions data
+        required_permissions = ['camera', 'microphone', 'location', 'biometric', 'eduSites', 'research', 'coding', 'video']
+        for perm in required_permissions:
+            if perm not in data:
+                return jsonify({'error': f'Missing permission: {perm}'}), 400
+        
+        # Try to save to database first, fallback to session
+        try:
+            # Check if user_permissions table exists and save to database
+            from app.models import UserPermissions
+            
+            # Get or create user permissions record
+            user_perms = UserPermissions.query.filter_by(user_id=current_user.id).first()
+            if not user_perms:
+                user_perms = UserPermissions(user_id=current_user.id)
+                db.session.add(user_perms)
+            
+            # Update permissions
+            user_perms.camera_access = data.get('camera', False)
+            user_perms.microphone_access = data.get('microphone', False)
+            user_perms.location_access = data.get('location', False)
+            user_perms.biometric_data = data.get('biometric', False)
+            user_perms.edu_sites_tracking = data.get('eduSites', False)
+            user_perms.research_tracking = data.get('research', False)
+            user_perms.coding_tracking = data.get('coding', False)
+            user_perms.video_tracking = data.get('video', False)
+            
+            db.session.commit()
+            logger.info(f"User {current_user.id} permissions saved to database: {data}")
+            
+        except Exception as db_error:
+            logger.warning(f"Database save failed, using session storage: {str(db_error)}")
+            # Fallback to session storage
+            session['user_permissions'] = data
+            logger.info(f"User {current_user.id} permissions saved to session: {data}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Permissions saved successfully'
+        })
+    except Exception as e:
+        logger.error(f"Error saving permissions: {str(e)}")
+        return jsonify({'error': 'Failed to save permissions'}), 500
+
+@app.route('/admin/content-management')
+@login_required
+def admin_content_management():
+    """Admin content management interface"""
+    if not current_user.is_admin():
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('dashboard'))
+    return render_template('admin_content_management.html')
 
 @app.route('/api/ask-question', methods=['POST'])
 @login_required
@@ -569,6 +718,13 @@ def get_qa_history():
 @app.route('/quiz')
 @login_required
 def quiz():
+    """Learning style quiz"""
+    # Check if user has already completed the quiz
+    profile = LearningProfile.query.filter_by(user_id=current_user.id).first()
+    if profile and profile.dominant_style:
+        # User has already completed the quiz, redirect to dashboard
+        flash('You have already completed the learning style assessment!', 'info')
+        return redirect(url_for('dashboard'))
     return render_template('quiz.html')
 
 
@@ -584,13 +740,14 @@ def chat():
 def explainable_ai():
     profile = LearningProfile.query.filter_by(user_id=current_user.id).first()
     
-    # If user doesn't have a profile (like admin users), redirect to quiz
+    # If user doesn't have a profile or hasn't completed the quiz
     if not profile or not profile.dominant_style:
         if current_user.is_admin():
             # Admin users can still access but with a message
             flash('Complete the learning style assessment to see personalized AI insights.', 'info')
         else:
-            # Regular users should complete the quiz first
+            # Regular users should complete the quiz first, but show a friendly message
+            flash('Complete the learning style assessment to unlock personalized AI insights!', 'info')
             return redirect(url_for('quiz'))
     
     return render_template('explainable_ai.html', user_profile=profile)
@@ -638,11 +795,11 @@ def submit_quiz():
         
         # Train model if not already trained
         if not ml_predictor.is_trained:
-            print("Training ML models...")
+            logger.info("Training ML models...")
             X, y = ml_predictor.generate_synthetic_dataset(n_samples=1000)
             results = ml_predictor.train_models(X, y)
             ml_predictor.save_models()
-            print(f"Model training completed. Accuracy: {results['rf_accuracy']:.3f}")
+            logger.info(f"Model training completed. Accuracy: {results['rf_accuracy']:.3f}")
         
         # Get prediction
         prediction = ml_predictor.predict_learning_style(responses)
@@ -686,7 +843,7 @@ def submit_quiz():
         return redirect(url_for('onboarding', quiz_completed='true'))
         
     except Exception as e:
-        print(f"Error processing quiz: {e}")
+        logger.error(f"Error processing quiz: {e}")
         flash('An error occurred while processing your quiz. Please try again.', 'error')
         return redirect(url_for('quiz'))
 
@@ -993,33 +1150,54 @@ def api_generate_content():
     """API endpoint for AI content generation"""
     try:
         data = request.get_json()
+        logger.info(f"Content generation request received: {data}")
+        
+        # Validate required fields
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        topic = data.get('topic', 'General Learning')
+        learning_style = data.get('learning_style', 'visual')
         
         # Create content request
-        content_request = ContentRequest(
-            topic=data.get('topic', 'General Learning'),
-            learning_style=ContentStyle(data.get('learning_style', 'visual')),
-            difficulty_level=data.get('difficulty_level', 'intermediate'),
-            content_type=ContentType(data.get('content_type', 'text')),
-            user_preferences=data.get('preferences', {}),
-            context=data.get('context')
-        )
+        try:
+            content_request = ContentRequest(
+                topic=topic,
+                learning_style=ContentStyle(learning_style),
+                difficulty_level=data.get('difficulty_level', 'intermediate'),
+                content_type=ContentType(data.get('content_type', 'text')),
+                user_preferences=data.get('preferences', {}),
+                context=data.get('context')
+            )
+        except ValueError as ve:
+            logger.error(f"Invalid content request parameters: {ve}")
+            return jsonify({'error': f'Invalid parameters: {str(ve)}'}), 400
         
         # Generate content
+        logger.info(f"Generating content for topic: {topic}")
         generated_content = content_generator.generate_content(content_request)
+        logger.info(f"Content generated successfully: {generated_content.content_id}")
         
         # Save to database
-        content_library_item = ContentLibrary(
-            title=generated_content.title,
-            description=generated_content.content[:200] + "...",
-            content_type=generated_content.content_type.value,
-            style_tags=','.join(generated_content.style_tags),
-            difficulty_level=generated_content.difficulty_level,
-            url_path=f"/generated/{generated_content.content_id}"
-        )
-        db.session.add(content_library_item)
-        db.session.commit()
+        try:
+            content_library_item = ContentLibrary(
+                title=generated_content.title,
+                description=generated_content.content[:200] + "..." if len(generated_content.content) > 200 else generated_content.content,
+                content_type=generated_content.content_type.value,
+                style_tags=','.join(generated_content.style_tags),
+                difficulty_level=generated_content.difficulty_level,
+                url_path=f"/generated/{generated_content.content_id}"
+            )
+            db.session.add(content_library_item)
+            db.session.commit()
+            logger.info(f"Content saved to database: {content_library_item.id}")
+        except Exception as db_error:
+            logger.error(f"Database error: {db_error}")
+            db.session.rollback()
+            # Continue even if DB save fails
         
         return jsonify({
+            'success': True,
             'content_id': generated_content.content_id,
             'title': generated_content.title,
             'content': generated_content.content,
@@ -1030,7 +1208,8 @@ def api_generate_content():
         })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Content generation failed: {str(e)}", exc_info=True)
+        return jsonify({'error': f'Content generation failed: {str(e)}'}), 500
 
 
 @app.route('/api/multimodal-fusion', methods=['POST'])
@@ -3090,7 +3269,7 @@ def get_advanced_metrics():
         })
         
     except Exception as e:
-        logger.error(f"Error getting advanced metrics: {e}")
+        logging.getLogger(__name__).error(f"Error getting advanced metrics: {e}")
         return jsonify({
             'total_users': 0,
             'active_users': 0,
@@ -3167,7 +3346,7 @@ def get_biometric_metrics():
         })
         
     except Exception as e:
-        logger.error(f"Error getting biometric metrics: {e}")
+        logging.getLogger(__name__).error(f"Error getting biometric metrics: {e}")
         return jsonify({
             'hrv_data': [0, 0, 0, 0],
             'stress_levels': [0, 0, 0],
@@ -3259,7 +3438,7 @@ def get_collaborative_metrics():
         })
         
     except Exception as e:
-        logger.error(f"Error getting collaborative metrics: {e}")
+        logging.getLogger(__name__).error(f"Error getting collaborative metrics: {e}")
         return jsonify({
             'group_activity': [0, 0, 0, 0, 0, 0],
             'peer_scores': [0, 0, 0, 0, 0],
@@ -3295,7 +3474,7 @@ def dashboard_statistics():
             health_summary = health_monitor.get_health_summary()
             system_health = health_summary['overall_health']
         except Exception as e:
-            print(f"Error getting system health: {e}")
+            logger.error(f"Error getting system health: {e}")
             system_health = 50.0  # Fallback value
         
         # Get feature statistics
@@ -3402,23 +3581,34 @@ def _generate_overall_recommendation(state, focus_metrics, fatigue_metrics, load
     return base_recommendation
 
 def generate_ai_response(user_message, learning_style):
-    """Generate AI response based on user message and learning style"""
-    # This is a simplified version - in production, you'd use OpenAI API
-    message = user_message.lower()
+    """Generate AI response using OpenAI API based on user message and learning style"""
+    import os
+    from app.utils.ai_tutor import AITutor
     
-    if 'hello' in message or 'hi' in message:
-        if learning_style == 'visual':
-            return "Hello! I'm here to help you learn through visual aids, diagrams, and clear explanations. What would you like to explore today?"
-        elif learning_style == 'auditory':
-            return "Hi there! I love having conversations about learning. Let's discuss what you'd like to understand - I'll explain it step by step."
-        else:
-            return "Hey! Ready to dive into some hands-on learning? I can guide you through practical exercises and real-world applications."
+    # Get OpenAI API key from environment
+    api_key = os.getenv('OPENAI_API_KEY')
     
-    elif 'help' in message:
-        return f"As your {learning_style} learning assistant, I can help you understand concepts in ways that work best for your learning style. What specific topic would you like help with?"
-    
+    if api_key and api_key != 'your-openai-api-key-here':
+        # Use OpenAI API
+        tutor = AITutor(api_key)
+        return tutor.generate_response(user_message, learning_style)
     else:
-        return f"That's a great question! As someone who learns best through {learning_style} methods, I'll make sure to explain this in a way that resonates with your learning style. Could you tell me more about what specific aspect you'd like to understand?"
+        # Fallback to simple responses if no API key
+        message = user_message.lower()
+        
+        if 'hello' in message or 'hi' in message:
+            if learning_style == 'visual':
+                return "Hello! I'm here to help you learn through visual aids, diagrams, and clear explanations. What would you like to explore today? [Note: Add your OpenAI API key to .env for enhanced AI responses]"
+            elif learning_style == 'auditory':
+                return "Hi there! I love having conversations about learning. Let's discuss what you'd like to understand - I'll explain it step by step. [Note: Add your OpenAI API key to .env for enhanced AI responses]"
+            else:
+                return "Hey! Ready to dive into some hands-on learning? I can guide you through practical exercises and real-world applications. [Note: Add your OpenAI API key to .env for enhanced AI responses]"
+        
+        elif 'help' in message:
+            return f"As your {learning_style} learning assistant, I can help you understand concepts in ways that work best for your learning style. What specific topic would you like help with? [Note: Add your OpenAI API key to .env for enhanced AI responses]"
+        
+        else:
+            return f"That's a great question! As someone who learns best through {learning_style} methods, I'll make sure to explain this in a way that resonates with your learning style. Could you tell me more about what specific aspect you'd like to understand? [Note: Add your OpenAI API key to .env for enhanced AI responses]"
 
 
 # -----------------------------

@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service - LearnStyle AI{% endblock %}
+
+{% block head %}
+<style>
+.policy-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.policy-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.policy-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.policy-content {
+    position: relative;
+    z-index: 1;
+}
+
+.policy-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.policy-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.policy-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.policy-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.policy-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.policy-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.policy-section h2 {
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.policy-section h3 {
+    color: #495057;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+
+.policy-section p {
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.policy-section ul {
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.policy-section li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.policy-section li::marker {
+    color: #667eea;
+    font-weight: bold;
+}
+
+.highlight-box {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.highlight-box h4 {
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.back-to-dashboard {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    z-index: 1000;
+}
+
+.back-to-dashboard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .policy-container {
+        padding: 1rem;
+    }
+    
+    .policy-title {
+        font-size: 2rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .policy-card {
+        padding: 1.5rem;
+    }
+    
+    .back-to-dashboard {
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-container">
+    <div class="policy-header">
+        <div class="policy-content">
+            <h1 class="policy-title">
+                <i class="bi bi-file-text"></i>
+                Terms of Service
+            </h1>
+            <p class="policy-subtitle">Last updated: January 15, 2025</p>
+        </div>
+    </div>
+    
+    <div class="policy-card">
+        <div class="terms-content">
+            <section class="policy-section">
+                <h2><i class="bi bi-check-circle"></i> 1. Acceptance of Terms</h2>
+                            <p>By accessing and using LearnStyle AI ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>2. Description of Service</h2>
+                            <p>LearnStyle AI is an intelligent adaptive learning platform that provides:</p>
+                            <ul>
+                                <li>Personalized learning style assessments</li>
+                                <li>AI-powered content recommendations</li>
+                                <li>Biometric feedback integration</li>
+                                <li>Collaborative learning features</li>
+                                <li>Progress tracking and analytics</li>
+                                <li>Research and educational tools</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>3. User Accounts</h2>
+                            <h3>3.1 Account Creation</h3>
+                            <p>To use certain features of the Service, you must create an account. You agree to:</p>
+                            <ul>
+                                <li>Provide accurate and complete information</li>
+                                <li>Maintain the security of your password</li>
+                                <li>Accept responsibility for all activities under your account</li>
+                                <li>Notify us immediately of any unauthorized use</li>
+                            </ul>
+
+                            <h3>3.2 Account Termination</h3>
+                            <p>We reserve the right to terminate or suspend your account at any time for violations of these terms or for any other reason at our sole discretion.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>4. Acceptable Use</h2>
+                            <h3>4.1 Permitted Uses</h3>
+                            <p>You may use the Service for:</p>
+                            <ul>
+                                <li>Personal learning and education</li>
+                                <li>Research purposes (with appropriate permissions)</li>
+                                <li>Educational and academic activities</li>
+                            </ul>
+
+                            <h3>4.2 Prohibited Uses</h3>
+                            <p>You agree not to:</p>
+                            <ul>
+                                <li>Use the Service for any unlawful purpose</li>
+                                <li>Attempt to gain unauthorized access to our systems</li>
+                                <li>Interfere with or disrupt the Service</li>
+                                <li>Reverse engineer or attempt to extract source code</li>
+                                <li>Use automated systems to access the Service</li>
+                                <li>Share your account credentials with others</li>
+                                <li>Upload malicious code or harmful content</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>5. Intellectual Property</h2>
+                            <h3>5.1 Our Content</h3>
+                            <p>The Service and its original content, features, and functionality are owned by LearnStyle AI and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.</p>
+
+                            <h3>5.2 User Content</h3>
+                            <p>You retain ownership of content you create or upload. By using the Service, you grant us a limited license to use, store, and process your content to provide the Service.</p>
+
+                            <h3>5.3 Feedback</h3>
+                            <p>Any feedback, comments, or suggestions you provide may be used by us without any obligation to compensate you.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>6. Privacy and Data Protection</h2>
+                            <p>Your privacy is important to us. Our collection and use of personal information is governed by our Privacy Policy, which is incorporated into these Terms by reference.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>7. Biometric Data and Consent</h2>
+                            <p>If you choose to use biometric features:</p>
+                            <ul>
+                                <li>You explicitly consent to the collection and processing of biometric data</li>
+                                <li>You understand that this data is used to enhance your learning experience</li>
+                                <li>You can withdraw consent at any time</li>
+                                <li>We will delete your biometric data upon request</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>8. Disclaimers</h2>
+                            <h3>8.1 Service Availability</h3>
+                            <p>The Service is provided "as is" and "as available." We do not guarantee that the Service will be uninterrupted or error-free.</p>
+
+                            <h3>8.2 Educational Content</h3>
+                            <p>While we strive to provide accurate educational content, we do not guarantee the accuracy, completeness, or usefulness of any information on the Service.</p>
+
+                            <h3>8.3 Third-Party Services</h3>
+                            <p>The Service may integrate with third-party services. We are not responsible for the availability or content of these services.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>9. Limitation of Liability</h2>
+                            <p>To the maximum extent permitted by law, LearnStyle AI shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the Service.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>10. Indemnification</h2>
+                            <p>You agree to defend, indemnify, and hold harmless LearnStyle AI and its officers, directors, employees, and agents from and against any claims, damages, obligations, losses, liabilities, costs, or debt, and expenses (including attorney's fees) arising from your use of the Service or violation of these Terms.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>11. Governing Law</h2>
+                            <p>These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which LearnStyle AI is incorporated, without regard to its conflict of law provisions.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>12. Dispute Resolution</h2>
+                            <p>Any disputes arising out of or relating to these Terms or the Service shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>13. Changes to Terms</h2>
+                            <p>We reserve the right to modify these Terms at any time. We will notify users of any material changes by posting the new Terms on this page and updating the "Last updated" date.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>14. Severability</h2>
+                            <p>If any provision of these Terms is held to be invalid or unenforceable, the remaining provisions will remain in full force and effect.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2>15. Contact Information</h2>
+                            <p>If you have any questions about these Terms of Service, please contact us:</p>
+                            <ul>
+                                <li>Email: legal@learnstyle-ai.com</li>
+                                <li>Address: LearnStyle AI Legal Department, 123 Learning Street, Education City, EC 12345</li>
+                            </ul>
+            </section>
+        </div>
+    </div>
+    
+    <a href="{{ url_for('dashboard') }}" class="back-to-dashboard">
+        <i class="bi bi-arrow-left"></i>
+        Back to Dashboard
+    </a>
+</div>
+{% endblock %}

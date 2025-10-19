@@ -188,3 +188,78 @@ class QuestionHistory(db.Model):
     
     def __repr__(self):
         return f'<Q&A User:{self.user_id} Question:{self.question[:50]}...>'
+
+class UserPermissions(db.Model):
+    """User permissions for data collection and tracking"""
+    __tablename__ = 'user_permissions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
+    camera_access = db.Column(db.Boolean, default=False)
+    microphone_access = db.Column(db.Boolean, default=False)
+    location_access = db.Column(db.Boolean, default=False)
+    biometric_data = db.Column(db.Boolean, default=False)
+    edu_sites_tracking = db.Column(db.Boolean, default=False)
+    research_tracking = db.Column(db.Boolean, default=False)
+    coding_tracking = db.Column(db.Boolean, default=False)
+    video_tracking = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<UserPermissions User:{self.user_id}>'
+
+class LearningSiteActivity(db.Model):
+    """Track user's learning activities on external sites"""
+    __tablename__ = 'learning_site_activity'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    site_url = db.Column(db.String(500), nullable=False)
+    site_name = db.Column(db.String(200))
+    activity_type = db.Column(db.String(50), default='visit')  # visit, study, quiz, video, etc.
+    time_spent = db.Column(db.Integer, default=0)  # in seconds
+    content_type = db.Column(db.String(100), default='general')
+    notes = db.Column(db.Text)  # User notes about the learning activity
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<LearningSiteActivity User:{self.user_id} Site:{self.site_name}>'
+
+class EmotionData(db.Model):
+    """Store emotion detection data from camera/microphone"""
+    __tablename__ = 'emotion_data'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    emotion_type = db.Column(db.String(50), nullable=False)  # happy, sad, confused, engaged, etc.
+    confidence_score = db.Column(db.Float)
+    facial_emotion = db.Column(db.String(50))
+    voice_emotion = db.Column(db.String(50))
+    engagement_level = db.Column(db.Float)
+    context = db.Column(db.String(100), default='learning')
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<EmotionData User:{self.user_id} Emotion:{self.emotion_type}>'
+
+class Content(db.Model):
+    """Learning content management"""
+    __tablename__ = 'content'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content_type = db.Column(db.String(50), nullable=False)  # article, video, quiz, interactive, assignment
+    content = db.Column(db.Text, nullable=False)
+    learning_style = db.Column(db.String(20))  # visual, auditory, kinesthetic, reading, multimodal
+    difficulty_level = db.Column(db.String(20), default='beginner')  # beginner, intermediate, advanced
+    tags = db.Column(db.Text)  # Comma-separated tags
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(20), default='draft')  # draft, pending, published, archived
+    views = db.Column(db.Integer, default=0)
+    rating = db.Column(db.Float, default=0.0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Content {self.id}: {self.title}>'

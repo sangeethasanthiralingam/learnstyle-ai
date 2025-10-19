@@ -1,47 +1,32 @@
-# Flask and Web Framework
+# LearnStyle AI Requirements
+
+# Core Flask Dependencies
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
 Flask-Login==0.6.3
-Werkzeug==2.3.7
-
-# Machine Learning
-scikit-learn==1.5.2
-pandas==2.0.3
-numpy==1.24.3
-joblib==1.3.2
-scipy==1.11.1
-networkx==3.4.2
-
-# Environment and Configuration
-python-dotenv==1.0.0
+Flask-WTF==1.1.1
+WTForms==3.0.1
 
 # Database
-SQLAlchemy==2.0.21
 PyMySQL==1.1.0
-cryptography==41.0.4
+SQLAlchemy==2.0.21
 
-# Development and Testing
-pytest==7.4.2
-pytest-flask==1.2.0
-flake8==6.0.0
-black==23.7.0
+# Environment & Configuration
+python-dotenv==1.0.0
 
-# AI Integration and External APIs
-openai==1.3.0
+# AI & Machine Learning
+openai==0.28.1
+scikit-learn==1.3.0
+numpy==1.24.3
+pandas==2.0.3
+
+# Data Processing
 requests==2.31.0
 
-# Data Visualization and Charts
-matplotlib==3.7.2
-seaborn==0.12.2
-plotly==5.17.0
+# Utilities
+python-dateutil==2.8.2
+Pillow==10.0.0
 
-# Additional ML and Data Processing
-opencv-python==4.8.1.78
-Pillow==10.0.1
-librosa==0.10.1
-
-# Deployment (optional)
-# gunicorn==21.2.0  # For production deployment
-# psycopg2-binary==2.9.7  # For PostgreSQL support
-
-psutil==7.1.0
+# Development (Optional)
+pytest==7.4.0
+pytest-flask==1.2.0
