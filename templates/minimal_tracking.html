@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Tracking Setup - LearnStyle AI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tracking-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        
+        .tracking-section h3 {
+            color: #333;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: #ccc;
+        }
+        
+        .status-indicator.active {
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .tracking-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .data-display {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px 0;
+        }
+        
+        #videoElement {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .instructions h4 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+        
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👁️ Minimal Tracking Setup</h1>
+            <p>LearnStyle AI - Basic Biometric & Behavior Tracking</p>
+        </div>
+        
+        <div class="content">
+            <div class="instructions">
+                <h4>📋 Setup Instructions</h4>
+                <ol>
+                    <li><strong>Allow camera access</strong> when prompted for facial emotion analysis</li>
+                    <li><strong>Allow microphone access</strong> for voice emotion detection</li>
+                    <li><strong>Move your mouse</strong> around the screen to simulate gaze tracking</li>
+                    <li><strong>Click "Start Tracking"</strong> to begin data collection</li>
+                    <li><strong>Interact with content</strong> to see real-time analytics</li>
+                </ol>
+            </div>
+
+            <!-- Camera Tracking Section -->
+            <div class="tracking-section">
+                <h3>
+                    <span class="status-indicator" id="cameraStatus"></span>
+                    📹 Camera Tracking (Facial Emotion Analysis)
+                </h3>
+                <div class="video-container">
+                    <video id="videoElement" autoplay muted></video>
+                    <div class="overlay" id="cameraOverlay">Camera not started</div>
+                </div>
+                <div class="tracking-controls">
+                    <button class="btn btn-primary" id="startCamera">Start Camera</button>
+                    <button class="btn btn-danger" id="stopCamera" disabled>Stop Camera</button>
+                </div>
+                <div class="data-display" id="cameraData">
+                    Camera data will appear here...
+                </div>
+            </div>
+
+            <!-- Mouse Tracking Section -->
+            <div class="tracking-section">
+                <h3>
+                    <span class="status-indicator" id="mouseStatus"></span>
+                    🖱️ Mouse Tracking (Gaze Approximation)
+                </h3>
+                <div class="tracking-controls">
+                    <button class="btn btn-primary" id="startMouseTracking">Start Mouse Tracking</button>
+                    <button class="btn btn-danger" id="stopMouseTracking" disabled>Stop Mouse Tracking</button>
+                </div>
+                <div class="data-display" id="mouseData">
+                    Mouse tracking data will appear here...
+                </div>
+            </div>
+
+            <!-- Voice Tracking Section -->
+            <div class="tracking-section">
+                <h3>
+                    <span class="status-indicator" id="voiceStatus"></span>
+                    🎤 Voice Tracking (Emotion Analysis)
+                </h3>
+                <div class="tracking-controls">
+                    <button class="btn btn-primary" id="startVoiceTracking">Start Voice Tracking</button>
+                    <button class="btn btn-danger" id="stopVoiceTracking" disabled>Stop Voice Tracking</button>
+                </div>
+                <div class="data-display" id="voiceData">
+                    Voice tracking data will appear here...
+                </div>
+            </div>
+
+            <!-- Real-time Metrics -->
+            <div class="tracking-section">
+                <h3>📊 Real-time Learning Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="engagementScore">0%</div>
+                        <div class="metric-label">Engagement Score</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="attentionLevel">Low</div>
+                        <div class="metric-label">Attention Level</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="emotionState">Neutral</div>
+                        <div class="metric-label">Emotion State</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="learningReadiness">0%</div>
+                        <div class="metric-label">Learning Readiness</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combined Tracking -->
+            <div class="tracking-section">
+                <h3>🔄 Combined Tracking Status</h3>
+                <div class="tracking-controls">
+                    <button class="btn btn-success" id="startAllTracking">Start All Tracking</button>
+                    <button class="btn btn-danger" id="stopAllTracking" disabled>Stop All Tracking</button>
+                </div>
+                <div class="data-display" id="combinedData">
+                    Combined tracking data will appear here...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let videoStream = null;
+        let audioStream = null;
+        let mouseTracking = false;
+        let cameraTracking = false;
+        let voiceTracking = false;
+        let trackingInterval = null;
+        
+        // DOM elements
+        const videoElement = document.getElementById('videoElement');
+        const cameraOverlay = document.getElementById('cameraOverlay');
+        const startCameraBtn = document.getElementById('startCamera');
+        const stopCameraBtn = document.getElementById('stopCamera');
+        const startMouseBtn = document.getElementById('startMouseTracking');
+        const stopMouseBtn = document.getElementById('stopMouseTracking');
+        const startVoiceBtn = document.getElementById('startVoiceTracking');
+        const stopVoiceBtn = document.getElementById('stopVoiceTracking');
+        const startAllBtn = document.getElementById('startAllTracking');
+        const stopAllBtn = document.getElementById('stopAllTracking');
+        
+        // Data display elements
+        const cameraData = document.getElementById('cameraData');
+        const mouseData = document.getElementById('mouseData');
+        const voiceData = document.getElementById('voiceData');
+        const combinedData = document.getElementById('combinedData');
+        
+        // Status indicators
+        const cameraStatus = document.getElementById('cameraStatus');
+        const mouseStatus = document.getElementById('mouseStatus');
+        const voiceStatus = document.getElementById('voiceStatus');
+        
+        // Metrics elements
+        const engagementScore = document.getElementById('engagementScore');
+        const attentionLevel = document.getElementById('attentionLevel');
+        const emotionState = document.getElementById('emotionState');
+        const learningReadiness = document.getElementById('learningReadiness');
+        
+        // Tracking data
+        let gazePoints = [];
+        let emotionData = [];
+        let voiceData_collected = [];
+        let combinedMetrics = {
+            engagement: 0,
+            attention: 'Low',
+            emotion: 'Neutral',
+            readiness: 0
+        };
+
+        // Camera tracking functions
+        async function startCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: 640, 
+                        height: 480,
+                        facingMode: 'user'
+                    } 
+                });
+                videoElement.srcObject = videoStream;
+                cameraOverlay.style.display = 'none';
+                cameraTracking = true;
+                updateStatus(cameraStatus, true);
+                updateButtons();
+                logData(cameraData, 'Camera started successfully');
+            } catch (error) {
+                logData(cameraData, 'Camera error: ' + error.message);
+            }
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            videoElement.srcObject = null;
+            cameraOverlay.style.display = 'flex';
+            cameraOverlay.textContent = 'Camera stopped';
+            cameraTracking = false;
+            updateStatus(cameraStatus, false);
+            updateButtons();
+            logData(cameraData, 'Camera stopped');
+        }
+
+        // Mouse tracking functions
+        function startMouseTracking() {
+            mouseTracking = true;
+            updateStatus(mouseStatus, true);
+            updateButtons();
+            logData(mouseData, 'Mouse tracking started - move your mouse around');
+        }
+
+        function stopMouseTracking() {
+            mouseTracking = false;
+            updateStatus(mouseStatus, false);
+            updateButtons();
+            logData(mouseData, 'Mouse tracking stopped');
+        }
+
+        // Voice tracking functions
+        async function startVoiceTracking() {
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { 
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+                voiceTracking = true;
+                updateStatus(voiceStatus, true);
+                updateButtons();
+                logData(voiceData, 'Voice tracking started - speak into microphone');
+            } catch (error) {
+                logData(voiceData, 'Voice error: ' + error.message);
+            }
+        }
+
+        function stopVoiceTracking() {
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+            voiceTracking = false;
+            updateStatus(voiceStatus, false);
+            updateButtons();
+            logData(voiceData, 'Voice tracking stopped');
+        }
+
+        // Combined tracking functions
+        function startAllTracking() {
+            startCamera();
+            startMouseTracking();
+            startVoiceTracking();
+            startCombinedTracking();
+        }
+
+        function stopAllTracking() {
+            stopCamera();
+            stopMouseTracking();
+            stopVoiceTracking();
+            stopCombinedTracking();
+        }
+
+        function startCombinedTracking() {
+            if (trackingInterval) clearInterval(trackingInterval);
+            
+            trackingInterval = setInterval(() => {
+                collectAndProcessData();
+            }, 1000); // Update every second
+        }
+
+        function stopCombinedTracking() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+        }
+
+        // Data collection and processing
+        function collectAndProcessData() {
+            let data = {
+                timestamp: Date.now(),
+                camera: cameraTracking,
+                mouse: mouseTracking,
+                voice: voiceTracking
+            };
+
+            // Simulate data collection
+            if (mouseTracking) {
+                data.mousePosition = { x: Math.random() * 800, y: Math.random() * 600 };
+                data.mouseMovement = Math.random() * 100;
+            }
+
+            if (cameraTracking) {
+                data.facialEmotion = simulateFacialEmotion();
+                data.attentionLevel = Math.random() * 100;
+            }
+
+            if (voiceTracking) {
+                data.voiceEmotion = simulateVoiceEmotion();
+                data.speechRate = Math.random() * 3;
+            }
+
+            // Calculate combined metrics
+            calculateCombinedMetrics(data);
+            
+            // Update displays
+            updateMetrics();
+            logData(combinedData, JSON.stringify(data, null, 2));
+        }
+
+        function simulateFacialEmotion() {
+            const emotions = ['happy', 'neutral', 'focused', 'confused', 'interested'];
+            return emotions[Math.floor(Math.random() * emotions.length)];
+        }
+
+        function simulateVoiceEmotion() {
+            const emotions = ['calm', 'excited', 'focused', 'tired', 'confident'];
+            return emotions[Math.floor(Math.random() * emotions.length)];
+        }
+
+        function calculateCombinedMetrics(data) {
+            // Simulate engagement calculation
+            combinedMetrics.engagement = Math.floor(Math.random() * 100);
+            
+            // Simulate attention level
+            const attentionLevels = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+            combinedMetrics.attention = attentionLevels[Math.floor(Math.random() * attentionLevels.length)];
+            
+            // Simulate emotion state
+            const emotions = ['Happy', 'Neutral', 'Focused', 'Confused', 'Interested'];
+            combinedMetrics.emotion = emotions[Math.floor(Math.random() * emotions.length)];
+            
+            // Simulate learning readiness
+            combinedMetrics.readiness = Math.floor(Math.random() * 100);
+        }
+
+        function updateMetrics() {
+            engagementScore.textContent = combinedMetrics.engagement + '%';
+            attentionLevel.textContent = combinedMetrics.attention;
+            emotionState.textContent = combinedMetrics.emotion;
+            learningReadiness.textContent = combinedMetrics.readiness + '%';
+        }
+
+        // Utility functions
+        function updateStatus(element, active) {
+            if (active) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+        }
+
+        function updateButtons() {
+            const anyTracking = cameraTracking || mouseTracking || voiceTracking;
+            startAllBtn.disabled = anyTracking;
+            stopAllBtn.disabled = !anyTracking;
+            
+            startCameraBtn.disabled = cameraTracking;
+            stopCameraBtn.disabled = !cameraTracking;
+            
+            startMouseBtn.disabled = mouseTracking;
+            stopMouseBtn.disabled = !mouseTracking;
+            
+            startVoiceBtn.disabled = voiceTracking;
+            stopVoiceBtn.disabled = !voiceTracking;
+        }
+
+        function logData(element, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML = `[${timestamp}] ${message}`;
+        }
+
+        // Mouse movement tracking
+        document.addEventListener('mousemove', (e) => {
+            if (mouseTracking) {
+                const gazePoint = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    timestamp: Date.now(),
+                    duration: 100
+                };
+                gazePoints.push(gazePoint);
+                
+                // Keep only last 100 points
+                if (gazePoints.length > 100) {
+                    gazePoints = gazePoints.slice(-100);
+                }
+                
+                logData(mouseData, `Gaze: (${e.clientX}, ${e.clientY}) - ${gazePoints.length} points collected`);
+            }
+        });
+
+        // Event listeners
+        startCameraBtn.addEventListener('click', startCamera);
+        stopCameraBtn.addEventListener('click', stopCamera);
+        startMouseBtn.addEventListener('click', startMouseTracking);
+        stopMouseBtn.addEventListener('click', stopMouseTracking);
+        startVoiceBtn.addEventListener('click', startVoiceTracking);
+        stopVoiceBtn.addEventListener('click', stopVoiceTracking);
+        startAllBtn.addEventListener('click', startAllTracking);
+        stopAllBtn.addEventListener('click', stopAllTracking);
+
+        // Initialize
+        updateButtons();
+        logData(cameraData, 'Ready to start camera tracking');
+        logData(mouseData, 'Ready to start mouse tracking');
+        logData(voiceData, 'Ready to start voice tracking');
+        logData(combinedData, 'Ready to start combined tracking');
+    </script>
+</body>
+</html>

@@ -170,3 +170,21 @@ class ChatHistory(db.Model):
     
     def __repr__(self):
         return f'<Chat User:{self.user_id} Time:{self.timestamp}>'
+
+class QuestionHistory(db.Model):
+    """Question and Answer history for personalized learning"""
+    __tablename__ = 'question_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    learning_style = db.Column(db.String(20))  # learning style used for personalization
+    topic_category = db.Column(db.String(50))  # ML, programming, data science, etc.
+    confidence_score = db.Column(db.Float)  # AI confidence in the answer
+    user_rating = db.Column(db.Integer)  # 1-5 user rating of the answer
+    is_saved = db.Column(db.Boolean, default=False)  # if user saved this Q&A
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Q&A User:{self.user_id} Question:{self.question[:50]}...>'

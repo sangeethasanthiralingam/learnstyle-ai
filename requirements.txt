@@ -43,3 +43,5 @@ librosa==0.10.1
 # Deployment (optional)
 # gunicorn==21.2.0  # For production deployment
 # psycopg2-binary==2.9.7  # For PostgreSQL support
+
+psutil==7.1.0

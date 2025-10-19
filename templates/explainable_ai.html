@@ -328,6 +328,7 @@
             <i class="bi bi-lightbulb"></i> Your Learning Style Analysis
         </h2>
         
+        {% if user_profile and user_profile.dominant_style %}
         <div class="interpretation-section">
             <h3 class="interpretation-title">Why You Were Classified as {{ user_profile.dominant_style.title() }}</h3>
             <p class="interpretation-text">
@@ -336,7 +337,22 @@
                 this conclusion was reached.
             </p>
         </div>
+        {% else %}
+        <div class="interpretation-section">
+            <h3 class="interpretation-title">Complete Your Learning Style Assessment</h3>
+            <p class="interpretation-text">
+                To see personalized AI insights and explanations, please complete the learning style assessment first. 
+                This will help our AI understand your unique learning preferences and provide tailored recommendations.
+            </p>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('quiz') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-clipboard-check me-2"></i>Take Assessment
+                </a>
+            </div>
+        </div>
+        {% endif %}
 
+        {% if user_profile and user_profile.dominant_style %}
         <!-- Feature Importance -->
         <div class="feature-importance">
             <h3 class="card-title">
@@ -577,6 +593,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 
 <script>

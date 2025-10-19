@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to LearnStyle AI - Onboarding</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .onboarding-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .onboarding-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: #007bff;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: #e9ecef;
+            margin: 0 5px;
+            margin-top: 19px;
+        }
+        
+        .step-line.completed {
+            background: #28a745;
+        }
+        
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-header h1 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .onboarding-step {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .onboarding-step.active {
+            display: block;
+        }
+        
+        .step-content {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        
+        .step-icon {
+            font-size: 4rem;
+            color: #007bff;
+            margin-bottom: 1.5rem;
+        }
+        
+        .step-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .step-description {
+            color: #6c757d;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-description {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .btn-onboarding {
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+        
+        .btn-onboarding:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .progress-bar-custom {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill-custom {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #28a745);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .learning-style-preview {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .style-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .style-percentage {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">1</div>
+                <div class="step-line"></div>
+                <div class="step" id="step2">2</div>
+                <div class="step-line"></div>
+                <div class="step" id="step3">3</div>
+                <div class="step-line"></div>
+                <div class="step" id="step4">4</div>
+                <div class="step-line"></div>
+                <div class="step" id="step5">5</div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-bar-custom">
+                <div class="progress-fill-custom" id="progressFill" style="width: 20%"></div>
+            </div>
+            
+            <!-- Step 1: Welcome -->
+            <div class="onboarding-step active" id="step1-content">
+                <div class="welcome-header">
+                    <h1><i class="bi bi-brain"></i> Welcome to LearnStyle AI!</h1>
+                    <p>Your personalized learning journey starts here</p>
+                </div>
+                
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="bi bi-rocket-takeoff"></i>
+                    </div>
+                    <h2 class="step-title">Discover Your Learning Style</h2>
+                    <p class="step-description">
+                        We'll help you discover how you learn best through a quick assessment. 
+                        This will personalize your entire learning experience!
+                    </p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="bi bi-eye"></i></div>
+                            <div class="feature-title">Visual Learning</div>
+                            <div class="feature-description">Diagrams, charts, and visual aids</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="bi bi-volume-up"></i></div>
+                            <div class="feature-title">Auditory Learning</div>
+                            <div class="feature-description">Audio lectures and discussions</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="bi bi-hand-index"></i></div>
+                            <div class="feature-title">Kinesthetic Learning</div>
+                            <div class="feature-description">Hands-on practice and activities</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-onboarding" onclick="nextStep()">
+                        Let's Get Started <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Assessment Preview -->
+            <div class="onboarding-step" id="step2-content">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <h2 class="step-title">Quick Learning Assessment</h2>
+                    <p class="step-description">
+                        We'll ask you 15 simple questions about your learning preferences. 
+                        There are no right or wrong answers - just be honest!
+                    </p>
+                    
+                    <div class="learning-style-preview">
+                        <h4>What to expect:</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="style-card">
+                                    <h5><i class="bi bi-eye text-primary"></i> Visual Questions</h5>
+                                    <p>About diagrams, charts, and visual materials</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="style-card">
+                                    <h5><i class="bi bi-volume-up text-success"></i> Auditory Questions</h5>
+                                    <p>About listening, discussions, and audio content</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="style-card">
+                                    <h5><i class="bi bi-hand-index text-warning"></i> Kinesthetic Questions</h5>
+                                    <p>About hands-on activities and practice</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary btn-onboarding" onclick="prevStep()">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-onboarding" onclick="startQuiz()">
+                        Start Assessment <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: AI Processing -->
+            <div class="onboarding-step" id="step3-content">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <h2 class="step-title">AI Processing Your Results</h2>
+                    <p class="step-description">
+                        Our advanced AI is analyzing your responses to determine your unique learning style...
+                    </p>
+                    
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Processing your learning preferences...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Results -->
+            <div class="onboarding-step" id="step4-content">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h2 class="step-title">Your Learning Style Profile</h2>
+                    <p class="step-description">
+                        Based on your responses, here's your personalized learning profile:
+                    </p>
+                    
+                    <div class="learning-style-preview" id="resultsContainer">
+                        <!-- Results will be populated here -->
+                    </div>
+                    
+                    <button class="btn btn-secondary btn-onboarding" onclick="prevStep()">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary btn-onboarding" onclick="nextStep()">
+                        Continue <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 5: Dashboard Tour -->
+            <div class="onboarding-step" id="step5-content">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h2 class="step-title">Your Personalized Dashboard</h2>
+                    <p class="step-description">
+                        Welcome to your personalized learning dashboard! Here's what you can do:
+                    </p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="bi bi-book"></i></div>
+                            <div class="feature-title">Personalized Content</div>
+                            <div class="feature-description">Content tailored to your learning style</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="bi bi-chat-dots"></i></div>
+                            <div class="feature-title">AI Tutor</div>
+                            <div class="feature-description">Get help from our AI learning assistant</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="bi bi-graph-up"></i></div>
+                            <div class="feature-title">Progress Tracking</div>
+                            <div class="feature-description">Monitor your learning progress</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="bi bi-people"></i></div>
+                            <div class="feature-title">Collaborative Learning</div>
+                            <div class="feature-description">Connect with other learners</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary btn-onboarding" onclick="prevStep()">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-success btn-onboarding" onclick="completeOnboarding()">
+                        Start Learning! <i class="bi bi-check-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+        
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function updateStepIndicator() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (i < currentStep) {
+                    step.className = 'step completed';
+                } else if (i === currentStep) {
+                    step.className = 'step active';
+                } else {
+                    step.className = 'step';
+                }
+            }
+        }
+        
+        function showStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.onboarding-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show current step
+            document.getElementById(`step${stepNumber}-content`).classList.add('active');
+            
+            updateProgress();
+            updateStepIndicator();
+        }
+        
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+        
+        function startQuiz() {
+            // Redirect to quiz page
+            window.location.href = '/quiz';
+        }
+        
+        // Check if user came from quiz completion
+        function checkQuizCompletion() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('quiz_completed') === 'true') {
+                // Skip to results step
+                currentStep = 3;
+                showStep(currentStep);
+                simulateAIProcessing();
+            }
+        }
+        
+        function completeOnboarding() {
+            // Mark onboarding as completed and redirect to dashboard
+            fetch('/api/onboarding/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(() => {
+                window.location.href = '/dashboard';
+            });
+        }
+        
+        // Simulate AI processing
+        function simulateAIProcessing() {
+            setTimeout(() => {
+                // Fetch real results from API
+                fetch('/api/user/profile')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.profile) {
+                            const results = {
+                                visual: Math.round(data.profile.visual_score * 100),
+                                auditory: Math.round(data.profile.auditory_score * 100),
+                                kinesthetic: Math.round(data.profile.kinesthetic_score * 100),
+                                dominant: data.profile.dominant_style
+                            };
+                            displayResults(results);
+                        } else {
+                            // Fallback to simulated results
+                            const results = {
+                                visual: 65,
+                                auditory: 20,
+                                kinesthetic: 15,
+                                dominant: 'visual'
+                            };
+                            displayResults(results);
+                        }
+                        nextStep();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching profile:', error);
+                        // Fallback to simulated results
+                        const results = {
+                            visual: 65,
+                            auditory: 20,
+                            kinesthetic: 15,
+                            dominant: 'visual'
+                        };
+                        displayResults(results);
+                        nextStep();
+                    });
+            }, 3000);
+        }
+        
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="style-card">
+                            <h5><i class="bi bi-eye text-primary"></i> Visual Learning</h5>
+                            <div class="style-percentage">${results.visual}%</div>
+                            <p>You learn best through visual aids, diagrams, and written materials.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="style-card">
+                            <h5><i class="bi bi-volume-up text-success"></i> Auditory Learning</h5>
+                            <div class="style-percentage">${results.auditory}%</div>
+                            <p>You benefit from listening to explanations and discussions.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="style-card">
+                            <h5><i class="bi bi-hand-index text-warning"></i> Kinesthetic Learning</h5>
+                            <div class="style-percentage">${results.kinesthetic}%</div>
+                            <p>You learn effectively through hands-on activities and practice.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            updateStepIndicator();
+            checkQuizCompletion();
+        });
+    </script>
+</body>
+</html>

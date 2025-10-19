@@ -67,6 +67,18 @@
     border-left-color: #6f42c1;
 }
 
+.stat-card.system.good {
+    border-left-color: #28a745;
+}
+
+.stat-card.system.poor {
+    border-left-color: #ffc107;
+}
+
+.stat-card.system.critical {
+    border-left-color: #dc3545;
+}
+
 .stat-number {
     font-size: 2.5rem;
     font-weight: bold;
@@ -366,8 +378,9 @@
             <i class="bi bi-collection"></i> Content Management
         </h2>
         
+        <!-- Content Filters and Search -->
         <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="input-group">
                     <input type="text" class="form-control" id="contentSearch" placeholder="Search content...">
                     <button class="btn btn-outline-secondary" onclick="searchContent()">
@@ -375,22 +388,94 @@
                     </button>
                 </div>
             </div>
-            <div class="col-md-6 text-end">
-                <button class="btn btn-success" onclick="showAddContentModal()">
-                    <i class="bi bi-plus-circle"></i> Add Content
-                </button>
+            <div class="col-md-2">
+                <select class="form-select" id="contentTypeFilter" onchange="filterContent()">
+                    <option value="">All Types</option>
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                    <option value="interactive">Interactive</option>
+                    <option value="text">Text</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="difficultyFilter" onchange="filterContent()">
+                    <option value="">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="styleFilter" onchange="filterContent()">
+                    <option value="">All Styles</option>
+                    <option value="visual">Visual</option>
+                    <option value="auditory">Auditory</option>
+                    <option value="kinesthetic">Kinesthetic</option>
+                </select>
+            </div>
+            <div class="col-md-2 text-end">
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="showAddContentModal()">
+                        <i class="bi bi-plus-circle"></i> Add Content
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="showBulkActions()">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
+        <!-- Content Statistics -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="totalContentCount">0</h5>
+                        <p class="card-text">Total Content</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="videoContentCount">0</h5>
+                        <p class="card-text">Videos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="interactiveContentCount">0</h5>
+                        <p class="card-text">Interactive</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="recentContentCount">0</h5>
+                        <p class="card-text">This Week</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Table -->
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
+                        <th>
+                            <input type="checkbox" id="selectAllContent" onchange="toggleSelectAll()">
+                        </th>
                         <th>Title</th>
                         <th>Type</th>
                         <th>Style Tags</th>
                         <th>Difficulty</th>
+                        <th>Views</th>
                         <th>Created</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -398,6 +483,88 @@
                     <!-- Content will be loaded dynamically -->
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Pagination -->
+        <nav aria-label="Content pagination">
+            <ul class="pagination justify-content-center" id="contentPagination">
+                <!-- Pagination will be generated dynamically -->
+            </ul>
+        </nav>
+    </div>
+
+    <!-- System Health -->
+    <div class="admin-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="section-title mb-0">
+                <i class="bi bi-heart-pulse"></i> System Health Monitoring
+            </h2>
+            <div class="btn-group">
+                <button class="btn btn-outline-primary btn-sm" onclick="refreshSystemHealth()" title="Refresh Health Data">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+                <button class="btn btn-outline-success btn-sm" onclick="toggleAutoRefresh()" id="autoRefreshBtn" title="Toggle Auto Refresh">
+                    <i class="bi bi-play-circle"></i> Auto Refresh
+                </button>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="serverHealth">0%</h5>
+                        <p class="card-text">Server Performance</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="databaseHealth">0%</h5>
+                        <p class="card-text">Database Health</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="mlModelsHealth">0%</h5>
+                        <p class="card-text">ML Models</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" id="apiHealth">0%</h5>
+                        <p class="card-text">API Performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <h5>System Health Overview</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <div id="healthRecommendations">
+                            <!-- Health recommendations will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h5>Recent Alerts</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <div id="healthAlerts">
+                            <!-- Health alerts will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -499,10 +666,223 @@
     </div>
 </div>
 
+<!-- Add Content Modal -->
+<div class="modal fade" id="addContentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addContentForm">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="contentTitle" class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="contentTitle" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="contentType" class="form-label">Content Type *</label>
+                                <select class="form-select" id="contentType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="video">Video</option>
+                                    <option value="audio">Audio</option>
+                                    <option value="interactive">Interactive</option>
+                                    <option value="text">Text</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="contentDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="contentDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="contentDifficulty" class="form-label">Difficulty Level</label>
+                                <select class="form-select" id="contentDifficulty">
+                                    <option value="">Select Level</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="contentUrl" class="form-label">URL/Path</label>
+                                <input type="url" class="form-control" id="contentUrl" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Learning Style Tags</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="styleVisual" value="visual">
+                            <label class="form-check-label" for="styleVisual">Visual</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="styleAuditory" value="auditory">
+                            <label class="form-check-label" for="styleAuditory">Auditory</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="styleKinesthetic" value="kinesthetic">
+                            <label class="form-check-label" for="styleKinesthetic">Kinesthetic</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addContent()">Add Content</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Content Modal -->
+<div class="modal fade" id="editContentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editContentForm">
+                    <input type="hidden" id="editContentId">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="editContentTitle" class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="editContentTitle" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editContentType" class="form-label">Content Type *</label>
+                                <select class="form-select" id="editContentType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="video">Video</option>
+                                    <option value="audio">Audio</option>
+                                    <option value="interactive">Interactive</option>
+                                    <option value="text">Text</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editContentDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editContentDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editContentDifficulty" class="form-label">Difficulty Level</label>
+                                <select class="form-select" id="editContentDifficulty">
+                                    <option value="">Select Level</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editContentUrl" class="form-label">URL/Path</label>
+                                <input type="url" class="form-control" id="editContentUrl">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Learning Style Tags</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editStyleVisual" value="visual">
+                            <label class="form-check-label" for="editStyleVisual">Visual</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editStyleAuditory" value="auditory">
+                            <label class="form-check-label" for="editStyleAuditory">Auditory</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editStyleKinesthetic" value="kinesthetic">
+                            <label class="form-check-label" for="editStyleKinesthetic">Kinesthetic</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateContent()">Update Content</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Content Modal -->
+<div class="modal fade" id="viewContentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Content Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="viewContentBody">
+                <!-- Content details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="editContentFromView()">Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal fade" id="bulkActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Actions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selected items: <span id="selectedCount">0</span></p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-danger" onclick="bulkDeleteContent()">
+                        <i class="bi bi-trash"></i> Delete Selected
+                    </button>
+                    <button class="btn btn-warning" onclick="bulkUpdateDifficulty()">
+                        <i class="bi bi-pencil"></i> Update Difficulty
+                    </button>
+                    <button class="btn btn-info" onclick="bulkUpdateStyle()">
+                        <i class="bi bi-tags"></i> Update Style Tags
+                    </button>
+                    <button class="btn btn-success" onclick="bulkExportContent()">
+                        <i class="bi bi-download"></i> Export Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // Admin Dashboard JavaScript
 let usersData = [];
 let contentData = [];
+let autoRefreshInterval = null;
+let autoRefreshEnabled = false;
 
 // Initialize admin dashboard
 document.addEventListener('DOMContentLoaded', function() {
@@ -515,13 +895,23 @@ async function loadDashboardData() {
     try {
         // Load users
         const usersResponse = await fetch('/api/admin/users');
-        usersData = await usersResponse.json();
-        displayUsers(usersData);
+        if (usersResponse.ok) {
+            usersData = await usersResponse.json();
+            displayUsers(usersData);
+        } else {
+            console.error('Failed to load users');
+            displayUsers([]);
+        }
         
         // Load content
         const contentResponse = await fetch('/api/admin/content');
-        contentData = await contentResponse.json();
-        displayContent(contentData);
+        if (contentResponse.ok) {
+            contentData = await contentResponse.json();
+            displayContent(contentData);
+        } else {
+            console.error('Failed to load content');
+            displayContent([]);
+        }
         
         // Update statistics
         updateStatistics();
@@ -529,6 +919,10 @@ async function loadDashboardData() {
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showNotification('Error loading dashboard data', 'error');
+        // Show empty state
+        displayUsers([]);
+        displayContent([]);
+        updateStatistics();
     }
 }
 
@@ -536,6 +930,18 @@ async function loadDashboardData() {
 function displayUsers(users) {
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = '';
+    
+    if (users.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    <i class="bi bi-people fs-1 d-block mb-2"></i>
+                    No users found
+                </td>
+            </tr>
+        `;
+        return;
+    }
     
     users.forEach(user => {
         const row = document.createElement('tr');
@@ -557,10 +963,13 @@ function displayUsers(users) {
             <td>${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-sm btn-outline-primary" onclick="editUser(${user.id})">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editUser(${user.id})" title="Edit User">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})">
+                    <button class="btn btn-sm btn-outline-warning" onclick="toggleUserStatus(${user.id}, ${user.is_active})" title="${user.is_active ? 'Deactivate' : 'Activate'} User">
+                        <i class="bi bi-${user.is_active ? 'pause' : 'play'}"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})" title="Delete User">
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
@@ -575,23 +984,57 @@ function displayContent(content) {
     const tbody = document.getElementById('contentTableBody');
     tbody.innerHTML = '';
     
+    if (content.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">
+                    <i class="bi bi-collection fs-1 d-block mb-2"></i>
+                    No content found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
     content.forEach(item => {
         const row = document.createElement('tr');
+        const styleTags = item.style_tags ? item.style_tags.split(',').map(tag => 
+            `<span class="badge bg-light text-dark me-1">${tag.trim()}</span>`
+        ).join('') : '<span class="text-muted">None</span>';
+        
+        const difficultyBadge = item.difficulty_level ? 
+            `<span class="badge bg-${getDifficultyColor(item.difficulty_level)}">${item.difficulty_level}</span>` : 
+            '<span class="text-muted">Not set</span>';
+        
+        const typeBadge = `<span class="badge bg-${getTypeColor(item.content_type)}">${item.content_type || 'Unknown'}</span>`;
+        
         row.innerHTML = `
             <td>
-                <div class="fw-bold">${item.title}</div>
-                <small class="text-muted">${item.description.substring(0, 50)}...</small>
+                <input type="checkbox" class="content-checkbox" value="${item.id}" onchange="updateSelectedCount()">
             </td>
-            <td><span class="badge bg-info">${item.content_type}</span></td>
-            <td>${item.style_tags || 'N/A'}</td>
-            <td><span class="badge bg-secondary">${item.difficulty_level || 'N/A'}</span></td>
-            <td>${new Date(item.created_at).toLocaleDateString()}</td>
+            <td>
+                <div class="fw-bold">${item.title || 'Untitled'}</div>
+                <small class="text-muted">${(item.description || '').substring(0, 50)}${(item.description || '').length > 50 ? '...' : ''}</small>
+            </td>
+            <td>${typeBadge}</td>
+            <td>${styleTags}</td>
+            <td>${difficultyBadge}</td>
+            <td>
+                <span class="badge bg-info">${item.views || 0}</span>
+            </td>
+            <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Unknown'}</td>
+            <td>
+                <span class="badge bg-success">Active</span>
+            </td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-sm btn-outline-primary" onclick="editContent(${item.id})">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editContent(${item.id})" title="Edit Content">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteContent(${item.id})">
+                    <button class="btn btn-sm btn-outline-info" onclick="viewContent(${item.id})" title="View Content">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteContent(${item.id})" title="Delete Content">
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
@@ -599,6 +1042,28 @@ function displayContent(content) {
         `;
         tbody.appendChild(row);
     });
+    
+    updateContentStatistics();
+}
+
+// Helper functions for styling
+function getDifficultyColor(level) {
+    switch(level) {
+        case 'beginner': return 'success';
+        case 'intermediate': return 'warning';
+        case 'advanced': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+function getTypeColor(type) {
+    switch(type) {
+        case 'video': return 'danger';
+        case 'audio': return 'info';
+        case 'interactive': return 'primary';
+        case 'text': return 'secondary';
+        default: return 'light';
+    }
 }
 
 // Update statistics
@@ -606,19 +1071,180 @@ function updateStatistics() {
     document.getElementById('totalUsers').textContent = usersData.length;
     document.getElementById('totalContent').textContent = contentData.length;
     document.getElementById('activeUsers').textContent = usersData.filter(u => u.is_active).length;
+    
+    // Load system health
+    loadSystemHealth();
+    
+    // Load admin dashboard data
+    loadAdminDashboardData();
 }
+
+// Load system health from API
+async function loadSystemHealth() {
+    try {
+        console.log('Loading system health...');
+        const response = await fetch('/api/public/health');
+        console.log('Health response status:', response.status);
+        
+        if (response.ok) {
+            const healthData = await response.json();
+            console.log('Health data received:', healthData);
+            const healthElement = document.getElementById('systemHealth');
+            const healthChange = healthElement.parentElement.querySelector('.stat-change');
+            
+            // Update overall health percentage
+            const healthValue = Math.round(healthData.overall_health);
+            healthElement.textContent = `${healthValue}%`;
+            
+            // Update status text and color based on health
+            if (healthValue >= 90) {
+                healthChange.textContent = 'All systems operational';
+                healthChange.className = 'stat-change positive';
+                healthElement.parentElement.classList.remove('poor', 'critical');
+                healthElement.parentElement.classList.add('good');
+            } else if (healthValue >= 75) {
+                healthChange.textContent = 'Minor issues detected';
+                healthChange.className = 'stat-change negative';
+                healthElement.parentElement.classList.remove('good', 'critical');
+                healthElement.parentElement.classList.add('poor');
+            } else {
+                healthChange.textContent = 'Critical issues detected';
+                healthChange.className = 'stat-change negative';
+                healthElement.parentElement.classList.remove('good', 'poor');
+                healthElement.parentElement.classList.add('critical');
+            }
+            
+            // Update detailed health components
+            updateHealthComponents(healthData.components);
+            
+            // Update recommendations
+            updateHealthRecommendations(healthData.recommendations);
+            
+            // Update alerts
+            updateHealthAlerts(healthData.alerts);
+            
+            // Show critical alerts as notifications
+            if (healthData.alerts && healthData.alerts.length > 0) {
+                healthData.alerts.forEach(alert => {
+                    showNotification(alert, 'warning');
+                });
+            }
+        } else {
+            console.error('Failed to load system health, status:', response.status);
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            document.getElementById('systemHealth').textContent = 'N/A';
+        }
+    } catch (error) {
+        console.error('Error loading system health:', error);
+        document.getElementById('systemHealth').textContent = 'Error';
+    }
+}
+
+async function loadAdminDashboardData() {
+    try {
+        console.log('Loading admin dashboard data...');
+        const response = await fetch('/api/dashboard/advanced-metrics');
+        console.log('Admin data response status:', response.status);
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Admin data received:', data);
+            
+            // Update learning style chart with real data
+            updateLearningStyleChart(data.style_distribution);
+            
+            // Update activity chart with real data
+            updateActivityChart(data.weekly_progress);
+            
+        } else {
+            console.error('Failed to load admin dashboard data, status:', response.status);
+        }
+    } catch (error) {
+        console.error('Error loading admin dashboard data:', error);
+    }
+}
+
+// Update individual health components
+function updateHealthComponents(components) {
+    if (!components) return;
+    
+    // Update server performance
+    const serverHealth = Math.round(components.server_performance || 0);
+    document.getElementById('serverHealth').textContent = `${serverHealth}%`;
+    
+    // Update database health
+    const databaseHealth = Math.round(components.database_health || 0);
+    document.getElementById('databaseHealth').textContent = `${databaseHealth}%`;
+    
+    // Update ML models health
+    const mlModelsHealth = Math.round(components.ml_models_health || 0);
+    document.getElementById('mlModelsHealth').textContent = `${mlModelsHealth}%`;
+    
+    // Update API health
+    const apiHealth = Math.round(components.api_health || 0);
+    document.getElementById('apiHealth').textContent = `${apiHealth}%`;
+}
+
+// Update health recommendations
+function updateHealthRecommendations(recommendations) {
+    const container = document.getElementById('healthRecommendations');
+    if (!recommendations || recommendations.length === 0) {
+        container.innerHTML = '<p class="text-muted">No recommendations available.</p>';
+        return;
+    }
+    
+    const list = document.createElement('ul');
+    list.className = 'list-group list-group-flush';
+    
+    recommendations.forEach(rec => {
+        const item = document.createElement('li');
+        item.className = 'list-group-item';
+        item.innerHTML = `<i class="bi bi-lightbulb text-warning me-2"></i>${rec}`;
+        list.appendChild(item);
+    });
+    
+    container.innerHTML = '';
+    container.appendChild(list);
+}
+
+// Update health alerts
+function updateHealthAlerts(alerts) {
+    const container = document.getElementById('healthAlerts');
+    if (!alerts || alerts.length === 0) {
+        container.innerHTML = '<p class="text-muted">No active alerts.</p>';
+        return;
+    }
+    
+    const list = document.createElement('ul');
+    list.className = 'list-group list-group-flush';
+    
+    alerts.forEach(alert => {
+        const item = document.createElement('li');
+        item.className = 'list-group-item text-danger';
+        item.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i>${alert}`;
+        list.appendChild(item);
+    });
+    
+    container.innerHTML = '';
+    container.appendChild(list);
+}
+
+// Chart instances for updating
+let learningStyleChart = null;
+let activityChart = null;
 
 // Initialize charts
 function initializeCharts() {
     // Learning Style Distribution Chart
     const learningStyleCtx = document.getElementById('learningStyleChart').getContext('2d');
-    new Chart(learningStyleCtx, {
+    learningStyleChart = new Chart(learningStyleCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Visual', 'Auditory', 'Kinesthetic'],
+            labels: ['Visual', 'Auditory', 'Kinesthetic', 'Analytical', 'Unknown'],
             datasets: [{
-                data: [45, 30, 25],
-                backgroundColor: ['#3498db', '#e74c3c', '#f39c12'],
+                data: [0, 0, 0, 0, 0], // Will be updated with real data
+                backgroundColor: ['#3498db', '#e74c3c', '#f39c12', '#9b59b6', '#95a5a6'],
                 borderWidth: 0
             }]
         },
@@ -635,13 +1261,13 @@ function initializeCharts() {
     
     // Activity Chart
     const activityCtx = document.getElementById('activityChart').getContext('2d');
-    new Chart(activityCtx, {
+    activityChart = new Chart(activityCtx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
             datasets: [{
                 label: 'Active Users',
-                data: [12, 19, 3, 5, 2, 3],
+                data: [0, 0, 0, 0, 0, 0], // Will be updated with real data
                 borderColor: '#667eea',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 tension: 0.4
@@ -759,6 +1385,388 @@ function viewLogs() {
     showNotification('View logs functionality coming soon!', 'info');
 }
 
+// Toggle user status
+async function toggleUserStatus(userId, currentStatus) {
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ is_active: !currentStatus })
+        });
+        
+        if (response.ok) {
+            showNotification(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully!`, 'success');
+            loadDashboardData();
+        } else {
+            showNotification('Failed to update user status', 'error');
+        }
+    } catch (error) {
+        console.error('Error toggling user status:', error);
+        showNotification('Error updating user status', 'error');
+    }
+}
+
+// View content
+function viewContent(contentId) {
+    showNotification('View content functionality coming soon!', 'info');
+}
+
+// Real add user function
+async function addUser() {
+    const userData = {
+        username: document.getElementById('newUsername').value,
+        email: document.getElementById('newEmail').value,
+        password: document.getElementById('newPassword').value,
+        role: document.getElementById('newRole').value
+    };
+    
+    try {
+        const response = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        if (response.ok) {
+            showNotification('User added successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+            document.getElementById('addUserForm').reset();
+            loadDashboardData();
+        } else {
+            const error = await response.json();
+            showNotification(error.message || 'Failed to add user', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding user:', error);
+        showNotification('Error adding user', 'error');
+    }
+}
+
+// Real delete user function
+async function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        try {
+            const response = await fetch(`/api/admin/users/${userId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                showNotification('User deleted successfully!', 'success');
+                loadDashboardData();
+            } else {
+                showNotification('Failed to delete user', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            showNotification('Error deleting user', 'error');
+        }
+    }
+}
+
+// Real delete content function
+async function deleteContent(contentId) {
+    if (confirm('Are you sure you want to delete this content?')) {
+        try {
+            const response = await fetch(`/api/admin/content/${contentId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                showNotification('Content deleted successfully!', 'success');
+                loadDashboardData();
+            } else {
+                showNotification('Failed to delete content', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting content:', error);
+            showNotification('Error deleting content', 'error');
+        }
+    }
+}
+
+// Enhanced Content Management Functions
+function showAddContentModal() {
+    new bootstrap.Modal(document.getElementById('addContentModal')).show();
+}
+
+function showBulkActions() {
+    const selectedCount = document.querySelectorAll('.content-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = selectedCount;
+    new bootstrap.Modal(document.getElementById('bulkActionsModal')).show();
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAllContent');
+    const checkboxes = document.querySelectorAll('.content-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const selectedCount = document.querySelectorAll('.content-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = selectedCount;
+}
+
+function updateContentStatistics() {
+    const total = contentData.length;
+    const videos = contentData.filter(item => item.content_type === 'video').length;
+    const interactive = contentData.filter(item => item.content_type === 'interactive').length;
+    
+    // Calculate recent content (last 7 days)
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const recent = contentData.filter(item => 
+        item.created_at && new Date(item.created_at) > weekAgo
+    ).length;
+    
+    document.getElementById('totalContentCount').textContent = total;
+    document.getElementById('videoContentCount').textContent = videos;
+    document.getElementById('interactiveContentCount').textContent = interactive;
+    document.getElementById('recentContentCount').textContent = recent;
+}
+
+function filterContent() {
+    const typeFilter = document.getElementById('contentTypeFilter').value;
+    const difficultyFilter = document.getElementById('difficultyFilter').value;
+    const styleFilter = document.getElementById('styleFilter').value;
+    const searchTerm = document.getElementById('contentSearch').value.toLowerCase();
+    
+    let filtered = contentData.filter(item => {
+        const matchesType = !typeFilter || item.content_type === typeFilter;
+        const matchesDifficulty = !difficultyFilter || item.difficulty_level === difficultyFilter;
+        const matchesStyle = !styleFilter || (item.style_tags && item.style_tags.includes(styleFilter));
+        const matchesSearch = !searchTerm || 
+            (item.title && item.title.toLowerCase().includes(searchTerm)) ||
+            (item.description && item.description.toLowerCase().includes(searchTerm));
+        
+        return matchesType && matchesDifficulty && matchesStyle && matchesSearch;
+    });
+    
+    displayContent(filtered);
+}
+
+function searchContent() {
+    filterContent();
+}
+
+// Add Content
+async function addContent() {
+    const title = document.getElementById('contentTitle').value;
+    const description = document.getElementById('contentDescription').value;
+    const contentType = document.getElementById('contentType').value;
+    const difficulty = document.getElementById('contentDifficulty').value;
+    const url = document.getElementById('contentUrl').value;
+    
+    // Get selected style tags
+    const styleTags = [];
+    if (document.getElementById('styleVisual').checked) styleTags.push('visual');
+    if (document.getElementById('styleAuditory').checked) styleTags.push('auditory');
+    if (document.getElementById('styleKinesthetic').checked) styleTags.push('kinesthetic');
+    
+    const contentData = {
+        title,
+        description,
+        content_type: contentType,
+        difficulty_level: difficulty,
+        url_path: url,
+        style_tags: styleTags.join(',')
+    };
+    
+    try {
+        const response = await fetch('/api/admin/content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contentData)
+        });
+        
+        if (response.ok) {
+            showNotification('Content added successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('addContentModal')).hide();
+            document.getElementById('addContentForm').reset();
+            loadDashboardData();
+        } else {
+            const error = await response.json();
+            showNotification(error.message || 'Failed to add content', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding content:', error);
+        showNotification('Error adding content', 'error');
+    }
+}
+
+// Edit Content
+function editContent(contentId) {
+    const content = contentData.find(item => item.id === contentId);
+    if (!content) return;
+    
+    document.getElementById('editContentId').value = content.id;
+    document.getElementById('editContentTitle').value = content.title || '';
+    document.getElementById('editContentDescription').value = content.description || '';
+    document.getElementById('editContentType').value = content.content_type || '';
+    document.getElementById('editContentDifficulty').value = content.difficulty_level || '';
+    document.getElementById('editContentUrl').value = content.url_path || '';
+    
+    // Set style tags
+    const styleTags = content.style_tags ? content.style_tags.split(',') : [];
+    document.getElementById('editStyleVisual').checked = styleTags.includes('visual');
+    document.getElementById('editStyleAuditory').checked = styleTags.includes('auditory');
+    document.getElementById('editStyleKinesthetic').checked = styleTags.includes('kinesthetic');
+    
+    new bootstrap.Modal(document.getElementById('editContentModal')).show();
+}
+
+async function updateContent() {
+    const contentId = document.getElementById('editContentId').value;
+    const title = document.getElementById('editContentTitle').value;
+    const description = document.getElementById('editContentDescription').value;
+    const contentType = document.getElementById('editContentType').value;
+    const difficulty = document.getElementById('editContentDifficulty').value;
+    const url = document.getElementById('editContentUrl').value;
+    
+    // Get selected style tags
+    const styleTags = [];
+    if (document.getElementById('editStyleVisual').checked) styleTags.push('visual');
+    if (document.getElementById('editStyleAuditory').checked) styleTags.push('auditory');
+    if (document.getElementById('editStyleKinesthetic').checked) styleTags.push('kinesthetic');
+    
+    const contentData = {
+        title,
+        description,
+        content_type: contentType,
+        difficulty_level: difficulty,
+        url_path: url,
+        style_tags: styleTags.join(',')
+    };
+    
+    try {
+        const response = await fetch(`/api/admin/content/${contentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contentData)
+        });
+        
+        if (response.ok) {
+            showNotification('Content updated successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editContentModal')).hide();
+            loadDashboardData();
+        } else {
+            const error = await response.json();
+            showNotification(error.message || 'Failed to update content', 'error');
+        }
+    } catch (error) {
+        console.error('Error updating content:', error);
+        showNotification('Error updating content', 'error');
+    }
+}
+
+// View Content
+async function viewContent(contentId) {
+    try {
+        const response = await fetch(`/api/admin/content/${contentId}`);
+        if (response.ok) {
+            const content = await response.json();
+            displayContentDetails(content);
+            new bootstrap.Modal(document.getElementById('viewContentModal')).show();
+        } else {
+            showNotification('Failed to load content details', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading content:', error);
+        showNotification('Error loading content', 'error');
+    }
+}
+
+function displayContentDetails(content) {
+    const body = document.getElementById('viewContentBody');
+    const styleTags = content.style_tags ? content.style_tags.split(',').map(tag => 
+        `<span class="badge bg-primary me-1">${tag.trim()}</span>`
+    ).join('') : '<span class="text-muted">None</span>';
+    
+    body.innerHTML = `
+        <div class="row">
+            <div class="col-md-8">
+                <h4>${content.title || 'Untitled'}</h4>
+                <p class="text-muted">${content.description || 'No description available'}</p>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Content Details</h6>
+                        <p><strong>Type:</strong> <span class="badge bg-${getTypeColor(content.content_type)}">${content.content_type || 'Unknown'}</span></p>
+                        <p><strong>Difficulty:</strong> <span class="badge bg-${getDifficultyColor(content.difficulty_level)}">${content.difficulty_level || 'Not set'}</span></p>
+                        <p><strong>Style Tags:</strong> ${styleTags}</p>
+                        <p><strong>Created:</strong> ${content.created_at ? new Date(content.created_at).toLocaleDateString() : 'Unknown'}</p>
+                        <p><strong>Views:</strong> ${content.views || 0}</p>
+                        ${content.url_path ? `<p><strong>URL:</strong> <a href="${content.url_path}" target="_blank">${content.url_path}</a></p>` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function editContentFromView() {
+    const contentId = document.getElementById('editContentId').value;
+    bootstrap.Modal.getInstance(document.getElementById('viewContentModal')).hide();
+    editContent(contentId);
+}
+
+// Bulk Operations
+function bulkDeleteContent() {
+    const selectedIds = Array.from(document.querySelectorAll('.content-checkbox:checked')).map(cb => cb.value);
+    if (selectedIds.length === 0) {
+        showNotification('Please select content to delete', 'warning');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to delete ${selectedIds.length} content items?`)) {
+        // Implement bulk delete
+        showNotification('Bulk delete functionality coming soon!', 'info');
+    }
+}
+
+function bulkUpdateDifficulty() {
+    const selectedIds = Array.from(document.querySelectorAll('.content-checkbox:checked')).map(cb => cb.value);
+    if (selectedIds.length === 0) {
+        showNotification('Please select content to update', 'warning');
+        return;
+    }
+    
+    showNotification('Bulk update difficulty functionality coming soon!', 'info');
+}
+
+function bulkUpdateStyle() {
+    const selectedIds = Array.from(document.querySelectorAll('.content-checkbox:checked')).map(cb => cb.value);
+    if (selectedIds.length === 0) {
+        showNotification('Please select content to update', 'warning');
+        return;
+    }
+    
+    showNotification('Bulk update style tags functionality coming soon!', 'info');
+}
+
+function bulkExportContent() {
+    const selectedIds = Array.from(document.querySelectorAll('.content-checkbox:checked')).map(cb => cb.value);
+    if (selectedIds.length === 0) {
+        showNotification('Please select content to export', 'warning');
+        return;
+    }
+    
+    showNotification('Bulk export functionality coming soon!', 'info');
+}
+
 // Utility function
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
@@ -776,6 +1784,85 @@ function showNotification(message, type = 'info') {
             notification.parentNode.removeChild(notification);
         }
     }, 3000);
+}
+
+// System Health Refresh Functions
+function refreshSystemHealth() {
+    const refreshBtn = document.querySelector('[onclick="refreshSystemHealth()"]');
+    const icon = refreshBtn.querySelector('i');
+    
+    // Show loading state
+    icon.className = 'bi bi-arrow-clockwise spin';
+    refreshBtn.disabled = true;
+    
+    // Refresh health data
+    loadSystemHealth();
+    
+    // Reset button state after 2 seconds
+    setTimeout(() => {
+        icon.className = 'bi bi-arrow-clockwise';
+        refreshBtn.disabled = false;
+    }, 2000);
+}
+
+function toggleAutoRefresh() {
+    const btn = document.getElementById('autoRefreshBtn');
+    const icon = btn.querySelector('i');
+    
+    if (autoRefreshEnabled) {
+        // Disable auto refresh
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        autoRefreshEnabled = false;
+        icon.className = 'bi bi-play-circle';
+        btn.innerHTML = '<i class="bi bi-play-circle"></i> Auto Refresh';
+        btn.classList.remove('btn-outline-danger');
+        btn.classList.add('btn-outline-success');
+        showNotification('Auto refresh disabled', 'info');
+    } else {
+        // Enable auto refresh (every 30 seconds)
+        autoRefreshInterval = setInterval(() => {
+            loadSystemHealth();
+        }, 30000);
+        autoRefreshEnabled = true;
+        icon.className = 'bi bi-stop-circle';
+        btn.innerHTML = '<i class="bi bi-stop-circle"></i> Stop Auto';
+        btn.classList.remove('btn-outline-success');
+        btn.classList.add('btn-outline-danger');
+        showNotification('Auto refresh enabled (30s interval)', 'success');
+    }
+}
+
+// Add CSS for spinning animation
+const style = document.createElement('style');
+style.textContent = `
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+
+// Chart update functions
+function updateLearningStyleChart(styleData) {
+    if (learningStyleChart && styleData) {
+        const labels = Object.keys(styleData);
+        const values = Object.values(styleData);
+        learningStyleChart.data.labels = labels;
+        learningStyleChart.data.datasets[0].data = values;
+        learningStyleChart.update();
+    }
+}
+
+function updateActivityChart(weeklyData) {
+    if (activityChart && weeklyData) {
+        activityChart.data.datasets[0].data = weeklyData;
+        activityChart.update();
+    }
 }
 </script>
 {% endblock %}

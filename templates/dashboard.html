@@ -298,6 +298,27 @@
     flex-wrap: wrap;
 }
 
+.rating-stars {
+    display: inline-block;
+}
+
+.rating-star {
+    color: #ddd;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-right: 2px;
+    transition: color 0.2s;
+}
+
+.rating-star:hover,
+.rating-star.filled {
+    color: #ffc107;
+}
+
+.rating-star:hover {
+    transform: scale(1.1);
+}
+
 /* Enhanced Content Cards */
 .content-card {
     position: relative;
@@ -535,6 +556,16 @@
                         <button class="btn btn-sm btn-outline-secondary" onclick="askFollowUp()">
                             <i class="bi bi-arrow-right"></i> Ask Follow-up
                         </button>
+                        <div class="rating-section mt-2">
+                            <span class="text-muted me-2">Rate this answer:</span>
+                            <div class="rating-stars">
+                                <i class="bi bi-star rating-star" data-rating="1" onclick="rateAnswer(1)"></i>
+                                <i class="bi bi-star rating-star" data-rating="2" onclick="rateAnswer(2)"></i>
+                                <i class="bi bi-star rating-star" data-rating="3" onclick="rateAnswer(3)"></i>
+                                <i class="bi bi-star rating-star" data-rating="4" onclick="rateAnswer(4)"></i>
+                                <i class="bi bi-star rating-star" data-rating="5" onclick="rateAnswer(5)"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -583,27 +614,40 @@
             <i class="bi bi-graph-up-arrow"></i> Your Learning Progress
         </h2>
         
+        {% if progress_stats.content_completed > 0 %}
         <div class="progress-stats">
             <div class="stat-card">
-                <div class="stat-number">12</div>
+                <div class="stat-number">{{ progress_stats.content_completed }}</div>
                 <div class="stat-label">Content Completed</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-number">8.5</div>
+                <div class="stat-number">{{ progress_stats.hours_learned }}</div>
                 <div class="stat-label">Hours Learned</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-number">4</div>
+                <div class="stat-number">{{ progress_stats.achievement_badges }}</div>
                 <div class="stat-label">Achievement Badges</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-number">85%</div>
+                <div class="stat-number">{{ progress_stats.average_score }}</div>
                 <div class="stat-label">Average Score</div>
             </div>
         </div>
+        {% else %}
+        <div class="no-progress-message">
+            <div class="text-center py-5">
+                <i class="bi bi-graph-up-arrow display-1 text-muted mb-3"></i>
+                <h4 class="text-muted">No Progress Data Yet</h4>
+                <p class="text-muted mb-4">Start learning to see your progress statistics here!</p>
+                <a href="{{ url_for('quiz') }}" class="btn btn-primary">
+                    <i class="bi bi-play-circle me-2"></i>Start Learning
+                </a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Quick Actions -->
@@ -648,6 +692,12 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
     loadRecommendations();
     setupEventListeners();
+    
+    // Update learning profile periodically
+    setInterval(updateLearningProfile, 300000); // Every 5 minutes
+    
+    // Start engagement tracking
+    startEngagementTracking();
 });
 
 // Initialize dashboard components
@@ -687,7 +737,7 @@ function handleQuestionKeyPress(event) {
     }
 }
 
-function askQuestion() {
+async function askQuestion() {
     const questionInput = document.getElementById('questionInput');
     const question = questionInput.value.trim();
     
@@ -695,12 +745,29 @@ function askQuestion() {
     
     showLoadingState();
     
-    // Simulate API call
-    setTimeout(() => {
-        const answer = generateAnswer(question);
-        displayAnswer(question, answer);
+    try {
+        // Call real API endpoint
+        const response = await fetch('/api/ask-question', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question: question })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            displayAnswer(question, data.answer, data.qa_id);
+        } else {
+            showNotification(data.error || 'Failed to get answer', 'error');
+        }
+    } catch (error) {
+        console.error('Error asking question:', error);
+        showNotification('Error connecting to AI. Please try again.', 'error');
+    } finally {
         hideLoadingState();
-    }, 1500);
+    }
 }
 
 function askQuickQuestion(question) {
@@ -814,7 +881,7 @@ function generateAnswer(question) {
     return answer;
 }
 
-function displayAnswer(question, answer) {
+function displayAnswer(question, answer, qaId) {
     const answerDiv = document.getElementById('questionAnswer');
     const titleElement = document.getElementById('answerTitle');
     const styleElement = document.getElementById('answerStyle');
@@ -823,6 +890,22 @@ function displayAnswer(question, answer) {
     titleElement.textContent = answer.title;
     styleElement.textContent = answer.style;
     contentElement.innerHTML = answer.content;
+    
+    // Store qa_id for save and rate functions
+    answerDiv.setAttribute('data-qa-id', qaId);
+    
+    // Add confidence score display
+    if (answer.confidence_score) {
+        const confidenceElement = document.createElement('div');
+        confidenceElement.className = 'confidence-score mt-2';
+        confidenceElement.innerHTML = `
+            <small class="text-muted">
+                <i class="bi bi-shield-check"></i> 
+                Confidence: ${Math.round(answer.confidence_score * 100)}%
+            </small>
+        `;
+        contentElement.appendChild(confidenceElement);
+    }
     
     answerDiv.style.display = 'block';
     answerDiv.scrollIntoView({ behavior: 'smooth' });
@@ -853,8 +936,35 @@ function generateContent() {
     }, 2000);
 }
 
-function saveToLibrary() {
-    showNotification('Answer saved to your personal library!', 'success');
+async function saveToLibrary() {
+    const answerDiv = document.getElementById('questionAnswer');
+    const qaId = answerDiv.getAttribute('data-qa-id');
+    
+    if (!qaId) {
+        showNotification('No Q&A to save', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/save-qa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ qa_id: qaId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+        } else {
+            showNotification(data.error || 'Failed to save Q&A', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving Q&A:', error);
+        showNotification('Error saving Q&A. Please try again.', 'error');
+    }
 }
 
 function askFollowUp() {
@@ -865,11 +975,100 @@ function askFollowUp() {
     }
 }
 
+async function rateAnswer(rating) {
+    const answerDiv = document.getElementById('questionAnswer');
+    const qaId = answerDiv.getAttribute('data-qa-id');
+    
+    if (!qaId) {
+        showNotification('No Q&A to rate', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/rate-qa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ qa_id: qaId, rating: rating })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            updateStarDisplay(rating);
+        } else {
+            showNotification(data.error || 'Failed to rate Q&A', 'error');
+        }
+    } catch (error) {
+        console.error('Error rating Q&A:', error);
+        showNotification('Error rating Q&A. Please try again.', 'error');
+    }
+}
+
+function updateStarDisplay(rating) {
+    const stars = document.querySelectorAll('.rating-star');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('filled');
+            star.classList.remove('bi-star');
+            star.classList.add('bi-star-fill');
+        } else {
+            star.classList.remove('filled');
+            star.classList.remove('bi-star-fill');
+            star.classList.add('bi-star');
+        }
+    });
+}
+
 // Recommendation System
-function loadRecommendations() {
-    const recommendations = generatePersonalizedRecommendations();
-    currentRecommendations = recommendations;
-    displayRecommendations(recommendations);
+async function loadRecommendations() {
+    try {
+        console.log('Loading personalized recommendations...');
+        const response = await fetch('/api/content');
+        console.log('Content response status:', response.status);
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Content data received:', data);
+            
+            // Convert API data to recommendation format
+            const recommendations = data.content.map(item => ({
+                id: item.id,
+                type: item.content_type,
+                title: item.title,
+                description: item.description,
+                duration: '15 min', // Default duration
+                rating: 4.5, // Default rating
+                difficulty: item.difficulty_level || 'Beginner',
+                style: item.style_tags && item.style_tags.length > 0 ? item.style_tags[0] : 'general',
+                url_path: item.url_path
+            }));
+            
+            currentRecommendations = recommendations;
+            displayRecommendations(recommendations);
+            
+            // Update learning style display
+            if (data.user_style) {
+                userLearningStyle = data.user_style;
+                updateLearningStyleDisplay(data.user_style, data.style_breakdown);
+            }
+            
+        } else {
+            console.error('Failed to load content, status:', response.status);
+            // Fallback to static recommendations
+            const recommendations = generatePersonalizedRecommendations();
+            currentRecommendations = recommendations;
+            displayRecommendations(recommendations);
+        }
+    } catch (error) {
+        console.error('Error loading recommendations:', error);
+        // Fallback to static recommendations
+        const recommendations = generatePersonalizedRecommendations();
+        currentRecommendations = recommendations;
+        displayRecommendations(recommendations);
+    }
 }
 
 function generatePersonalizedRecommendations() {
@@ -980,25 +1179,204 @@ function refreshRecommendations() {
     }, 1000);
 }
 
-function generatePersonalizedContent() {
-    showNotification('Generating personalized content based on your learning style...', 'info');
+function updateLearningStyleDisplay(style, breakdown) {
+    // Update the learning style display in the dashboard
+    const styleElements = document.querySelectorAll('.style-circle');
+    const styleLabels = document.querySelectorAll('.style-label');
+    const stylePercentages = document.querySelectorAll('.style-percentage');
     
-    setTimeout(() => {
-        const newContent = {
-            id: Date.now(),
-            type: userLearningStyle === 'visual' ? 'video' : userLearningStyle === 'auditory' ? 'audio' : 'interactive',
-            title: `Personalized ${userLearningStyle.charAt(0).toUpperCase() + userLearningStyle.slice(1)} Learning Content`,
-            description: `Custom content tailored to your ${userLearningStyle} learning style, generated just for you.`,
-            duration: '30 min',
-            rating: 5.0,
-            difficulty: 'Personalized',
-            style: userLearningStyle
+    if (breakdown) {
+        // Update style breakdown display
+        Object.keys(breakdown).forEach((styleKey, index) => {
+            if (stylePercentages[index]) {
+                stylePercentages[index].textContent = `${Math.round(breakdown[styleKey] * 100)}%`;
+            }
+            if (styleLabels[index]) {
+                styleLabels[index].textContent = styleKey.charAt(0).toUpperCase() + styleKey.slice(1);
+            }
+        });
+    }
+    
+    // Update dominant style display
+    const dominantStyleElement = document.querySelector('.dominant-style h3');
+    if (dominantStyleElement && style) {
+        dominantStyleElement.textContent = `Your Learning Style: ${style.charAt(0).toUpperCase() + style.slice(1)}`;
+    }
+}
+
+async function updateLearningProfile() {
+    try {
+        const response = await fetch('/api/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Learning profile updated:', data.profile);
+            
+            // Update learning style if it changed
+            if (data.profile.dominant_style !== userLearningStyle) {
+                userLearningStyle = data.profile.dominant_style;
+                updateLearningStyleDisplay(data.profile.dominant_style, data.profile.style_breakdown);
+                
+                // Reload recommendations with new style
+                loadRecommendations();
+            }
+        }
+    } catch (error) {
+        console.error('Error updating learning profile:', error);
+    }
+}
+
+// Engagement Tracking
+let engagementData = {
+    startTime: Date.now(),
+    clickCount: 0,
+    scrollDistance: 0,
+    pauseCount: 0,
+    pauseStartTime: null,
+    totalPauseTime: 0
+};
+
+function startEngagementTracking() {
+    // Track clicks
+    document.addEventListener('click', () => {
+        engagementData.clickCount++;
+    });
+    
+    // Track scrolling
+    let lastScrollTop = 0;
+    document.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        engagementData.scrollDistance += Math.abs(scrollTop - lastScrollTop);
+        lastScrollTop = scrollTop;
+    });
+    
+    // Track pauses (when user stops interacting)
+    let lastActivity = Date.now();
+    const activityThreshold = 30000; // 30 seconds
+    
+    setInterval(() => {
+        const now = Date.now();
+        if (now - lastActivity > activityThreshold) {
+            if (!engagementData.pauseStartTime) {
+                engagementData.pauseStartTime = now;
+                engagementData.pauseCount++;
+            }
+        } else {
+            if (engagementData.pauseStartTime) {
+                engagementData.totalPauseTime += now - engagementData.pauseStartTime;
+                engagementData.pauseStartTime = null;
+            }
+        }
+    }, 5000); // Check every 5 seconds
+    
+    // Reset activity timer on user interaction
+    ['click', 'scroll', 'keypress', 'mousemove'].forEach(event => {
+        document.addEventListener(event, () => {
+            lastActivity = Date.now();
+        });
+    });
+    
+    // Send engagement data periodically
+    setInterval(sendEngagementData, 60000); // Every minute
+}
+
+async function sendEngagementData() {
+    try {
+        const currentTime = Date.now();
+        const interactionTime = (currentTime - engagementData.startTime) / 1000; // Convert to seconds
+        const scrollVelocity = engagementData.scrollDistance / (interactionTime || 1);
+        const pauseDuration = engagementData.totalPauseTime / 1000; // Convert to seconds
+        
+        // Calculate completion rate based on content viewed
+        const contentElements = document.querySelectorAll('.content-card');
+        const viewedContent = Array.from(contentElements).filter(el => {
+            const rect = el.getBoundingClientRect();
+            return rect.top < window.innerHeight && rect.bottom > 0;
+        }).length;
+        const completionRate = contentElements.length > 0 ? viewedContent / contentElements.length : 0;
+        
+        const engagementPayload = {
+            content_id: 1, // Default content ID for dashboard
+            interaction_time: interactionTime,
+            completion_rate: completionRate,
+            click_frequency: engagementData.clickCount / (interactionTime / 60), // Clicks per minute
+            scroll_velocity: scrollVelocity,
+            pause_duration: pauseDuration,
+            context: 'general'
         };
         
-        currentRecommendations.unshift(newContent);
-        displayRecommendations(currentRecommendations);
-        showNotification('New personalized content generated!', 'success');
-    }, 2000);
+        const response = await fetch('/api/engagement', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(engagementPayload)
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Engagement tracked:', data);
+            
+            // Reset engagement data
+            engagementData = {
+                startTime: Date.now(),
+                clickCount: 0,
+                scrollDistance: 0,
+                pauseCount: 0,
+                pauseStartTime: null,
+                totalPauseTime: 0
+            };
+        }
+    } catch (error) {
+        console.error('Error tracking engagement:', error);
+    }
+}
+
+async function generatePersonalizedContent() {
+    showNotification('Generating personalized content based on your learning style...', 'info');
+    
+    try {
+        const response = await fetch('/api/generate-content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                topic: 'Personalized Learning',
+                content_type: userLearningStyle === 'visual' ? 'video' : userLearningStyle === 'auditory' ? 'audio' : 'interactive'
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const newContent = {
+                id: data.content.id,
+                type: data.content.content_type,
+                title: data.content.title,
+                description: data.content.content.substring(0, 100) + '...',
+                duration: '30 min',
+                rating: 5.0,
+                difficulty: data.content.difficulty_level || 'Personalized',
+                style: data.content.learning_style,
+                url_path: '#'
+            };
+            
+            currentRecommendations.unshift(newContent);
+            displayRecommendations(currentRecommendations);
+            showNotification('New personalized content generated!', 'success');
+        } else {
+            throw new Error('Failed to generate content');
+        }
+    } catch (error) {
+        console.error('Error generating content:', error);
+        showNotification('Failed to generate content. Please try again.', 'error');
+    }
 }
 
 // Utility Functions

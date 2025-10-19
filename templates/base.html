@@ -14,6 +14,43 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
+    <!-- Footer Styles -->
+    <style>
+        .footer {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+            border-top: 3px solid #667eea;
+        }
+        
+        .footer .social-links a {
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .footer .social-links a:hover {
+            color: #667eea !important;
+            transform: translateY(-2px);
+        }
+        
+        .footer .list-unstyled li a {
+            transition: all 0.3s ease;
+        }
+        
+        .footer .list-unstyled li a:hover {
+            color: #667eea !important;
+            padding-left: 5px;
+        }
+        
+        .footer .input-group .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        
+        .footer .input-group .btn:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-1px);
+        }
+    </style>
+    
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -39,54 +76,95 @@
                         </a>
                     </li>
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('advanced_dashboard') }}">Advanced Dashboard</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="dashboardsDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboards
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('biometric_dashboard') }}">
-                                <i class="fas fa-heartbeat me-2"></i>Biometric Feedback
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('collaborative_dashboard') }}">
-                                <i class="fas fa-users me-2"></i>Collaborative Learning
-                            </a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('quiz') }}">Learning Quiz</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('chat') }}">AI Tutor</a>
-                    </li>
+                        {% set profile = current_user.learning_profile %}
+                        {% set has_completed_assessment = profile and profile.dominant_style %}
+                        
+                        {% if current_user.is_admin() %}
+                            <!-- Admin Navigation - Full Access -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-shield-alt me-1"></i>Admin Panel
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-1"></i>User View
+                                </a>
+                            </li>
+                        {% elif not has_completed_assessment %}
+                            <!-- New User Navigation -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('onboarding') }}">
+                                    <i class="fas fa-rocket me-1"></i>Get Started
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('quiz') }}">
+                                    <i class="fas fa-clipboard-check me-1"></i>Take Quiz
+                                </a>
+                            </li>
+                        {% else %}
+                            <!-- Completed User Navigation -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                                </a>
+                            </li>
+                            
+                            <!-- Learning Tools -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="learningDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-graduation-cap me-1"></i>Learning
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('quiz') }}">
+                                        <i class="fas fa-clipboard-check me-2"></i>Retake Quiz
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('chat') }}">
+                                        <i class="fas fa-robot me-2"></i>AI Tutor
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('explainable_ai') }}">
+                                        <i class="fas fa-brain me-2"></i>AI Insights
+                                    </a></li>
+                                </ul>
+                            </li>
+                            
+                            <!-- Advanced Features -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="advancedDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cogs me-1"></i>Advanced
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('advanced_dashboard') }}">
+                                        <i class="fas fa-chart-line me-2"></i>Advanced Dashboard
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('biometric_dashboard') }}">
+                                        <i class="fas fa-heartbeat me-2"></i>Biometric Feedback
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('collaborative_dashboard') }}">
+                                        <i class="fas fa-users me-2"></i>Collaborative Learning
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('neurofeedback') }}">
+                                        <i class="fas fa-brain me-2"></i>Neurofeedback
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('eye_tracking') }}">
+                                        <i class="fas fa-eye me-2"></i>Eye-Tracking
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('minimal_tracking') }}">
+                                        <i class="fas fa-mouse-pointer me-2"></i>Minimal Tracking
+                                    </a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        
+                        <!-- Moderator Navigation (for non-admin moderators) -->
+                        {% if current_user.is_moderator() and not current_user.is_admin() %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('explainable_ai') }}">AI Insights</a>
+                            <a class="nav-link" href="{{ url_for('moderator_dashboard') }}">
+                                <i class="fas fa-user-shield me-1"></i>Moderator
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('neurofeedback') }}">Neurofeedback</a>
-                        </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('eye_tracking') }}">Eye-Tracking</a>
-                    </li>
-                    {% if current_user.is_admin() %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
-                            <i class="fas fa-shield-alt me-1"></i>Admin Panel
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.is_moderator() %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('moderator_dashboard') }}">
-                            <i class="fas fa-user-shield me-1"></i>Moderator
-                        </a>
-                    </li>
-                    {% endif %}
+                        {% endif %}
                     {% endif %}
                 </ul>
                 
@@ -97,15 +175,28 @@
                             <i class="bi bi-person-circle"></i> {{ current_user.username }}
                         </a>
                         <ul class="dropdown-menu">
+                            {% if current_user.is_admin() %}
+                            <!-- Admin User Dropdown -->
+                            <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-shield-check"></i> Admin Panel</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i> User View</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('quiz') }}"><i class="bi bi-clipboard-check"></i> Take Quiz (Optional)</a></li>
+                            {% elif has_completed_assessment %}
+                            <!-- Completed User Dropdown -->
                             <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('quiz') }}"><i class="bi bi-clipboard-check"></i> Retake Quiz</a></li>
+                            {% else %}
+                            <!-- New User Dropdown -->
+                            <li><a class="dropdown-item" href="{{ url_for('onboarding') }}"><i class="bi bi-rocket"></i> Get Started</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('quiz') }}"><i class="bi bi-clipboard-check"></i> Take Quiz</a></li>
+                            {% endif %}
                             <li><hr class="dropdown-divider"></li>
                             <li><span class="dropdown-item-text">
                                 <i class="bi bi-person-badge"></i> Role: <strong>{{ current_user.role.title() }}</strong>
                             </span></li>
-                            {% if current_user.is_admin() %}
-                            <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
-                                <i class="bi bi-shield-check"></i> Admin Panel
-                            </a></li>
+                            {% if has_completed_assessment and profile %}
+                            <li><span class="dropdown-item-text">
+                                <i class="bi bi-graph-up"></i> Style: <strong>{{ profile.dominant_style.title() if profile.dominant_style else 'Not Set' }}</strong>
+                            </span></li>
                             {% endif %}
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
@@ -143,16 +234,143 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <!-- Modern Comprehensive Footer -->
+    <footer class="footer bg-dark text-light py-5 mt-5">
         <div class="container">
             <div class="row">
+                <!-- Company Info -->
+                <div class="col-lg-4 mb-4">
+                    <h5 class="text-white mb-3">
+                        <i class="bi bi-brain me-2"></i>LearnStyle AI
+                    </h5>
+                    <p class="text-light-emphasis mb-3">
+                        Revolutionizing education through AI-powered personalized learning experiences. 
+                        Discover your unique learning style and unlock your full potential.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3" title="Facebook">
+                            <i class="fab fa-facebook-f fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-light me-3" title="Twitter">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-light me-3" title="LinkedIn">
+                            <i class="fab fa-linkedin-in fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-light me-3" title="GitHub">
+                            <i class="fab fa-github fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{{ url_for('index') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-house me-1"></i>Home
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('quiz') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-clipboard-check me-1"></i>Assessment
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('chat') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-robot me-1"></i>AI Tutor
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('docs_index') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-book me-1"></i>Documentation
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Features -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">Features</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{{ url_for('advanced_dashboard') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-graph-up me-1"></i>Analytics
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('biometric_dashboard') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-heartbeat me-1"></i>Biometric
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('collaborative_dashboard') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-people me-1"></i>Collaboration
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('explainable_ai') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-brain me-1"></i>AI Insights
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{{ url_for('docs_index') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-question-circle me-1"></i>Help Center
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('user_guide') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-book-open me-1"></i>User Guide
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('api_reference') }}" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-code-slash me-1"></i>API Reference
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="mailto:support@learnstyle.ai" class="text-light-emphasis text-decoration-none">
+                                <i class="bi bi-envelope me-1"></i>Contact Us
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">Stay Updated</h6>
+                    <p class="text-light-emphasis small mb-3">
+                        Get the latest updates on AI learning innovations.
+                    </p>
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-sm" placeholder="Your email">
+                        <button class="btn btn-primary btn-sm" type="button">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <hr class="my-4 border-secondary">
+            <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h5><i class="bi bi-brain"></i> LearnStyle AI</h5>
-                    <p class="text-muted">Intelligent adaptive learning system with personalized content delivery.</p>
+                    <p class="text-light-emphasis small mb-0">
+                        &copy; 2025 LearnStyle AI. All rights reserved.
+                    </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="text-muted mb-0">&copy; 2024 LearnStyle AI. Built for adaptive learning.</p>
+                    <a href="#" class="text-light-emphasis text-decoration-none small me-3">Privacy Policy</a>
+                    <a href="#" class="text-light-emphasis text-decoration-none small me-3">Terms of Service</a>
+                    <a href="#" class="text-light-emphasis text-decoration-none small">Cookie Policy</a>
                 </div>
             </div>
         </div>

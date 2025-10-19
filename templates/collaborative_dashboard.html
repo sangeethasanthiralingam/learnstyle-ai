@@ -390,11 +390,38 @@
             document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
         }
 
-        function loadCollaborativeData() {
-            // Simulate collaborative learning data
-            updateGroupMetrics();
-            updateRecentActivity();
-            updateLearningNetwork();
+        async function loadCollaborativeData() {
+            try {
+                console.log('Loading collaborative data...');
+                const response = await fetch('/api/dashboard/collaborative-metrics');
+                console.log('Collaborative data response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Collaborative data received:', data);
+                    
+                    // Update charts with real data
+                    updateCollaborationTrendsChart(data.group_activity, data.peer_scores);
+                    updateGroupCohesionChart(data.outcomes_data);
+                    updateRoleDistributionChart(data.social_patterns);
+                    updateKnowledgeSharingChart(data.knowledge_sharing, data.community_health);
+                    updateContentTypesChart(data.group_performance);
+                    updateInfluenceScoreChart(data.content_effectiveness);
+                    
+                } else {
+                    console.error('Failed to load collaborative data, status:', response.status);
+                    // Fallback to simulated data
+                    updateGroupMetrics();
+                    updateRecentActivity();
+                    updateLearningNetwork();
+                }
+            } catch (error) {
+                console.error('Error loading collaborative data:', error);
+                // Fallback to simulated data
+                updateGroupMetrics();
+                updateRecentActivity();
+                updateLearningNetwork();
+            }
         }
 
         function updateGroupMetrics() {
@@ -454,22 +481,30 @@
             updateLastUpdated();
         }
 
+        // Chart instances for updating
+        let collaborationTrendsChart = null;
+        let groupCohesionChart = null;
+        let roleDistributionChart = null;
+        let knowledgeSharingChart = null;
+        let contentTypesChart = null;
+        let influenceScoreChart = null;
+
         function initializeCharts() {
             // Collaboration Trends Chart
             const trendsCtx = document.getElementById('collaborationTrendsChart').getContext('2d');
-            new Chart(trendsCtx, {
+            collaborationTrendsChart = new Chart(trendsCtx, {
                 type: 'line',
                 data: {
                     labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
                     datasets: [{
-                        label: 'Active Groups',
-                        data: [8, 12, 15, 18, 16, 20],
+                        label: 'Group Activity',
+                        data: [0, 0, 0, 0, 0, 0], // Will be updated with real data
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
                         tension: 0.4
                     }, {
-                        label: 'Collaborations',
-                        data: [45, 60, 75, 90, 85, 100],
+                        label: 'Peer Scores',
+                        data: [0, 0, 0, 0, 0, 0], // Will be updated with real data
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
                         tension: 0.4
@@ -488,13 +523,13 @@
 
             // Group Cohesion Chart
             const cohesionCtx = document.getElementById('groupCohesionChart').getContext('2d');
-            new Chart(cohesionCtx, {
+            groupCohesionChart = new Chart(cohesionCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Group Alpha', 'Group Beta', 'Group Gamma', 'Group Delta', 'Group Epsilon'],
+                    labels: ['Group 1', 'Group 2', 'Group 3', 'Group 4', 'Group 5'],
                     datasets: [{
-                        label: 'Cohesion Score',
-                        data: [85, 72, 90, 68, 78],
+                        label: 'Learning Outcomes',
+                        data: [0, 0, 0, 0, 0], // Will be updated with real data
                         backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
                     }]
                 },
@@ -511,12 +546,12 @@
 
             // Role Distribution Chart
             const roleCtx = document.getElementById('roleDistributionChart').getContext('2d');
-            new Chart(roleCtx, {
+            roleDistributionChart = new Chart(roleCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Leader', 'Collaborator', 'Contributor', 'Observer', 'Facilitator'],
+                    labels: ['Individual', 'Pairs', 'Small Groups', 'Large Groups', 'Mixed'],
                     datasets: [{
-                        data: [20, 35, 25, 10, 10],
+                        data: [0, 0, 0, 0, 0], // Will be updated with real data
                         backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
                     }]
                 },
@@ -564,19 +599,19 @@
 
             // Content Activity Chart
             const contentCtx = document.getElementById('contentActivityChart').getContext('2d');
-            new Chart(contentCtx, {
+            knowledgeSharingChart = new Chart(contentCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
                     datasets: [{
-                        label: 'Content Created',
-                        data: [5, 8, 12, 10, 15, 8, 6],
+                        label: 'Knowledge Sharing',
+                        data: [0, 0, 0, 0, 0, 0, 0], // Will be updated with real data
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
                         tension: 0.4
                     }, {
-                        label: 'Content Shared',
-                        data: [3, 6, 9, 7, 12, 5, 4],
+                        label: 'Community Health',
+                        data: [0, 0, 0, 0, 0, 0, 0], // Will be updated with real data
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
                         tension: 0.4
@@ -595,13 +630,13 @@
 
             // Content Types Chart
             const typesCtx = document.getElementById('contentTypesChart').getContext('2d');
-            new Chart(typesCtx, {
+            contentTypesChart = new Chart(typesCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Documents', 'Presentations', 'Videos', 'Quizzes', 'Discussions'],
+                    labels: ['Visual', 'Auditory', 'Kinesthetic', 'Reading', 'Mixed'],
                     datasets: [{
-                        label: 'Content Types',
-                        data: [25, 15, 20, 30, 10],
+                        label: 'Group Performance',
+                        data: [0, 0, 0, 0, 0], // Will be updated with real data
                         backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
                     }]
                 },
@@ -643,13 +678,13 @@
 
             // Influence Chart
             const influenceCtx = document.getElementById('influenceChart').getContext('2d');
-            new Chart(influenceCtx, {
+            influenceScoreChart = new Chart(influenceCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['You', 'Alice', 'Bob', 'Carol', 'David'],
+                    labels: ['Type 1', 'Type 2', 'Type 3', 'Type 4', 'Type 5'],
                     datasets: [{
-                        label: 'Influence Score',
-                        data: [85, 72, 68, 90, 75],
+                        label: 'Content Effectiveness',
+                        data: [0, 0, 0, 0, 0], // Will be updated with real data
                         backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#ffc107', '#dc3545']
                     }]
                 },
@@ -672,6 +707,51 @@
             const circumference = radius * 2 * Math.PI;
             const offset = circumference - (percentage / 100) * circumference;
             circle.style.strokeDashoffset = offset;
+        }
+
+        // Chart update functions
+        function updateCollaborationTrendsChart(groupActivity, peerScores) {
+            if (collaborationTrendsChart && groupActivity && peerScores) {
+                collaborationTrendsChart.data.datasets[0].data = groupActivity;
+                collaborationTrendsChart.data.datasets[1].data = peerScores;
+                collaborationTrendsChart.update();
+            }
+        }
+
+        function updateGroupCohesionChart(outcomesData) {
+            if (groupCohesionChart && outcomesData) {
+                groupCohesionChart.data.datasets[0].data = outcomesData;
+                groupCohesionChart.update();
+            }
+        }
+
+        function updateRoleDistributionChart(socialPatterns) {
+            if (roleDistributionChart && socialPatterns) {
+                roleDistributionChart.data.datasets[0].data = socialPatterns;
+                roleDistributionChart.update();
+            }
+        }
+
+        function updateKnowledgeSharingChart(knowledgeSharing, communityHealth) {
+            if (knowledgeSharingChart && knowledgeSharing && communityHealth) {
+                knowledgeSharingChart.data.datasets[0].data = knowledgeSharing;
+                knowledgeSharingChart.data.datasets[1].data = communityHealth;
+                knowledgeSharingChart.update();
+            }
+        }
+
+        function updateContentTypesChart(groupPerformance) {
+            if (contentTypesChart && groupPerformance) {
+                contentTypesChart.data.datasets[0].data = groupPerformance;
+                contentTypesChart.update();
+            }
+        }
+
+        function updateInfluenceScoreChart(contentEffectiveness) {
+            if (influenceScoreChart && contentEffectiveness) {
+                influenceScoreChart.data.datasets[0].data = contentEffectiveness;
+                influenceScoreChart.update();
+            }
         }
 
         // Update progress rings on load

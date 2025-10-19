@@ -282,13 +282,136 @@ def update_progress():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@api_bp.route('/progress', methods=['GET'])
+@login_required
+def get_progress():
+    """Get user progress data"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        progress_query = UserProgress.query.filter_by(user_id=current_user.id)
+        
+        # Get paginated results
+        progress_paginated = progress_query.order_by(
+            UserProgress.timestamp.desc()
+        ).paginate(
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
+        
+        progress_data = []
+        for progress in progress_paginated.items:
+            progress_data.append({
+                'id': progress.id,
+                'content_id': progress.content_id,
+                'content_title': progress.content.title if progress.content else 'Unknown',
+                'completion_status': progress.completion_status,
+                'time_spent': progress.time_spent,
+                'score': progress.score,
+                'engagement_rating': progress.engagement_rating,
+                'timestamp': progress.timestamp.isoformat(),
+                'completed_at': progress.completed_at.isoformat() if progress.completed_at else None
+            })
+        
+        return jsonify({
+            'progress': progress_data,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': progress_paginated.total,
+                'pages': progress_paginated.pages,
+                'has_next': progress_paginated.has_next,
+                'has_prev': progress_paginated.has_prev
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/update-profile', methods=['POST'])
+@login_required
+def update_learning_profile():
+    """Update user learning profile based on interactions"""
+    try:
+        from ml_models.learning_style_predictor import update_user_learning_profile
+        
+        # Get user interaction data
+        interaction_data = request.get_json() or {}
+        
+        # Update learning profile
+        success = update_user_learning_profile(current_user.id, interaction_data)
+        
+        if success:
+            # Get updated profile
+            profile = LearningProfile.query.filter_by(user_id=current_user.id).first()
+            return jsonify({
+                'message': 'Learning profile updated successfully',
+                'profile': {
+                    'visual_score': profile.visual_score,
+                    'auditory_score': profile.auditory_score,
+                    'kinesthetic_score': profile.kinesthetic_score,
+                    'dominant_style': profile.dominant_style,
+                    'style_breakdown': profile.get_style_breakdown()
+                }
+            }), 200
+        else:
+            return jsonify({'error': 'Failed to update learning profile'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/generate-content', methods=['POST'])
+@login_required
+def generate_content():
+    """Generate personalized content based on learning style"""
+    try:
+        from app.content_generator import ContentGenerator
+        
+        data = request.get_json()
+        topic = data.get('topic', 'General Learning')
+        content_type = data.get('content_type', 'article')
+        
+        # Get user's learning style
+        profile = LearningProfile.query.filter_by(user_id=current_user.id).first()
+        learning_style = profile.dominant_style if profile else 'visual'
+        
+        # Generate content
+        generator = ContentGenerator()
+        generated_content = generator.generate_content(
+            topic=topic,
+            learning_style=learning_style,
+            content_type=content_type,
+            user_id=current_user.id
+        )
+        
+        return jsonify({
+            'success': True,
+            'content': {
+                'id': generated_content.id,
+                'title': generated_content.title,
+                'content': generated_content.content,
+                'content_type': generated_content.content_type,
+                'learning_style': generated_content.learning_style,
+                'difficulty_level': generated_content.difficulty_level,
+                'created_at': generated_content.created_at.isoformat()
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @api_bp.route('/chat', methods=['POST'])
 @login_required
 def ai_chat():
     """AI tutor chat with style-aware responses"""
     try:
+        from app.utils.ai_tutor import AITutor
+        
         data = request.get_json()
         user_message = data.get('message')
+        conversation_history = data.get('conversation_history', [])
         
         if not user_message:
             return jsonify({'error': 'Message is required'}), 400
@@ -297,37 +420,210 @@ def ai_chat():
         profile = LearningProfile.query.filter_by(user_id=current_user.id).first()
         learning_style = profile.dominant_style if profile else 'general'
         
-        # Generate AI response based on learning style
-        # This is a simplified implementation - in production you'd use OpenAI API or similar
-        style_prompts = {
-            'visual': "I'll explain this using visual concepts and suggest diagrams where helpful. ",
-            'auditory': "Let me explain this in a conversational way with clear verbal descriptions. ",
-            'kinesthetic': "I'll focus on practical examples and hands-on applications. "
-        }
-        
-        style_context = style_prompts.get(learning_style, "")
-        
-        # Simple rule-based response (replace with actual AI API in production)
-        if "help" in user_message.lower():
-            ai_response = f"{style_context}I'm here to help you learn! What specific topic would you like to explore?"
-        elif "explain" in user_message.lower():
-            ai_response = f"{style_context}I'd be happy to explain that concept. Can you tell me more about what you'd like to understand?"
-        else:
-            ai_response = f"{style_context}That's an interesting question! Let me help you explore that topic."
+        # Use AITutor for style-aware responses
+        ai_tutor = AITutor()
+        ai_response_data = ai_tutor.generate_response(
+            user_message=user_message,
+            learning_style=learning_style,
+            conversation_history=conversation_history
+        )
         
         # Save chat history
         chat_entry = ChatHistory(
             user_id=current_user.id,
             user_message=user_message,
-            ai_response=ai_response,
-            learning_style_context=learning_style
+            ai_response=ai_response_data['response'],
+            learning_style_context=learning_style,
+            topic_category=ai_response_data.get('topic', 'general'),
+            response_type=ai_response_data.get('response_type', 'general')
         )
         db.session.add(chat_entry)
         db.session.commit()
         
         return jsonify({
-            'response': ai_response,
-            'learning_style_context': learning_style
+            'response': ai_response_data['response'],
+            'learning_style_context': learning_style,
+            'topic': ai_response_data.get('topic', 'general'),
+            'response_type': ai_response_data.get('response_type', 'general'),
+            'timestamp': ai_response_data.get('timestamp'),
+            'chat_id': chat_entry.id
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/chat-history', methods=['GET'])
+@login_required
+def get_chat_history():
+    """Get user's chat history with AI tutor"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+        
+        chat_query = ChatHistory.query.filter_by(user_id=current_user.id)
+        
+        # Get paginated results
+        chat_paginated = chat_query.order_by(
+            ChatHistory.timestamp.desc()
+        ).paginate(
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
+        
+        chat_data = []
+        for chat in chat_paginated.items:
+            chat_data.append({
+                'id': chat.id,
+                'user_message': chat.user_message,
+                'ai_response': chat.ai_response,
+                'learning_style_context': chat.learning_style_context,
+                'topic_category': chat.topic_category,
+                'response_type': chat.response_type,
+                'timestamp': chat.timestamp.isoformat()
+            })
+        
+        return jsonify({
+            'chat_history': chat_data,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': chat_paginated.total,
+                'pages': chat_paginated.pages,
+                'has_next': chat_paginated.has_next,
+                'has_prev': chat_paginated.has_prev
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/engagement', methods=['POST'])
+@login_required
+def track_engagement():
+    """Track user engagement with content"""
+    try:
+        from ml_models.multimodal_fusion_engine import MultimodalFusionEngine, EngagementMetrics, LearningContext
+        
+        data = request.get_json()
+        content_id = data.get('content_id')
+        interaction_time = data.get('interaction_time', 0)
+        completion_rate = data.get('completion_rate', 0)
+        click_frequency = data.get('click_frequency', 0)
+        scroll_velocity = data.get('scroll_velocity', 0)
+        pause_duration = data.get('pause_duration', 0)
+        context = data.get('context', 'general')
+        
+        if not content_id:
+            return jsonify({'error': 'content_id is required'}), 400
+        
+        # Create engagement metrics
+        engagement = EngagementMetrics(
+            content_interaction_time=interaction_time,
+            completion_rate=completion_rate,
+            click_frequency=click_frequency,
+            scroll_velocity=scroll_velocity,
+            pause_duration=pause_duration,
+            timestamp=datetime.now()
+        )
+        
+        # Get learning context
+        learning_context = LearningContext.GENERAL
+        if context == 'mathematics':
+            learning_context = LearningContext.MATHEMATICS
+        elif context == 'languages':
+            learning_context = LearningContext.LANGUAGES
+        elif context == 'sciences':
+            learning_context = LearningContext.SCIENCES
+        elif context == 'programming':
+            learning_context = LearningContext.PROGRAMMING
+        
+        # Update style weights using multimodal fusion
+        fusion_engine = MultimodalFusionEngine()
+        
+        # Get content style
+        content = ContentLibrary.query.get(content_id)
+        content_style = 'general'
+        if content and content.style_tags:
+            style_tags = content.get_style_tags_list()
+            if style_tags:
+                content_style = style_tags[0]
+        
+        # Calculate performance score from completion rate and interaction time
+        performance_score = (completion_rate + min(interaction_time / 300, 1)) / 2
+        
+        # Update style weights
+        updated_weights = fusion_engine.update_style_weights(
+            user_id=current_user.id,
+            engagement_data=engagement,
+            content_style=content_style,
+            performance_score=performance_score,
+            context=learning_context
+        )
+        
+        # Update user's learning profile
+        profile = LearningProfile.query.filter_by(user_id=current_user.id).first()
+        if profile:
+            profile.visual_score = updated_weights.visual
+            profile.auditory_score = updated_weights.auditory
+            profile.kinesthetic_score = updated_weights.kinesthetic
+            profile.dominant_style = max(
+                ['visual', 'auditory', 'kinesthetic'], 
+                key=lambda x: getattr(updated_weights, x)
+            )
+            db.session.commit()
+        
+        return jsonify({
+            'message': 'Engagement tracked successfully',
+            'updated_weights': {
+                'visual': updated_weights.visual,
+                'auditory': updated_weights.auditory,
+                'kinesthetic': updated_weights.kinesthetic,
+                'confidence': updated_weights.confidence
+            },
+            'dominant_style': profile.dominant_style if profile else None
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/engagement-analytics', methods=['GET'])
+@login_required
+def get_engagement_analytics():
+    """Get user engagement analytics"""
+    try:
+        from ml_models.multimodal_fusion_engine import MultimodalFusionEngine
+        
+        fusion_engine = MultimodalFusionEngine()
+        
+        # Get style evolution patterns
+        evolution_patterns = fusion_engine.detect_style_evolution_patterns(current_user.id)
+        
+        # Get recent progress for engagement analysis
+        recent_progress = UserProgress.query.filter(
+            UserProgress.user_id == current_user.id,
+            UserProgress.timestamp >= datetime.now() - timedelta(days=30)
+        ).all()
+        
+        # Calculate engagement metrics
+        total_sessions = len(recent_progress)
+        completed_sessions = len([p for p in recent_progress if p.completion_status == 'completed'])
+        avg_score = sum(p.score for p in recent_progress if p.score) / len([p for p in recent_progress if p.score]) if recent_progress else 0
+        avg_engagement = sum(p.engagement_rating for p in recent_progress if p.engagement_rating) / len([p for p in recent_progress if p.engagement_rating]) if recent_progress else 0
+        
+        return jsonify({
+            'engagement_metrics': {
+                'total_sessions': total_sessions,
+                'completed_sessions': completed_sessions,
+                'completion_rate': completed_sessions / total_sessions if total_sessions > 0 else 0,
+                'average_score': avg_score,
+                'average_engagement': avg_engagement
+            },
+            'style_evolution': evolution_patterns,
+            'recommendations': fusion_engine.generate_hybrid_content_recommendation(
+                fusion_engine._get_current_weights(current_user.id, LearningContext.GENERAL),
+                []  # Empty content library for now
+            )[:5]  # Top 5 recommendations
         }), 200
         
     except Exception as e:

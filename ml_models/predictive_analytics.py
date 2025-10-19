@@ -85,6 +85,7 @@ class PredictiveAnalyticsEngine:
         }
         self.intervention_history = []
         self.user_risk_profiles = {}
+        self._is_fitted = False
     
     def analyze_learning_patterns(self, user_metrics: LearningMetrics) -> Dict:
         """Analyze user's learning patterns and identify anomalies"""
@@ -183,17 +184,26 @@ class PredictiveAnalyticsEngine:
     def _detect_anomalies(self, features: np.array) -> float:
         """Detect anomalies in learning patterns"""
         
+        # Ensure features is 2D
+        if features.ndim == 1:
+            features = features.reshape(1, -1)
+        
         # Fit anomaly detector if not already fitted
-        if not hasattr(self.anomaly_detector, 'decision_function'):
-            # Use dummy data for initial fitting
+        if not self._is_fitted:
+            # Use dummy data for initial fitting with correct number of features
             dummy_data = np.random.normal(0, 1, (100, features.shape[1]))
             self.anomaly_detector.fit(dummy_data)
+            self._is_fitted = True
         
         # Calculate anomaly score
-        anomaly_score = self.anomaly_detector.decision_function(features)[0]
-        
-        # Normalize to 0-1 scale
-        return max(0, min(1, (anomaly_score + 0.5)))
+        try:
+            anomaly_score = self.anomaly_detector.decision_function(features)[0]
+            # Normalize to 0-1 scale
+            return max(0, min(1, (anomaly_score + 0.5)))
+        except Exception as e:
+            # If there's an error, return a default score
+            print(f"Warning: Anomaly detection failed: {e}")
+            return 0.5
     
     def _identify_risk_factors(self, metrics: LearningMetrics) -> List[str]:
         """Identify specific risk factors in learning patterns"""

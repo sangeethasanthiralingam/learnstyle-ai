@@ -371,35 +371,35 @@ class BiometricFusionEngine:
             # Optimal learning conditions
             if (learning_readiness > 0.7 and stress_level < 0.4 and 
                 fatigue_level < 0.3 and engagement_level > 0.6):
-                return FusedBiometricState.OPTIMAL_LEARNING
+                return BiometricState.OPTIMAL_LEARNING
             
             # Stressed learning
             elif stress_level > 0.7:
-                return FusedBiometricState.STRESSED_LEARNING
+                return BiometricState.STRESSED_LEARNING
             
             # Fatigued learning
             elif fatigue_level > 0.7:
-                return FusedBiometricState.FATIGUED_LEARNING
+                return BiometricState.FATIGUED_LEARNING
             
             # Overstimulated
             elif (stress_level > 0.6 and engagement_level > 0.8):
-                return FusedBiometricState.OVERSTIMULATED
+                return BiometricState.OVERSTIMULATED
             
             # Understimulated
             elif (engagement_level < 0.3 and learning_readiness < 0.4):
-                return FusedBiometricState.UNDERSTIMULATED
+                return BiometricState.UNDERSTIMULATED
             
             # Recovering
             elif (learning_readiness > 0.5 and stress_level < 0.6):
-                return FusedBiometricState.RECOVERING
+                return BiometricState.RECOVERING
             
             # Not recommended
             else:
-                return FusedBiometricState.NOT_RECOMMENDED
+                return BiometricState.NOT_RECOMMENDED
                 
         except Exception as e:
             logger.error(f"Error assessing combined state: {str(e)}")
-            return FusedBiometricState.OPTIMAL_LEARNING
+            return BiometricState.OPTIMAL_LEARNING
     
     def _generate_recommendations(self, combined_state: FusedBiometricState, 
                                 derived_metrics: Dict[str, float]) -> List[str]:
@@ -407,37 +407,37 @@ class BiometricFusionEngine:
         try:
             recommendations = []
             
-            if combined_state == FusedBiometricState.OPTIMAL_LEARNING:
+            if combined_state == BiometricState.OPTIMAL_LEARNING:
                 recommendations.extend([
                     "Optimal learning state - proceed with challenging content",
                     "Consider advanced topics or complex problem-solving",
                     "Perfect time for intensive study sessions"
                 ])
-            elif combined_state == FusedBiometricState.STRESSED_LEARNING:
+            elif combined_state == BiometricState.STRESSED_LEARNING:
                 recommendations.extend([
                     "High stress detected - take a break",
                     "Practice stress management techniques",
                     "Consider easier content or relaxation exercises"
                 ])
-            elif combined_state == FusedBiometricState.FATIGUED_LEARNING:
+            elif combined_state == BiometricState.FATIGUED_LEARNING:
                 recommendations.extend([
                     "Fatigue detected - take a rest break",
                     "Consider light physical activity",
                     "Ensure adequate sleep before next session"
                 ])
-            elif combined_state == FusedBiometricState.OVERSTIMULATED:
+            elif combined_state == BiometricState.OVERSTIMULATED:
                 recommendations.extend([
                     "Overstimulation detected - reduce content intensity",
                     "Take a longer break",
                     "Consider calming activities"
                 ])
-            elif combined_state == FusedBiometricState.UNDERSTIMULATED:
+            elif combined_state == BiometricState.UNDERSTIMULATED:
                 recommendations.extend([
                     "Understimulation detected - increase content difficulty",
                     "Try more engaging or interactive content",
                     "Consider changing learning environment"
                 ])
-            elif combined_state == FusedBiometricState.RECOVERING:
+            elif combined_state == BiometricState.RECOVERING:
                 recommendations.extend([
                     "Recovery state - gradually increase learning intensity",
                     "Monitor for signs of stress or fatigue",
@@ -459,15 +459,15 @@ class BiometricFusionEngine:
     def _determine_optimization_strategy(self, biometric_state: FusedBiometricState) -> LearningOptimization:
         """Determine optimization strategy based on biometric state"""
         try:
-            if biometric_state == FusedBiometricState.OPTIMAL_LEARNING:
+            if biometric_state == BiometricState.OPTIMAL_LEARNING:
                 return LearningOptimization.INCREASE_DIFFICULTY
-            elif biometric_state in [FusedBiometricState.STRESSED_LEARNING, FusedBiometricState.OVERSTIMULATED]:
+            elif biometric_state in [BiometricState.STRESSED_LEARNING, BiometricState.OVERSTIMULATED]:
                 return LearningOptimization.DECREASE_DIFFICULTY
-            elif biometric_state == FusedBiometricState.FATIGUED_LEARNING:
+            elif biometric_state == BiometricState.FATIGUED_LEARNING:
                 return LearningOptimization.TAKE_BREAK
-            elif biometric_state == FusedBiometricState.UNDERSTIMULATED:
+            elif biometric_state == BiometricState.UNDERSTIMULATED:
                 return LearningOptimization.INCREASE_ENGAGEMENT
-            elif biometric_state == FusedBiometricState.RECOVERING:
+            elif biometric_state == BiometricState.RECOVERING:
                 return LearningOptimization.MAINTAIN_CURRENT
             else:  # NOT_RECOMMENDED
                 return LearningOptimization.TAKE_BREAK
@@ -651,7 +651,7 @@ class BiometricFusionEngine:
             timestamp=datetime.now(),
             hrv_state='unknown',
             gsr_state='unknown',
-            combined_state=FusedBiometricState.OPTIMAL_LEARNING,
+            combined_state=BiometricState.OPTIMAL_LEARNING,
             learning_readiness=0.5,
             stress_level=0.5,
             engagement_level=0.5,

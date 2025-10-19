@@ -4,62 +4,381 @@
 
 {% block head %}
 <style>
+/* Modern Quiz Container */
 .quiz-container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
 }
 
+.quiz-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+/* Enhanced Progress Bar */
+.progress-container {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 0.5rem;
+    margin: 2rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.progress-bar {
+    height: 12px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 20px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Modern Question Card */
 .question-card {
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
-    padding: 2rem;
-    border-left: 5px solid #007bff;
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.question-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.question-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
 }
 
 .question-number {
-    background: #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.question-number::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { left: -100%; }
+    100% { left: 100%; }
 }
 
 .question-text {
-    font-size: 1.2rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-    color: #333;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    line-height: 1.6;
 }
 
+/* Enhanced Option Items */
 .option-group {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.2rem;
 }
 
 .option-item {
     display: flex;
     align-items: center;
-    padding: 1rem;
+    padding: 1.5rem;
     border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border-radius: 15px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    background: #f8f9fa;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.option-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.option-item:hover::before {
+    left: 100%;
 }
 
 .option-item:hover {
-    border-color: #007bff;
-    background: #e3f2fd;
-    transform: translateY(-2px);
+    border-color: #667eea;
+    transform: translateX(5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+.option-item.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    transform: translateX(10px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+}
+
+.option-item.selected::after {
+    content: '✓';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.option-radio {
+    margin-right: 1rem;
+    transform: scale(1.2);
+    accent-color: #667eea;
+}
+
+.option-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    flex: 1;
+    line-height: 1.5;
+}
+
+/* Enhanced Navigation Buttons */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+    gap: 1rem;
+}
+
+.btn-quiz {
+    padding: 1rem 2.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-quiz::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-quiz:hover::before {
+    left: 100%;
+}
+
+.btn-quiz:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+/* Quiz Completion Screen */
+.quiz-complete {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    margin: 2rem 0;
+}
+
+.completion-icon {
+    font-size: 5rem;
+    color: #28a745;
+    margin-bottom: 2rem;
+    animation: bounce 1s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-20px); }
+    60% { transform: translateY(-10px); }
+}
+
+.completion-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.completion-message {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+/* Loading Animation */
+.loading-spinner {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .quiz-container {
+        padding: 1rem;
+    }
+    
+    .quiz-title {
+        font-size: 2rem;
+    }
+    
+    .question-card {
+        padding: 1.5rem;
+    }
+    
+    .option-item {
+        padding: 1rem;
+    }
+    
+    .navigation-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-quiz {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Accessibility */
+.option-item:focus {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+.btn-quiz:focus {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
 }
 
 .option-item.selected {
@@ -153,17 +472,17 @@
 
 {% block content %}
 <div class="quiz-container">
-    <div class="text-center mb-4">
-        <h1 class="display-4 text-primary mb-3">
-            <i class="bi bi-clipboard-check"></i> Learning Style Assessment
+    <!-- Modern Quiz Header -->
+    <div class="quiz-header">
+        <h1 class="quiz-title">
+            <i class="bi bi-clipboard-check me-3"></i>Learning Style Assessment
         </h1>
-        <p class="lead text-muted">
-            Answer these 15 questions to discover your unique learning style. 
-            There are no right or wrong answers - just be honest about your preferences!
+        <p class="quiz-subtitle">
+            Discover your unique learning style with our AI-powered assessment
         </p>
     </div>
 
-    <!-- Progress Bar -->
+    <!-- Enhanced Progress Bar -->
     <div class="progress-container">
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill" style="width: 0%"></div>
@@ -193,16 +512,15 @@
         </div>
     </form>
 
-    <!-- Completion Message (hidden initially) -->
+    <!-- Modern Completion Message (hidden initially) -->
     <div id="quizComplete" class="quiz-complete" style="display: none;">
         <div class="completion-icon">
             <i class="bi bi-check-circle-fill"></i>
         </div>
-        <h2 class="text-success mb-3">Assessment Complete!</h2>
-        <p class="lead">Thank you for completing the learning style assessment. Your results are being analyzed...</p>
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
+        <h2 class="completion-title">Assessment Complete!</h2>
+        <p class="completion-message">Thank you for completing the learning style assessment. Your results are being analyzed by our AI...</p>
+        <div class="loading-spinner"></div>
+        <span>Processing your learning profile...</span>
     </div>
 </div>
 

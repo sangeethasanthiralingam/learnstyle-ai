@@ -260,23 +260,139 @@ def update_user_learning_profile(user_id: int, interaction_data: Dict):
     Update learning style weights based on user interactions
     This would be called periodically to adapt to user behavior
     """
-    # This would integrate with the main application database
-    # to update learning profiles based on:
-    # - Content completion rates by type
-    # - Time spent on different content formats  
-    # - Performance on style-specific exercises
-    # - User feedback and ratings
-    pass
+    try:
+        from app.models import LearningProfile, UserProgress, ContentLibrary, db
+        from app import create_app
+        
+        app = create_app()
+        with app.app_context():
+            # Get user's current profile
+            profile = LearningProfile.query.filter_by(user_id=user_id).first()
+            if not profile:
+                return False
+            
+            # Analyze interaction patterns
+            content_interactions = UserProgress.query.join(ContentLibrary).filter(
+                UserProgress.user_id == user_id
+            ).all()
+            
+            if not content_interactions:
+                return False
+            
+            # Calculate style performance scores
+            style_scores = {'visual': 0, 'auditory': 0, 'kinesthetic': 0}
+            style_counts = {'visual': 0, 'auditory': 0, 'kinesthetic': 0}
+            
+            for interaction in content_interactions:
+                content = interaction.content
+                if content.style_tags:
+                    style_tags = content.get_style_tags_list()
+                    for style in style_tags:
+                        if style in style_scores:
+                            # Weight by performance and engagement
+                            performance_weight = (interaction.score or 0) / 100
+                            engagement_weight = (interaction.engagement_rating or 3) / 5
+                            weight = (performance_weight + engagement_weight) / 2
+                            
+                            style_scores[style] += weight
+                            style_counts[style] += 1
+            
+            # Calculate average scores
+            for style in style_scores:
+                if style_counts[style] > 0:
+                    style_scores[style] = style_scores[style] / style_counts[style]
+            
+            # Normalize scores
+            total_score = sum(style_scores.values())
+            if total_score > 0:
+                for style in style_scores:
+                    style_scores[style] = style_scores[style] / total_score
+                
+                # Update profile with new scores
+                profile.visual_score = style_scores['visual']
+                profile.auditory_score = style_scores['auditory']
+                profile.kinesthetic_score = style_scores['kinesthetic']
+                
+                # Update dominant style
+                profile.dominant_style = max(style_scores.keys(), key=lambda k: style_scores[k])
+                
+                db.session.commit()
+                return True
+            
+    except Exception as e:
+        print(f"Error updating learning profile: {e}")
+        return False
 
 def retrain_model_periodically():
     """
     Scheduled retraining with new user data
     This would be run as a background task
     """
-    # Collect anonymized user interaction data
-    # Retrain model monthly/weekly
-    # A/B test new model performance
-    pass
+    try:
+        from app.models import QuizResponse, LearningProfile, db
+        from app import create_app
+        import pandas as pd
+        from datetime import datetime, timedelta
+        
+        app = create_app()
+        with app.app_context():
+            # Get recent quiz responses (last 30 days)
+            cutoff_date = datetime.now() - timedelta(days=30)
+            recent_responses = QuizResponse.query.filter(
+                QuizResponse.created_at >= cutoff_date
+            ).all()
+            
+            if len(recent_responses) < 50:  # Need minimum data for retraining
+                print("Not enough recent data for retraining")
+                return False
+            
+            # Prepare training data
+            X_data = []
+            y_data = []
+            
+            for response in recent_responses:
+                # Get quiz answers
+                answers = [
+                    response.question_1, response.question_2, response.question_3,
+                    response.question_4, response.question_5, response.question_6,
+                    response.question_7, response.question_8, response.question_9,
+                    response.question_10, response.question_11, response.question_12,
+                    response.question_13, response.question_14, response.question_15
+                ]
+                
+                # Get corresponding learning profile
+                profile = LearningProfile.query.filter_by(user_id=response.user_id).first()
+                if profile and profile.dominant_style:
+                    X_data.append(answers)
+                    y_data.append(profile.dominant_style)
+            
+            if len(X_data) < 50:
+                print("Not enough valid profiles for retraining")
+                return False
+            
+            # Convert to DataFrame
+            X = pd.DataFrame(X_data)
+            y = pd.Series(y_data)
+            
+            # Create new predictor instance
+            new_predictor = LearningStylePredictor()
+            
+            # Train new model
+            results = new_predictor.train_models(X, y)
+            
+            # Check if new model performs better
+            if results['rf_accuracy'] > 0.7:  # Minimum accuracy threshold
+                # Save new model
+                new_predictor.save_models()
+                print(f"Model retrained successfully. New accuracy: {results['rf_accuracy']:.3f}")
+                return True
+            else:
+                print(f"New model accuracy too low: {results['rf_accuracy']:.3f}")
+                return False
+                
+    except Exception as e:
+        print(f"Error during model retraining: {e}")
+        return False
 
 if __name__ == "__main__":
     # Example usage and training
